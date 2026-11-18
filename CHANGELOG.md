@@ -5,6 +5,27 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — слайс 3, системы рутины: `src/content/` — типы JSON-контента
+  (`ContentData`, `Cond`, `Effect`, `DialogNode`, `Quest`, `Item`, `Enemy`, `Npc`,
+  `SkillDef`, `BackgroundDef`), `IContentProvider` + `createContentProvider`
+  (дубликаты/неизвестные id — ошибки, `npcsAt` по фазе), `loadBundledContent()`
+  из `src/content/data/*.json` (обёртка `contentVersion/locale/data` проверяется);
+  `src/systems/` — `conditions` (резолвер Cond, ранги слотов), `effects`
+  (единый применитель Effect: флаги/предметы/статы/ресурс/HP/время/квесты/
+  партия/фаза, лимит глубины 8), `quest` (старт/сдвиг/завершение/провал,
+  окна `timeWindow` от `startedDay`), `dialog` (фильтр выборов по условиям,
+  автопереходы, применение эффектов), `inventory` (стек-лимиты из контента,
+  overflow), `stats` (порог `8*level`, +2 HP/+1 очко, трата очка), `character`
+  (`newGameForBackground` — старт по данным бэкграунда); `src/world/npcs.ts` +
+  `src/app/npcs.ts` — площадки НПС и капсулы по фазе; тесты `tests/systems`,
+  `tests/content/provider`, `tests/world/npc-spots` (24).
+- 2026-11-19 — сейв **v2** (`saveVersion: 2`): `hero.level/xp/skillPoints` и
+  `questStates[id].startedDay` (окно квеста отсчитывается от дня взятия);
+  миграция v1→v2 (`migrations[1]`) поднимает старые сейвы, `load`/`importSave`
+  мигрируют вместо жёсткой проверки v1; `validateSaveV1` оставлен только для
+  чтения истории, текущая схема — `validateSaveV2`. Доки `CONTENT_SCHEMAS.md`/
+  `CONTRACTS.md` обновлены, тесты схемы/миграций переписаны.
+- 2026-11-19 — `docs/STATUS.md`: живой статус слайсов 1–8 и изменения контрактов.
 - 2026-11-19 — интеграция среза слайсов 1+2+4 в `src/app/main.ts`: настоящий
   `Store` и `newGame()` из `state/` (спавн `apartment`, день 1, утро, фаза 0),
   реестр всех локаций слайса 4 + `isExitOpen` в `SceneManager` (метро закрыто

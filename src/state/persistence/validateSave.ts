@@ -1,6 +1,7 @@
-// Строгая валидация сейва v1: все поля обязательны, лишние запрещены
-// (docs/CONTENT_SCHEMAS.md, «Сейв v1»). Ошибки — с путём до поля.
-import type { SaveV1 } from "../../types";
+// Строгая валидация сейва: все поля обязательны, лишние запрещены
+// (docs/CONTENT_SCHEMAS.md, «Сейв v2»). Ошибки — с путём до поля.
+// v1 оставлен только для чтения старых сейвов миграцией.
+import type { SaveV1, SaveV2 } from "../../types";
 
 // Статические таблицы допустимых значений: membership-проверки по ключу.
 const BACKGROUND_IDS: Record<string, true> = { intern: true, student: true, engineer: true };
@@ -21,10 +22,22 @@ const ROOT_KEYS = [
   "time",
   "worldPhase",
 ] as const;
-const HERO_KEYS = ["background", "hp", "name", "resource", "skills", "stats"] as const;
+const HERO_KEYS_V1 = ["background", "hp", "name", "resource", "skills", "stats"] as const;
+const HERO_KEYS_V2 = [
+  "background",
+  "hp",
+  "level",
+  "name",
+  "resource",
+  "skillPoints",
+  "skills",
+  "stats",
+  "xp",
+] as const;
 const TIME_KEYS = ["day", "slot"] as const;
 const INVENTORY_ITEM_KEYS = ["item", "qty"] as const;
-const QUEST_STATE_KEYS = ["stage", "status"] as const;
+const QUEST_STATE_KEYS_V1 = ["stage", "status"] as const;
+const QUEST_STATE_KEYS_V2 = ["stage", "startedDay", "status"] as const;
 
 function fail(path: string, detail: string): never {
   throw new Error(`Некорректный сейв — ${path}: ${detail}`);
@@ -73,25 +86,8 @@ function asEnum<T extends string | number>(
   fail(path, `ожидалось одно из: ${Object.keys(allowed).join(" | ")}`);
 }
 
-/** Проверяет сырые данные на точное соответствие схеме SaveV1; возвращает их же. */
-export function validateSaveV1(raw: unknown): SaveV1 {
-  const root = asObject(raw, "$");
-  checkExactKeys(root, ROOT_KEYS, "$");
-  if (root["saveVersion"] !== 1) {
-    fail("$.saveVersion", `ожидалась 1, получено ${String(root["saveVersion"])}`);
-  }
-
-  const hero = asObject(root["hero"], "$.hero");
-  checkExactKeys(hero, HERO_KEYS, "$.hero");
-  asEnum(hero["background"], BACKGROUND_IDS, "$.hero.background");
-  asString(hero["name"], "$.hero.name");
-  asNumber(hero["hp"], "$.hero.hp");
-  asNumber(hero["resource"], "$.hero.resource");
-  asStringArray(hero["skills"], "$.hero.skills");
-  const stats = asObject(hero["stats"], "$.hero.stats");
-  checkExactKeys(stats, SKILL_IDS, "$.hero.stats");
-  for (const key of SKILL_IDS) asNumber(stats[key], `$.hero.stats.${key}`);
-
+/** Общая часть схем v1/v2: всё, кроме hero и квестов (они различаются). */
+function validateCommon(root: Record<string, unknown>): void {
   asStringArray(root["party"], "$.party");
   asEnum(root["worldPhase"], WORLD_PHASES, "$.worldPhase");
   const time = asObject(root["time"], "$.time");
@@ -115,19 +111,74 @@ export function validateSaveV1(raw: unknown): SaveV1 {
     asNumber(item["qty"], `${path}.qty`);
   });
 
-  const questStates = asObject(root["questStates"], "$.questStates");
-  for (const [questId, entry] of Object.entries(questStates)) {
-    const path = `$.questStates.${questId}`;
-    const quest = asObject(entry, path);
-    checkExactKeys(quest, QUEST_STATE_KEYS, path);
-    asString(quest["stage"], `${path}.stage`);
-    asEnum(quest["status"], QUEST_STATUSES, `${path}.status`);
-  }
-
   const flags = asObject(root["flags"], "$.flags");
   for (const [flag, value] of Object.entries(flags)) {
     if (typeof value !== "boolean") fail(`$.flags.${flag}`, "ожидался boolean");
   }
+}
 
+function validateStats(hero: Record<string, unknown>): void {
+  const stats = asObject(hero["stats"], "$.hero.stats");
+  checkExactKeys(stats, SKILL_IDS, "$.hero.stats");
+  for (const key of SKILL_IDS) asNumber(stats[key], `$.hero.stats.${key}`);
+}
+
+function validateBaseHero(hero: Record<string, unknown>): void {
+  asEnum(hero["background"], BACKGROUND_IDS, "$.hero.background");
+  asString(hero["name"], "$.hero.name");
+  asNumber(hero["hp"], "$.hero.hp");
+  asNumber(hero["resource"], "$.hero.resource");
+  asStringArray(hero["skills"], "$.hero.skills");
+  validateStats(hero);
+}
+
+function validateQuestStates(
+  root: Record<string, unknown>,
+  keys: readonly string[],
+  beforeEntry: (path: string, quest: Record<string, unknown>) => void,
+): void {
+  const questStates = asObject(root["questStates"], "$.questStates");
+  for (const [questId, entry] of Object.entries(questStates)) {
+    const path = `$.questStates.${questId}`;
+    const quest = asObject(entry, path);
+    checkExactKeys(quest, keys, path);
+    beforeEntry(path, quest);
+    asString(quest["stage"], `${path}.stage`);
+    asEnum(quest["status"], QUEST_STATUSES, `${path}.status`);
+  }
+}
+
+/** Проверяет сырые данные на точное соответствие исторической схеме v1. */
+export function validateSaveV1(raw: unknown): SaveV1 {
+  const root = asObject(raw, "$");
+  checkExactKeys(root, ROOT_KEYS, "$");
+  if (root["saveVersion"] !== 1) {
+    fail("$.saveVersion", `ожидалась 1, получено ${String(root["saveVersion"])}`);
+  }
+  const hero = asObject(root["hero"], "$.hero");
+  checkExactKeys(hero, HERO_KEYS_V1, "$.hero");
+  validateBaseHero(hero);
+  validateCommon(root);
+  validateQuestStates(root, QUEST_STATE_KEYS_V1, () => {});
   return raw as SaveV1;
+}
+
+/** Проверяет сырые данные на точное соответствие текущей схеме v2. */
+export function validateSaveV2(raw: unknown): SaveV2 {
+  const root = asObject(raw, "$");
+  checkExactKeys(root, ROOT_KEYS, "$");
+  if (root["saveVersion"] !== 2) {
+    fail("$.saveVersion", `ожидалась 2, получено ${String(root["saveVersion"])}`);
+  }
+  const hero = asObject(root["hero"], "$.hero");
+  checkExactKeys(hero, HERO_KEYS_V2, "$.hero");
+  validateBaseHero(hero);
+  asNumber(hero["level"], "$.hero.level");
+  asNumber(hero["xp"], "$.hero.xp");
+  asNumber(hero["skillPoints"], "$.hero.skillPoints");
+  validateCommon(root);
+  validateQuestStates(root, QUEST_STATE_KEYS_V2, (path, quest) => {
+    asNumber(quest["startedDay"], `${path}.startedDay`);
+  });
+  return raw as SaveV2;
 }

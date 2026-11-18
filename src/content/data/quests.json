@@ -1,0 +1,36 @@
+{
+  "contentVersion": 1,
+  "locale": "ru",
+  "data": [
+    {
+      "id": "q-luda-meds",
+      "title": "Лекарства для Люды",
+      "giver": "luda",
+      "worldPhases": [
+        0,
+        1
+      ],
+      "stages": [
+        {
+          "id": "take",
+          "description": "Купить таблетки в аптеке.",
+          "timeWindow": {
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "give",
+          "description": "Занести Люде.",
+          "onEnterEffects": [
+            {
+              "type": "stat",
+              "stat": "persuasion",
+              "delta": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

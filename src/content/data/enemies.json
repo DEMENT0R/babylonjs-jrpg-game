@@ -1,0 +1,26 @@
+{
+  "contentVersion": 1,
+  "locale": "ru",
+  "data": [
+    {
+      "id": "bully",
+      "name": "Хулиган",
+      "worldPhase": 0,
+      "stats": {
+        "hp": 10,
+        "atk": 3,
+        "def": 0,
+        "spd": 5
+      },
+      "actions": [
+        {
+          "id": "shove",
+          "name": "Толчок",
+          "power": 3
+        }
+      ],
+      "loot": [],
+      "xp": 4
+    }
+  ]
+}

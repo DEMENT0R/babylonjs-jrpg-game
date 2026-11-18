@@ -1,8 +1,8 @@
-// Стартовое состояние новой игры и версия сейва (модель — SaveV1 из src/types.ts).
+// Стартовое состояние новой игры и версия сейва (модель — SaveV2 из src/types.ts).
 import type { BackgroundId, GameState, SkillId } from "../types";
 
 /** Текущая версия сейва; новое поле модели = новая версия + миграция. */
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 /** Стартовые статы героя — «Баланс боя v1» (docs/CONTRACTS.md): каждый навык 1. */
 const START_STATS: Record<SkillId, number> = {
@@ -32,6 +32,9 @@ export function newGame(background: BackgroundId, name: string): GameState {
       name,
       hp: 20,
       resource: 10,
+      level: 1,
+      xp: 0,
+      skillPoints: 0,
       stats: { ...START_STATS },
       skills: [...BACKGROUND_SKILLS[background]],
     },

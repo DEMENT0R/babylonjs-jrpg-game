@@ -1,15 +1,15 @@
 // Экспорт сейва в JSON-строку (скачивание) и импорт со строгой валидацией.
-import type { SaveV1 } from "../../types";
+import type { SaveV2 } from "../../types";
 import { stableStringify } from "./stableJson";
-import { validateSaveV1 } from "./validateSave";
+import { migrate } from "./migrations";
 
 /** JSON-строка сейва для скачивания; стабильный порядок ключей. */
-export function exportSave(save: SaveV1): string {
+export function exportSave(save: SaveV2): string {
   return stableStringify(save);
 }
 
-/** Парсинг + строгая валидация схемы v1 (лишние поля запрещены); ошибки понятные. */
-export function importSave(text: string): SaveV1 {
+/** Парсинг + миграция до текущей версии + строгая валидация; ошибки понятные. */
+export function importSave(text: string): SaveV2 {
   let raw: unknown;
   try {
     raw = JSON.parse(text);
@@ -17,5 +17,5 @@ export function importSave(text: string): SaveV1 {
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(`Импорт сейва: некорректный JSON: ${detail}`);
   }
-  return validateSaveV1(raw);
+  return migrate(raw);
 }

@@ -42,7 +42,7 @@ function saveWithProgress() {
   save.time.day = 3;
   save.hero.hp = 14;
   save.inventory.push({ item: "bandage", qty: 2 });
-  save.questStates["q-luda-meds"] = { stage: "give", status: "active" };
+  save.questStates["q-luda-meds"] = { stage: "give", status: "active", startedDay: 3 };
   save.flags["metBoris"] = true;
   save.party.push("boris");
   return save;
@@ -140,9 +140,9 @@ describe("export/import", () => {
     expect(() => importSave(JSON.stringify(extra))).toThrow(/лишнее поле "cheat"/);
   });
 
-  it("import: неверный saveVersion — ошибка", () => {
-    const future = { ...saveWithProgress(), saveVersion: 2 };
-    expect(() => importSave(JSON.stringify(future))).toThrow(/\$\.saveVersion/);
+  it("import: версия новее текущей — ошибка", () => {
+    const future = { ...saveWithProgress(), saveVersion: 3 };
+    expect(() => importSave(JSON.stringify(future))).toThrow(/новее поддерживаемой/);
   });
 
   it("import: неверный тип поля — ошибка с путём", () => {

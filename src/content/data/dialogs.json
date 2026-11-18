@@ -1,0 +1,28 @@
+{
+  "contentVersion": 1,
+  "locale": "ru",
+  "data": [
+    {
+      "id": "luda-meds-intro",
+      "npc": "luda",
+      "text": "Внучок, в аптеке на площади таблетки от давления бывают. До вечера бы...",
+      "choices": [
+        {
+          "text": "Я схожу.",
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-luda-meds"
+            }
+          ],
+          "next": "luda-meds-wait"
+        }
+      ]
+    },
+    {
+      "id": "luda-meds-wait",
+      "npc": "luda",
+      "text": "Спасибо. Только до вечера, ладно?"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "contentVersion": 1,
+  "locale": "ru",
+  "data": [
+    {
+      "id": "luda",
+      "name": "Люда",
+      "home": "apartment",
+      "phases": {
+        "0": {
+          "dialog": "luda-meds-intro",
+          "present": true
+        },
+        "1": {
+          "dialog": "luda-meds-intro",
+          "present": true
+        },
+        "2": {
+          "dialog": "luda-meds-intro",
+          "present": true
+        }
+      }
+    }
+  ]
+}

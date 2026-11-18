@@ -1,9 +1,9 @@
-import type { SaveV1 } from "../../types";
+import type { SaveV2 } from "../../types";
 
 /** Краткая информация о слоте для меню сейвов (без выгрузки всего сейва). */
 export interface SaveSlotInfo {
   id: string;
-  savedAt: string; // ISO-время сохранения, в SaveV1 не входит
+  savedAt: string; // ISO-время сохранения, в сейв не входит
   heroName: string;
   day: number;
 }
@@ -17,9 +17,9 @@ export interface IStorageProvider {
   /** Все слоты хранилища, лексикографически по id. */
   listSlots(): Promise<SaveSlotInfo[]>;
   /** Сейв слота или null, если слота нет; битые данные слота — ошибка. */
-  load(id: string): Promise<SaveV1 | null>;
+  load(id: string): Promise<SaveV2 | null>;
   /** Перезаписывает слот, обновляя время сохранения. */
-  save(id: string, data: SaveV1): Promise<void>;
+  save(id: string, data: SaveV2): Promise<void>;
   /** Удаляет слот; отсутствие слота — не ошибка. */
   remove(id: string): Promise<void>;
 }

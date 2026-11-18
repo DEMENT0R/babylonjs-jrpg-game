@@ -28,12 +28,15 @@ function fakeStore(initial: GameState): Store<GameState> {
 }
 
 const save = (location: string, pos: [number, number]): GameState => ({
-  saveVersion: 1,
+  saveVersion: 2,
   hero: {
     background: "intern",
     name: "Тест",
     hp: 20,
     resource: 10,
+    level: 1,
+    xp: 0,
+    skillPoints: 0,
     stats: { medicine: 1, repair: 0, persuasion: 0, stealth: 0 },
     skills: [],
   },

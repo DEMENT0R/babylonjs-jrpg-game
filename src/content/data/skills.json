@@ -1,0 +1,32 @@
+{
+  "contentVersion": 1,
+  "locale": "ru",
+  "data": [
+    {
+      "id": "field-medicine",
+      "name": "Полевая медицина",
+      "effect": {
+        "type": "hp",
+        "delta": 2
+      }
+    },
+    {
+      "id": "fast-learning",
+      "name": "Быстрая учёба",
+      "effect": {
+        "type": "stat",
+        "stat": "medicine",
+        "delta": 1
+      }
+    },
+    {
+      "id": "craft-without-bench",
+      "name": "Крафт без верстака",
+      "effect": {
+        "type": "stat",
+        "stat": "repair",
+        "delta": 1
+      }
+    }
+  ]
+}

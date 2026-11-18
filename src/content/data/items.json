@@ -1,0 +1,37 @@
+{
+  "contentVersion": 1,
+  "locale": "ru",
+  "data": [
+    {
+      "id": "bandage",
+      "name": "Бинт",
+      "category": "consumable",
+      "stack": 5,
+      "effects": [
+        {
+          "type": "hp",
+          "delta": 3
+        }
+      ]
+    },
+    {
+      "id": "pills",
+      "name": "Таблетки",
+      "category": "consumable",
+      "stack": 3,
+      "effects": [
+        {
+          "type": "hp",
+          "delta": 4
+        }
+      ]
+    },
+    {
+      "id": "duct-tape",
+      "name": "Изолента",
+      "category": "material",
+      "stack": 5,
+      "effects": []
+    }
+  ]
+}

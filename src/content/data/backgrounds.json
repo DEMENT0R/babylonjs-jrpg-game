@@ -1,0 +1,51 @@
+{
+  "contentVersion": 1,
+  "locale": "ru",
+  "data": [
+    {
+      "id": "intern",
+      "name": "Аня Соколова",
+      "startLocation": "hospital",
+      "startNpc": "boris",
+      "hp": 20,
+      "resource": 10,
+      "stats": {
+        "medicine": 2,
+        "repair": 1,
+        "persuasion": 1,
+        "stealth": 1
+      },
+      "skill": "field-medicine"
+    },
+    {
+      "id": "student",
+      "name": "Марк Ли",
+      "startLocation": "campus",
+      "startNpc": "dima",
+      "hp": 20,
+      "resource": 10,
+      "stats": {
+        "medicine": 1,
+        "repair": 1,
+        "persuasion": 2,
+        "stealth": 1
+      },
+      "skill": "fast-learning"
+    },
+    {
+      "id": "engineer",
+      "name": "Виктор Громов",
+      "startLocation": "workshop",
+      "startNpc": "taras",
+      "hp": 20,
+      "resource": 10,
+      "stats": {
+        "medicine": 1,
+        "repair": 2,
+        "persuasion": 1,
+        "stealth": 1
+      },
+      "skill": "craft-without-bench"
+    }
+  ]
+}

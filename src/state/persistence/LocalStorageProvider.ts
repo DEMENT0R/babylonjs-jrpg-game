@@ -1,15 +1,16 @@
 // localStorage-провайдер (GitHub Pages). Ключи — `jrpg:save:<id>`; сейв хранится
-// в обёртке { savedAt, data }: время сохранения — служебное поле, в SaveV1 не входит.
-import type { SaveV1 } from "../../types";
+// в обёртке { savedAt, data }: время сохранения — служебное поле, в сейв не входит.
+// Старые сейвы v1 поднимаются миграцией при чтении.
+import type { SaveV2 } from "../../types";
 import type { IStorageProvider, SaveSlotInfo } from "./IStorageProvider";
 import { stableStringify } from "./stableJson";
-import { validateSaveV1 } from "./validateSave";
+import { migrate } from "./migrations";
 
 const KEY_PREFIX = "jrpg:save:";
 
 interface SlotEnvelope {
   savedAt: string;
-  data: SaveV1;
+  data: SaveV2;
 }
 
 export class LocalStorageProvider implements IStorageProvider {
@@ -35,14 +36,14 @@ export class LocalStorageProvider implements IStorageProvider {
     return slots.sort((a, b) => a.id.localeCompare(b.id));
   }
 
-  async load(id: string): Promise<SaveV1 | null> {
+  async load(id: string): Promise<SaveV2 | null> {
     const key = this.key(id);
     const text = this.storage.getItem(key);
     if (text === null) return null;
     return this.parseEnvelope(text, key).data;
   }
 
-  async save(id: string, data: SaveV1): Promise<void> {
+  async save(id: string, data: SaveV2): Promise<void> {
     const envelope: SlotEnvelope = { savedAt: new Date().toISOString(), data };
     this.storage.setItem(this.key(id), stableStringify(envelope));
   }
@@ -81,6 +82,6 @@ export class LocalStorageProvider implements IStorageProvider {
     if (typeof record["savedAt"] !== "string" || !("data" in record)) {
       throw new Error(`Слот ${key}: ожидалась обёртка {savedAt, data}`);
     }
-    return { savedAt: record["savedAt"], data: validateSaveV1(record["data"]) };
+    return { savedAt: record["savedAt"], data: migrate(record["data"]) };
   }
 }

@@ -22,13 +22,15 @@ export interface Input {
   held(a: InputAction): boolean;
 }
 
-// ─── Сейв v1 (state/gamestate.ts, слайс 2; зеркало docs/CONTENT_SCHEMAS.md) ────
+// ─── Сейв (state/gamestate.ts, слайс 2; зеркало docs/CONTENT_SCHEMAS.md) ──────
 
 export type SkillId = "medicine" | "repair" | "persuasion" | "stealth";
 export type BackgroundId = "intern" | "student" | "engineer";
 export type TimeSlot = "morning" | "day" | "evening";
 export type WorldPhase = 0 | 1 | 2 | 3;
+export type QuestStatus = "active" | "done" | "failed";
 
+/** Сейв v1 — историческая модель; читается только миграцией (persistence/migrations.ts). */
 export interface SaveV1 {
   saveVersion: 1;
   hero: {
@@ -45,12 +47,39 @@ export interface SaveV1 {
   location: string;
   pos: [number, number];
   inventory: { item: string; qty: number }[];
-  questStates: Record<string, { stage: string; status: "active" | "done" | "failed" }>;
+  questStates: Record<string, { stage: string; status: QuestStatus }>;
   flags: Record<string, boolean>;
 }
 
-/** Игровое состояние = сейв-модель v1, без адаптеров. */
-export type GameState = SaveV1;
+/**
+ * Сейв v2 (текущий). Отличия от v1: XP/уровень/очки навыков у героя и `startedDay`
+ * у квеста — окно `timeWindow` отсчитывается от дня взятия (docs/CONTENT_SCHEMAS.md).
+ */
+export interface SaveV2 {
+  saveVersion: 2;
+  hero: {
+    background: BackgroundId;
+    name: string;
+    hp: number;
+    resource: number;
+    level: number;
+    xp: number;
+    skillPoints: number;
+    stats: Record<SkillId, number>;
+    skills: string[];
+  };
+  party: string[];
+  worldPhase: WorldPhase;
+  time: { day: number; slot: TimeSlot };
+  location: string;
+  pos: [number, number];
+  inventory: { item: string; qty: number }[];
+  questStates: Record<string, { stage: string; status: QuestStatus; startedDay: number }>;
+  flags: Record<string, boolean>;
+}
+
+/** Игровое состояние = текущая сейв-модель, без адаптеров. */
+export type GameState = SaveV2;
 
 // ─── Мир (core/, слайс 1; world/locations/* — слайс 4) ─────────────────────────
 

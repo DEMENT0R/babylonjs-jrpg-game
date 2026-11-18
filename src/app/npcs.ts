@@ -1,6 +1,13 @@
 // НПС в сцене: капсулы-плейсхолдеры по контенту (docs/NARRATIVE_BIBLE.md, «Ассеты»).
 // Позиции — world/npcs.ts; видимость — npcsAt(location, worldPhase).
-import { Color3, MeshBuilder, StandardMaterial, Vector3, type Mesh, type Scene } from "@babylonjs/core";
+import {
+  Color3,
+  MeshBuilder,
+  StandardMaterial,
+  Vector3,
+  type Mesh,
+  type Scene,
+} from "@babylonjs/core";
 import type { IContentProvider } from "../content";
 import { npcSpot } from "../world/npcs";
 
@@ -41,7 +48,11 @@ export function createNpcPresenter(scene: Scene, content: IContentProvider): Npc
       content.npcsAt(location, phase).forEach((npc, index) => {
         const spot = npcSpot(location, index);
         if (!spot) throw new Error(`НПС "${npc.id}": нет площадки в локации "${location}"`);
-        const mesh = MeshBuilder.CreateCapsule(`npc:${npc.id}`, { radius: 0.32, height: 1.3 }, scene);
+        const mesh = MeshBuilder.CreateCapsule(
+          `npc:${npc.id}`,
+          { radius: 0.32, height: 1.3 },
+          scene,
+        );
         mesh.position = new Vector3(spot.x, 0.65, spot.z);
         const mat = new StandardMaterial(`npcMat:${npc.id}`, scene);
         mat.diffuseColor = Color3.FromHexString(ROLE_COLORS[npc.id] ?? DEFAULT_COLOR);

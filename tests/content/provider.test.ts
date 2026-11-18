@@ -29,10 +29,15 @@ describe("createContentProvider", () => {
   });
 
   it("дубликаты id — ошибка контента", () => {
-    expect(() => createContentProvider({ ...data, items: [
-      { id: "x", name: "X", category: "tool", stack: 1, effects: [] },
-      { id: "x", name: "Y", category: "tool", stack: 1, effects: [] },
-    ] })).toThrow(/дубликат item "x"/);
+    expect(() =>
+      createContentProvider({
+        ...data,
+        items: [
+          { id: "x", name: "X", category: "tool", stack: 1, effects: [] },
+          { id: "x", name: "Y", category: "tool", stack: 1, effects: [] },
+        ],
+      }),
+    ).toThrow(/дубликат item "x"/);
   });
 
   it("неизвестный id — ошибка с типом и id", () => {

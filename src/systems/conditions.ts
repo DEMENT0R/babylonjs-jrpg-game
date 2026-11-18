@@ -5,7 +5,11 @@ import type { GameState, TimeSlot } from "../types";
 
 export const SLOT_RANK: Record<TimeSlot, number> = { morning: 0, day: 1, evening: 2 };
 
-function compare(left: number | string | boolean, op: Cond["op"], right: number | string | boolean) {
+function compare(
+  left: number | string | boolean,
+  op: Cond["op"],
+  right: number | string | boolean,
+) {
   switch (op) {
     case "eq":
       return left === right;

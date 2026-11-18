@@ -36,7 +36,8 @@ export function advanceQuestState(
 ): QuestStage | undefined {
   const state = draft.questStates[quest.id];
   if (!state || state.status !== "active") return undefined;
-  const stage = stageId === undefined ? nextQuestStage(quest, state.stage) : questStage(quest, stageId);
+  const stage =
+    stageId === undefined ? nextQuestStage(quest, state.stage) : questStage(quest, stageId);
   if (!stage) return undefined;
   state.stage = stage.id;
   return stage;

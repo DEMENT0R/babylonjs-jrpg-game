@@ -36,7 +36,12 @@ function applyList(
   for (const effect of effects) applyEffect(effect, draft, content, depth);
 }
 
-function applyEffect(effect: Effect, draft: GameState, content: IContentProvider, depth: number): void {
+function applyEffect(
+  effect: Effect,
+  draft: GameState,
+  content: IContentProvider,
+  depth: number,
+): void {
   switch (effect.type) {
     case "setFlag":
       draft.flags[effect.id] = effect.value ?? true;

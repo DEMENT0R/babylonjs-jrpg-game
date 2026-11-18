@@ -13,7 +13,8 @@ export function xpToNextLevel(level: number): number {
 
 /** Начисляет XP, поднимает уровни (+2 HP, +1 очко навыка); возвращает число уровней. */
 export function awardXp(draft: GameState, amount: number): number {
-  if (!Number.isFinite(amount) || amount < 0) throw new Error(`XP: некорректное значение ${amount}`);
+  if (!Number.isFinite(amount) || amount < 0)
+    throw new Error(`XP: некорректное значение ${amount}`);
   draft.hero.xp += amount;
   let levels = 0;
   while (draft.hero.xp >= xpToNextLevel(draft.hero.level)) {

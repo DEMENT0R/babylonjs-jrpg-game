@@ -28,7 +28,10 @@ describe("npcSpot", () => {
         expect(Math.abs(spot!.x)).toBeLessThanOrEqual(9);
         expect(Math.abs(spot!.z)).toBeLessThanOrEqual(9);
         for (const box of solidsOf(location)) {
-          expect(distanceToBox(spot!.x, spot!.z, box), `${location}#${i} пересекает коллизию`).toBeGreaterThan(0.5);
+          expect(
+            distanceToBox(spot!.x, spot!.z, box),
+            `${location}#${i} пересекает коллизию`,
+          ).toBeGreaterThan(0.5);
         }
       }
     }

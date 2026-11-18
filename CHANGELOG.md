@@ -5,6 +5,11 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — `src/state/gamestate.ts`: `newGame(background, name)` — чистая
+  функция стартового состояния по `SaveV1` (HP 20 / ресурс 10, статы 1/1/1/1,
+  `apartment`, день 1, слот `morning`, фаза мира 0, пустые партия/инвентарь/
+  квесты/флаги) и `SAVE_VERSION = 1`; навыки бэкграундов: `field-medicine`,
+  `fast-learning`, `craft-without-bench` (`docs/NARRATIVE_BIBLE.md`, «Герои»).
 - 2026-11-19 — `src/state/store.ts`: observable-стор без фреймворков по контракту
   `Store<S>` (`src/types.ts`): structural copy драфта, смена ссылки стейта на
   `update`, подписчик, добавленный во время нотификации, текущую волну не получает,

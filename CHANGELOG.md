@@ -5,6 +5,11 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — CI-workflow `.github/workflows/ci.yml`: на каждый push/PR —
+  `npm ci`, eslint (`--max-warnings 0`), prettier `--check`, `tsc --noEmit`,
+  vitest, `vite build`; деплой `.github/workflows/deploy.yml`: push в main →
+  build → `upload-pages-artifact`/`deploy-pages` (GitHub Pages,
+  concurrency-группа `pages`).
 - 2026-11-19 — `world/locations/demo-room.ts`: референс-локация для DoD-1
   (сетка слайса 4: 20×20, стены 0.5, спавн-запас; мебель, демо-выход «в себя»,
   интеракция у кровати); `main.ts`: полный bootstrap — игрок-капсула, камера

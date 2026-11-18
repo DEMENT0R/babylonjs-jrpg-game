@@ -5,6 +5,13 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — `src/state/persistence/`: `IStorageProvider` (асинхронный — задел
+  под HTTP-провайдер) и `LocalStorageProvider` (ключи `jrpg:save:<id>`, обёртка
+  `{savedAt, data}` — время сохранения в `SaveV1` не входит, ошибки не глотаются);
+  `exportSave`/`importSave` (строгая валидация схемы v1: лишние поля/типы/версия —
+  понятные ошибки с путём); `stableJson` — детерминированный порядок ключей для
+  побитово идентичного round-trip. Тесты `tests/state/persistence.test.ts` — на
+  in-memory дубле DOM Storage (порядок тестов не влияет, дубль чистится в beforeEach).
 - 2026-11-19 — `src/state/gamestate.ts`: `newGame(background, name)` — чистая
   функция стартового состояния по `SaveV1` (HP 20 / ресурс 10, статы 1/1/1/1,
   `apartment`, день 1, слот `morning`, фаза мира 0, пустые партия/инвентарь/

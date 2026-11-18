@@ -11,10 +11,19 @@ import { awardXp, maxHp, spendSkillPoint, xpToNextLevel } from "../../src/system
 
 const data: ContentData = {
   dialogs: [
-    { id: "root", npc: "luda", text: "Привет", choices: [
-      { text: "Взять квест", effects: [{ type: "startQuest", quest: "q-window" }], next: "thanks" },
-      { text: "Секрет", conditions: [{ type: "flag", id: "secret", op: "eq", value: true }] },
-    ] },
+    {
+      id: "root",
+      npc: "luda",
+      text: "Привет",
+      choices: [
+        {
+          text: "Взять квест",
+          effects: [{ type: "startQuest", quest: "q-window" }],
+          next: "thanks",
+        },
+        { text: "Секрет", conditions: [{ type: "flag", id: "secret", op: "eq", value: true }] },
+      ],
+    },
     { id: "thanks", npc: "luda", text: "Спасибо" },
     { id: "auto-a", npc: "luda", text: "A", next: "auto-b" },
     { id: "auto-b", npc: "luda", text: "B" },
@@ -23,7 +32,10 @@ const data: ContentData = {
   ],
   quests: [
     {
-      id: "q-window", title: "Окно", giver: "luda", worldPhases: [0, 1],
+      id: "q-window",
+      title: "Окно",
+      giver: "luda",
+      worldPhases: [0, 1],
       stages: [
         { id: "take", description: "Взять", timeWindow: { from: "morning", to: "evening" } },
         { id: "give", description: "Отдать" },
@@ -31,12 +43,26 @@ const data: ContentData = {
       onFailEffects: [{ type: "setFlag", id: "q-window-failed" }],
     },
     {
-      id: "q-days", title: "Дни", giver: "luda", worldPhases: [0],
-      stages: [{ id: "wait", description: "Ждать", timeWindow: { from: "morning", to: "evening", days: 1 } }],
+      id: "q-days",
+      title: "Дни",
+      giver: "luda",
+      worldPhases: [0],
+      stages: [
+        {
+          id: "wait",
+          description: "Ждать",
+          timeWindow: { from: "morning", to: "evening", days: 1 },
+        },
+      ],
     },
     {
-      id: "q-effects", title: "Эффекты", giver: "luda", worldPhases: [0],
-      stages: [{ id: "one", description: "Раз", onEnterEffects: [{ type: "setFlag", id: "entered" }] }],
+      id: "q-effects",
+      title: "Эффекты",
+      giver: "luda",
+      worldPhases: [0],
+      stages: [
+        { id: "one", description: "Раз", onEnterEffects: [{ type: "setFlag", id: "entered" }] },
+      ],
       onCompleteEffects: [{ type: "setFlag", id: "done" }],
       onFailEffects: [{ type: "setFlag", id: "failed" }],
     },
@@ -47,10 +73,15 @@ const data: ContentData = {
   ],
   enemies: [],
   npcs: [
-    { id: "luda", name: "Люда", home: "apartment", phases: {
-      0: { dialog: "root", present: true },
-      1: { dialog: "root", present: false },
-    } },
+    {
+      id: "luda",
+      name: "Люда",
+      home: "apartment",
+      phases: {
+        0: { dialog: "root", present: true },
+        1: { dialog: "root", present: false },
+      },
+    },
   ],
   skills: [],
   backgrounds: [],
@@ -102,8 +133,12 @@ describe("conditions", () => {
     const s = stateWith();
     expect(resolveConds(undefined, s)).toBe(true);
     expect(resolveConds([], s)).toBe(true);
-    expect(() => resolveCond({ type: "stat", id: "nope", op: "eq", value: 1 }, s)).toThrow(/неизвестный стат/);
-    expect(() => resolveCond({ type: "timeSlot", op: "gte", value: "night" }, s)).toThrow(/неизвестный слот/);
+    expect(() => resolveCond({ type: "stat", id: "nope", op: "eq", value: 1 }, s)).toThrow(
+      /неизвестный стат/,
+    );
+    expect(() => resolveCond({ type: "timeSlot", op: "gte", value: "night" }, s)).toThrow(
+      /неизвестный слот/,
+    );
   });
 });
 
@@ -277,16 +312,23 @@ describe("effects: защита от циклов", () => {
       ...data,
       quests: [
         {
-          id: "q-loop", title: "Цикл", giver: "luda", worldPhases: [0],
+          id: "q-loop",
+          title: "Цикл",
+          giver: "luda",
+          worldPhases: [0],
           stages: [
-            { id: "one", description: "Раз", onEnterEffects: [{ type: "startQuest", quest: "q-loop" }] },
+            {
+              id: "one",
+              description: "Раз",
+              onEnterEffects: [{ type: "startQuest", quest: "q-loop" }],
+            },
           ],
         },
       ],
     });
-    expect(() => applyEffects([{ type: "startQuest", quest: "q-loop" }], stateWith(), loop)).toThrow(
-      /глубина/,
-    );
+    expect(() =>
+      applyEffects([{ type: "startQuest", quest: "q-loop" }], stateWith(), loop),
+    ).toThrow(/глубина/);
   });
 });
 

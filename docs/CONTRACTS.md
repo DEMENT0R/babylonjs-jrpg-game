@@ -12,11 +12,29 @@ interface Store<S> {
   subscribe(fn: (s: S) => void): () => void; // возвращает отписку
 }
 ```
-- Игровое состояние — `SaveV1`-совместимое (см. `CONTENT_SCHEMAS.md`): `store.get()`
+- Игровое состояние — `SaveV2` (см. `CONTENT_SCHEMAS.md`): `store.get()`
   сериализуется в сейв без адаптера. Несейв-поля (например, «диалог открыт») — второй,
   ephemeral-`Store`, в сейв не идущий.
 - Межсистемная связь — только через store (subscribe/update). Событийных эмиттеров нет.
   Исключение — инпут (ниже).
+
+## Системы (`systems/*`, владелец слайс 3; потребители 5, 6, 7)
+```ts
+// dialog.ts
+interface DialogView { node: DialogNode; choices: { index: number; text: string }[]; next: string | null }
+openDialog(content, state, nodeId): DialogView
+chooseDialog(content, node, choiceIndex, draft): string | null   // применяет эффекты выбора
+npcDialogId(content, npcId, phase): string | undefined
+
+// effects.ts
+applyEffects(effects, draft, content): void   // внутри store.update
+advanceTime(draft, content, slots): void      // двигает слоты и проваливает окна квестов
+
+// quest.ts / inventory.ts / stats.ts — чистые хелперы над драфтом GameState
+```
+- UI никогда не мутирует сейв сам: только `store.update(draft => …)` с этими функциями.
+- Контент — только через `IContentProvider` (`src/content/index.ts`); `loadBundledContent()`
+  читает `src/content/data/*.json`. Валидатор — `validateContent` (тест в CI).
 
 ## Input (`core/input.ts`, владелец слайс 1; потребители 4, 5)
 ```ts

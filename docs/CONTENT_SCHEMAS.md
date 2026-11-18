@@ -89,12 +89,13 @@ Effect = one of:
 `hero.skills` в сейве — список id из `content/skills.json` (v1: один на бэкграунд):
 `Skill = { id, name, effect }`, где `effect` — из общего словаря Effect выше.
 
-## Сейв v1 (`saveVersion: 1`)
+## Сейв v2 (`saveVersion: 2`, текущий)
 ```ts
-interface SaveV1 {
-  saveVersion: 1;
+interface SaveV2 {
+  saveVersion: 2;
   hero: { background: "intern" | "student" | "engineer"; name: string;
           hp: number; resource: number;
+          level: number; xp: number; skillPoints: number;
           stats: Record<"medicine"|"repair"|"persuasion"|"stealth", number>;
           skills: string[] };
   party: string[];                                  // npc-id
@@ -102,10 +103,16 @@ interface SaveV1 {
   time: { day: number; slot: "morning" | "day" | "evening" };
   location: string; pos: [number, number];
   inventory: { item: string; qty: number }[];
-  questStates: Record<string, { stage: string; status: "active" | "done" | "failed" }>;
+  questStates: Record<string, { stage: string; status: "active" | "done" | "failed";
+                                startedDay: number }>;
   flags: Record<string, boolean>;
 }
 ```
+- `startedDay` — день взятия квеста: от него отсчитывается `timeWindow` текущей стадии
+  (`{from,to}` — тот же день, `{days,from,to}` — со сдвигом). Без поля окно не проверить.
+- `level`/`xp`/`skillPoints` — прокачка из боя: порог `8 * level`, +2 HP и +1 очко за
+  уровень (docs/CONTRACTS.md, «Баланс боя v1»).
 - Миграции: несоответствие `saveVersion` → цепочка `migrations[]` в `state/persistence/`;
-  миграция — чистая функция `SaveN → SaveN+1`, покрыта тестом.
+  миграция — чистая функция `SaveN → SaveN+1`, покрыта тестом. v1 → v2 добавляет
+  `level=1`,`xp=0`,`skillPoints=0`, а `startedDay` берёт из `time.day` сейва.
 - Поля сверх перечисленных запрещены; новое поле = новая версия сейва.

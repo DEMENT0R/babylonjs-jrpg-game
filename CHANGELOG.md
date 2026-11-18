@@ -5,6 +5,35 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — слайс 6, бой: `src/systems/combat.ts` — чистый детерминированный
+  движок 1×1 (`startCombat`/`availableActions`/`act`, инъекция `rng`), формулы
+  «Баланс боя v1» (урон `max(1, atk-def)`, хил `6+medicine` + бинт, побег
+  `70%+stealth·5%`, уговор на первом ходу, защита +2 def), лут и исходы
+  win/lose/fled; `src/ui/battleScreen.ts` — экран только рисует состояние и
+  зовёт `onAction`; тесты `tests/combat.test.ts` (11).
+- 2026-11-19 — слайс 7, контент акта 0–1: `src/content/data/*.json` — 3 бэкграунда,
+  6 НПС × фазы 0–2, 5 квестов (`q-intern-shift`, `q-luda-meds`, `q-pipe-burst`,
+  `q-day3-end` 0→1, `q-hospital-panic` 1→2), 75 узлов диалогов с условиями/
+  эффектами, 10 предметов с рецептами, враги `bully`/`klesh`; `src/content/validate.ts` —
+  схема всех 7 типов, дубликаты, перекрёстные ссылки; `tests/content/validate.test.ts`.
+- 2026-11-19 — слайс 5, UI: `src/ui/hud.ts` (день/слот/HP/ресурс/XP), 
+  `src/ui/dialogBox.ts` (печать текста 30 мс/символ, выборы клавиатурой/мышью,
+  эффекты через `chooseDialog`), `src/ui/menu.ts` (3 слота save/load/delete,
+  export/import JSON, продолжить/выйти), `src/ui/ui.css`.
+- 2026-11-19 — слайс 8, сборка: character select (3 бэкграунда из контента,
+  старт по `BackgroundDef`), `newGameForBackground`, капсулы НПС по контенту
+  (`src/app/npcs.ts`, `src/world/npcs.ts`), диалог по confirm у ближайшего НПС,
+  синхронизация слота/фазы/локации со сценой при load/import, бой из отладочной
+  клавиши `B` (`__jrpg.fight(id)`), отладочные `__jrpg.goto/save/ui`.
+- 2026-11-19 — `docs/STATUS.md`: статусы слайсов 3/5/6/7/8 и изменения контрактов.
+
+### Исправлено
+- 2026-11-19 — `src/ui/dialogBox.ts`: `close` ссылался на глобальный `window.close`
+  (диалог не закрывался по Esc/после реплики без `next`) — добавлена локальная
+  функция, снимающая классы и останавливающая печать; `onClose` теперь вызывается.
+- 2026-11-19 — меню: после load/import сейва сцена не перестраивалась под новую
+  локацию/позицию — добавлен `onLoad` и подписка на смену локации/фазы/слота.
+
 - 2026-11-19 — слайс 3, системы рутины: `src/content/` — типы JSON-контента
   (`ContentData`, `Cond`, `Effect`, `DialogNode`, `Quest`, `Item`, `Enemy`, `Npc`,
   `SkillDef`, `BackgroundDef`), `IContentProvider` + `createContentProvider`

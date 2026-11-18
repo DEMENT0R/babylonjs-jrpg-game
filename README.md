@@ -8,3 +8,4 @@
 - Техплан и нарезка на задачи: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - Схемы контента и сейва: [`docs/CONTENT_SCHEMAS.md`](docs/CONTENT_SCHEMAS.md)
 - Нарративная библия: [`docs/NARRATIVE_BIBLE.md`](docs/NARRATIVE_BIBLE.md)
+- Межслайсовые контракты: [`docs/CONTRACTS.md`](docs/CONTRACTS.md)

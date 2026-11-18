@@ -3,13 +3,62 @@
   "locale": "ru",
   "data": [
     {
+      "id": "q-intern-shift",
+      "title": "Смена в больнице",
+      "giver": "boris",
+      "worldPhases": [0],
+      "stages": [
+        {
+          "id": "take",
+          "description": "Взять смену у Бориса."
+        },
+        {
+          "id": "patients",
+          "description": "Принять трёх пациентов в приёмном покое.",
+          "timeWindow": {
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "report",
+          "description": "Доложить Борису о смене."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "stat",
+          "stat": "medicine",
+          "delta": 1
+        },
+        {
+          "type": "giveItem",
+          "item": "medkit",
+          "qty": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "intern-shift-done",
+          "value": true
+        }
+      ],
+      "onFailEffects": [
+        {
+          "type": "setFlag",
+          "id": "intern-shift-failed",
+          "value": true
+        },
+        {
+          "type": "resource",
+          "delta": -1
+        }
+      ]
+    },
+    {
       "id": "q-luda-meds",
       "title": "Лекарства для Люды",
       "giver": "luda",
-      "worldPhases": [
-        0,
-        1
-      ],
+      "worldPhases": [0, 1],
       "stages": [
         {
           "id": "take",
@@ -29,6 +78,184 @@
               "delta": 1
             }
           ]
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "resource",
+          "delta": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "luda-meds-done",
+          "value": true
+        }
+      ],
+      "onFailEffects": [
+        {
+          "type": "setFlag",
+          "id": "luda-meds-failed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "q-pipe-burst",
+      "title": "Прорыв в подвале",
+      "giver": "taras",
+      "worldPhases": [0],
+      "stages": [
+        {
+          "id": "inspect",
+          "description": "Осмотреть прорыв в подвале.",
+          "timeWindow": {
+            "from": "morning",
+            "to": "evening"
+          },
+          "onEnterEffects": [
+            {
+              "type": "giveItem",
+              "item": "duct-tape",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "id": "repair",
+          "description": "Замотать трубу изолентой и зажать хомутом."
+        },
+        {
+          "id": "report",
+          "description": "Доложить Тарасу."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "stat",
+          "stat": "repair",
+          "delta": 1
+        },
+        {
+          "type": "resource",
+          "delta": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "pipe-burst-done",
+          "value": true
+        }
+      ],
+      "onFailEffects": [
+        {
+          "type": "setFlag",
+          "id": "pipe-burst-failed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "q-day3-end",
+      "title": "Ужин в день третий",
+      "giver": "luda",
+      "worldPhases": [0],
+      "stages": [
+        {
+          "id": "dinner",
+          "description": "Собрать соседей за столом.",
+          "timeWindow": {
+            "days": 2,
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "news",
+          "description": "Досмотреть итоговый эфир новостей."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "setWorldPhase",
+          "phase": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "day3-done",
+          "value": true
+        },
+        {
+          "type": "resource",
+          "delta": 1
+        }
+      ],
+      "onFailEffects": [
+        {
+          "type": "setWorldPhase",
+          "phase": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "day3-missed",
+          "value": true
+        },
+        {
+          "type": "resource",
+          "delta": -1
+        }
+      ]
+    },
+    {
+      "id": "q-hospital-panic",
+      "title": "Переполненная больница",
+      "giver": "boris",
+      "worldPhases": [1],
+      "stages": [
+        {
+          "id": "warehouse",
+          "description": "Забрать медикаменты со склада за аптекой.",
+          "timeWindow": {
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "deliver",
+          "description": "Довезти ящик в больницу."
+        },
+        {
+          "id": "triage",
+          "description": "Помочь в приёмном покое."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "setWorldPhase",
+          "phase": 2
+        },
+        {
+          "type": "stat",
+          "stat": "medicine",
+          "delta": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "act2-started",
+          "value": true
+        }
+      ],
+      "onFailEffects": [
+        {
+          "type": "setWorldPhase",
+          "phase": 2
+        },
+        {
+          "type": "setFlag",
+          "id": "hospital-panic-failed",
+          "value": true
+        },
+        {
+          "type": "resource",
+          "delta": -1
         }
       ]
     }

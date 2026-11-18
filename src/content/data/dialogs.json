@@ -3,12 +3,543 @@
   "locale": "ru",
   "data": [
     {
+      "id": "boris-p0-intro",
+      "npc": "boris",
+      "text": "Третья смена подряд? Иди отдыхай, воскреснем.",
+      "choices": [
+        {
+          "text": "Я на смену.",
+          "conditions": [
+            {
+              "type": "stat",
+              "id": "medicine",
+              "op": "gte",
+              "value": 2
+            },
+            {
+              "type": "quest",
+              "id": "q-intern-shift",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-intern-shift"
+            }
+          ],
+          "next": "boris-intern-shift"
+        },
+        {
+          "text": "Смена уже идёт.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-intern-shift",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "next": "boris-intern-shift"
+        },
+        {
+          "text": "Смена закончена.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-intern-shift",
+              "op": "eq",
+              "value": "done"
+            }
+          ],
+          "next": "boris-intern-done"
+        },
+        {
+          "text": "Что нового в городе?",
+          "next": "boris-p0-talk"
+        },
+        {
+          "text": "Пойду."
+        }
+      ]
+    },
+    {
+      "id": "boris-p0-talk",
+      "npc": "boris",
+      "text": "Новый грипп. В сводках всё больше строк, а в коридорах всё меньше мест.",
+      "choices": [
+        {
+          "text": "Спасибо, Борис."
+        }
+      ]
+    },
+    {
+      "id": "boris-intern-shift",
+      "npc": "boris",
+      "text": "Не торопись. Сначала трое в приёмном, потом отчёт.",
+      "choices": [
+        {
+          "text": "Принять всех троих.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-intern-shift",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-intern-shift",
+              "stage": "patients"
+            },
+            {
+              "type": "resource",
+              "delta": -1
+            }
+          ],
+          "next": "boris-intern-patients"
+        },
+        {
+          "text": "Уйти пораньше.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-intern-shift",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "resource",
+              "delta": -2
+            },
+            {
+              "type": "advanceTime",
+              "slots": 1
+            },
+            {
+              "type": "failQuest",
+              "quest": "q-intern-shift"
+            }
+          ],
+          "next": "boris-intern-early"
+        },
+        {
+          "text": "Назад.",
+          "next": "boris-p0-intro"
+        }
+      ]
+    },
+    {
+      "id": "boris-intern-patients",
+      "npc": "boris",
+      "text": "Третий с давлением, но жить будет. Смена почти твоя.",
+      "choices": [
+        {
+          "text": "Доложить о смене.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-intern-shift",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-intern-shift",
+              "stage": "report"
+            }
+          ],
+          "next": "boris-intern-report"
+        }
+      ]
+    },
+    {
+      "id": "boris-intern-report",
+      "npc": "boris",
+      "text": "Смена принята. Держи аптечку, ты её заработала.",
+      "choices": [
+        {
+          "text": "Спасибо, Борис.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-intern-shift",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "completeQuest",
+              "quest": "q-intern-shift"
+            }
+          ],
+          "next": "boris-intern-done"
+        }
+      ]
+    },
+    {
+      "id": "boris-intern-early",
+      "npc": "boris",
+      "text": "Ушла с середины. Пациенты дождались, но смена сорвана.",
+      "choices": [
+        {
+          "text": "Извините.",
+          "next": "boris-intern-done"
+        }
+      ]
+    },
+    {
+      "id": "boris-intern-done",
+      "npc": "boris",
+      "text": "Отдохни. Завтра снова смена."
+    },
+    {
+      "id": "boris-p1-intro",
+      "npc": "boris",
+      "text": "ОРС-7 признали опасным. Больница трещит по швам.",
+      "choices": [
+        {
+          "text": "Чем помочь, Борис?",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-hospital-panic",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-hospital-panic"
+            }
+          ],
+          "next": "boris-p1-warehouse"
+        },
+        {
+          "text": "Ящик уже у меня.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-hospital-panic",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "item",
+              "id": "meds-crate",
+              "op": "gte",
+              "value": 1
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-hospital-panic",
+              "stage": "deliver"
+            }
+          ],
+          "next": "boris-p1-deliver"
+        },
+        {
+          "text": "Что с больницей?",
+          "next": "boris-p1-talk"
+        },
+        {
+          "text": "До вечера."
+        }
+      ]
+    },
+    {
+      "id": "boris-p1-talk",
+      "npc": "boris",
+      "text": "Школы закрыли. Люди скупают таблетки, будто это спасёт.",
+      "choices": [
+        {
+          "text": "Понятно."
+        },
+        {
+          "text": "Я помогу.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-hospital-panic",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-hospital-panic"
+            }
+          ],
+          "next": "boris-p1-warehouse"
+        }
+      ]
+    },
+    {
+      "id": "boris-p1-warehouse",
+      "npc": "boris",
+      "text": "Склад за аптекой. Там уже хулиганы. Ящик с медикаментами надо забрать.",
+      "choices": [
+        {
+          "text": "Забрать ящик.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-hospital-panic",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "flag",
+              "id": "meds-crate-taken",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "meds-crate-taken",
+              "value": true
+            },
+            {
+              "type": "giveItem",
+              "item": "meds-crate",
+              "qty": 1
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-hospital-panic",
+              "stage": "deliver"
+            }
+          ],
+          "next": "boris-p1-deliver"
+        },
+        {
+          "text": "Не сейчас."
+        }
+      ]
+    },
+    {
+      "id": "boris-p1-deliver",
+      "npc": "boris",
+      "text": "В приёмном покое не хватает всего. Ставь ящик у поста.",
+      "choices": [
+        {
+          "text": "Передать ящик.",
+          "conditions": [
+            {
+              "type": "item",
+              "id": "meds-crate",
+              "op": "gte",
+              "value": 1
+            },
+            {
+              "type": "quest",
+              "id": "q-hospital-panic",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "takeItem",
+              "item": "meds-crate",
+              "qty": 1
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-hospital-panic",
+              "stage": "triage"
+            }
+          ],
+          "next": "boris-p1-triage"
+        },
+        {
+          "text": "Ещё не всё собрал."
+        }
+      ]
+    },
+    {
+      "id": "boris-p1-triage",
+      "npc": "boris",
+      "text": "Коридоры забиты. Останешься помогать или пойдёшь домой?",
+      "choices": [
+        {
+          "text": "Остаться и помочь.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-hospital-panic",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "resource",
+              "delta": -1
+            },
+            {
+              "type": "completeQuest",
+              "quest": "q-hospital-panic"
+            }
+          ],
+          "next": "boris-p1-done"
+        },
+        {
+          "text": "Уйти домой.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-hospital-panic",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "resource",
+              "delta": -2
+            },
+            {
+              "type": "failQuest",
+              "quest": "q-hospital-panic"
+            }
+          ],
+          "next": "boris-p1-left"
+        }
+      ]
+    },
+    {
+      "id": "boris-p1-done",
+      "npc": "boris",
+      "text": "Карантин. Город закрывают. Держись рядом с теми, кому веришь."
+    },
+    {
+      "id": "boris-p1-left",
+      "npc": "boris",
+      "text": "Иди. Я не держу. Но ящик бы не помешал."
+    },
+    {
+      "id": "boris-p2-intro",
+      "npc": "boris",
+      "text": "Больница переполнена. Я остаюсь. Кто-то же должен.",
+      "choices": [
+        {
+          "text": "Остаться с вами.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "boris-stay",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "boris-stay",
+              "value": true
+            },
+            {
+              "type": "stat",
+              "stat": "medicine",
+              "delta": 1
+            },
+            {
+              "type": "resource",
+              "delta": -1
+            },
+            {
+              "type": "giveItem",
+              "item": "medkit",
+              "qty": 1
+            }
+          ],
+          "next": "boris-p2-stay"
+        },
+        {
+          "text": "Мне нужно уйти.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "boris-left",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "boris-left",
+              "value": true
+            }
+          ],
+          "next": "boris-p2-leave"
+        },
+        {
+          "text": "Что происходит?",
+          "next": "boris-p2-talk"
+        }
+      ]
+    },
+    {
+      "id": "boris-p2-stay",
+      "npc": "boris",
+      "text": "Тогда надевай халат. Смена не кончится скоро.",
+      "choices": [
+        {
+          "text": "Работать."
+        }
+      ]
+    },
+    {
+      "id": "boris-p2-leave",
+      "npc": "boris",
+      "text": "Иди. Только не забывай про нас.",
+      "choices": [
+        {
+          "text": "Не забуду."
+        }
+      ]
+    },
+    {
+      "id": "boris-p2-talk",
+      "npc": "boris",
+      "text": "Патрули, талоны, перебои со светом. Каждый день новая норма.",
+      "choices": [
+        {
+          "text": "Держитесь, Борис."
+        }
+      ]
+    },
+    {
       "id": "luda-meds-intro",
       "npc": "luda",
       "text": "Внучок, в аптеке на площади таблетки от давления бывают. До вечера бы...",
       "choices": [
         {
-          "text": "Я схожу.",
+          "text": "Я схожу в аптеку.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-luda-meds",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
           "effects": [
             {
               "type": "startQuest",
@@ -16,13 +547,1307 @@
             }
           ],
           "next": "luda-meds-wait"
+        },
+        {
+          "text": "Вот ваши таблетки.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-luda-meds",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "item",
+              "id": "pills",
+              "op": "gte",
+              "value": 1
+            }
+          ],
+          "effects": [
+            {
+              "type": "takeItem",
+              "item": "pills",
+              "qty": 1
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-luda-meds",
+              "stage": "give"
+            },
+            {
+              "type": "completeQuest",
+              "quest": "q-luda-meds"
+            }
+          ],
+          "next": "luda-meds-thanks"
+        },
+        {
+          "text": "Ещё ищу.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-luda-meds",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "next": "luda-meds-wait"
+        },
+        {
+          "text": "Не вышло, извините.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-luda-meds",
+              "op": "eq",
+              "value": "failed"
+            }
+          ],
+          "next": "luda-meds-failed"
+        },
+        {
+          "text": "Как вы тут?",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-luda-meds",
+              "op": "eq",
+              "value": "done"
+            }
+          ],
+          "next": "luda-p0-done"
+        },
+        {
+          "text": "Давайте соберёмся в день третий.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-day3-end",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-day3-end"
+            }
+          ],
+          "next": "luda-day3-wait"
+        },
+        {
+          "text": "Я за стол.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-day3-end",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "timeSlot",
+              "op": "gte",
+              "value": "evening"
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-day3-end",
+              "stage": "news"
+            }
+          ],
+          "next": "luda-day3-dinner"
+        },
+        {
+          "text": "До вечера."
         }
       ]
     },
     {
       "id": "luda-meds-wait",
       "npc": "luda",
-      "text": "Спасибо. Только до вечера, ладно?"
+      "text": "Спасибо. Только до вечера, ладно?",
+      "choices": [
+        {
+          "text": "Понял."
+        }
+      ]
+    },
+    {
+      "id": "luda-meds-thanks",
+      "npc": "luda",
+      "text": "Спасибо, внучок. Вот, возьми на всякий случай.",
+      "choices": [
+        {
+          "text": "Не за что.",
+          "effects": [
+            {
+              "type": "giveItem",
+              "item": "bandage",
+              "qty": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "luda-meds-failed",
+      "npc": "luda",
+      "text": "Ничего. Переживу. Ты не виноват.",
+      "choices": [
+        {
+          "text": "Простите."
+        }
+      ]
+    },
+    {
+      "id": "luda-p0-done",
+      "npc": "luda",
+      "text": "К третьему дню соседи собираются. Придёшь?",
+      "choices": [
+        {
+          "text": "Приду.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-day3-end",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-day3-end"
+            }
+          ],
+          "next": "luda-day3-wait"
+        },
+        {
+          "text": "Посмотрим."
+        }
+      ]
+    },
+    {
+      "id": "luda-day3-wait",
+      "npc": "luda",
+      "text": "В день третий, вечером. Не опаздывай.",
+      "choices": [
+        {
+          "text": "Постараюсь."
+        }
+      ]
+    },
+    {
+      "id": "luda-day3-dinner",
+      "npc": "luda",
+      "text": "Все за столом. На экране — итоговый эфир.",
+      "choices": [
+        {
+          "text": "Включить новости.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-day3-end",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "completeQuest",
+              "quest": "q-day3-end"
+            }
+          ],
+          "next": "luda-day3-news"
+        }
+      ]
+    },
+    {
+      "id": "luda-day3-news",
+      "npc": "luda",
+      "text": "Диктор перечисляет меры. ОРС-7. Карантин. Город меняется на глазах.",
+      "choices": [
+        {
+          "text": "Вот и всё."
+        }
+      ]
+    },
+    {
+      "id": "luda-p1-intro",
+      "npc": "luda",
+      "text": "Полки пустые. Люди скупают всё, что хоть как-то помогает.",
+      "choices": [
+        {
+          "text": "Как вы?",
+          "next": "luda-p1-talk"
+        },
+        {
+          "text": "Вам ещё нужны таблетки?",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-luda-meds",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-luda-meds"
+            }
+          ],
+          "next": "luda-meds-wait"
+        },
+        {
+          "text": "Возьмите таблетки.",
+          "conditions": [
+            {
+              "type": "item",
+              "id": "pills",
+              "op": "gte",
+              "value": 1
+            },
+            {
+              "type": "quest",
+              "id": "q-luda-meds",
+              "op": "eq",
+              "value": "failed"
+            },
+            {
+              "type": "flag",
+              "id": "luda-meds-late",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "takeItem",
+              "item": "pills",
+              "qty": 1
+            },
+            {
+              "type": "setFlag",
+              "id": "luda-meds-late",
+              "value": true
+            }
+          ],
+          "next": "luda-p1-thanks"
+        },
+        {
+          "text": "Что говорят соседи?",
+          "next": "luda-p1-talk"
+        },
+        {
+          "text": "Пойду."
+        }
+      ]
+    },
+    {
+      "id": "luda-p1-talk",
+      "npc": "luda",
+      "text": "Зина в аптеке цены задрала. Люди шепчутся, но молчат.",
+      "choices": [
+        {
+          "text": "Это надо прекратить."
+        },
+        {
+          "text": "Пока."
+        }
+      ]
+    },
+    {
+      "id": "luda-p1-thanks",
+      "npc": "luda",
+      "text": "Спасибо. Ты добрый человек, хоть и опоздал.",
+      "choices": [
+        {
+          "text": "Не за что."
+        }
+      ]
+    },
+    {
+      "id": "luda-p2-intro",
+      "npc": "luda",
+      "text": "В подвале теплее. У меня остались рецепты и немного марли.",
+      "choices": [
+        {
+          "text": "Пойдёмте с нами.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "luda-meds-done",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "type": "flag",
+              "id": "luda-joined",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "joinParty",
+              "npc": "luda"
+            },
+            {
+              "type": "setFlag",
+              "id": "luda-joined",
+              "value": true
+            }
+          ],
+          "next": "luda-p2-join"
+        },
+        {
+          "text": "Научите делать бинты.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "luda-taught",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "giveItem",
+              "item": "cloth",
+              "qty": 3
+            },
+            {
+              "type": "giveItem",
+              "item": "soda",
+              "qty": 2
+            },
+            {
+              "type": "giveItem",
+              "item": "antiseptic",
+              "qty": 2
+            },
+            {
+              "type": "stat",
+              "stat": "medicine",
+              "delta": 1
+            },
+            {
+              "type": "setFlag",
+              "id": "luda-taught",
+              "value": true
+            }
+          ],
+          "next": "luda-p2-recipe"
+        },
+        {
+          "text": "Как вы тут?",
+          "next": "luda-p2-talk"
+        }
+      ]
+    },
+    {
+      "id": "luda-p2-join",
+      "npc": "luda",
+      "text": "Я только рецепты и умею, но в подвале пригожусь.",
+      "choices": [
+        {
+          "text": "Договорились."
+        }
+      ]
+    },
+    {
+      "id": "luda-p2-recipe",
+      "npc": "luda",
+      "text": "Марля, сода и терпение. Соду можно найти в любой кухне.",
+      "choices": [
+        {
+          "text": "Спасибо."
+        }
+      ]
+    },
+    {
+      "id": "luda-p2-talk",
+      "npc": "luda",
+      "text": "Вода по часам, свет по расписанию. Привыкаем.",
+      "choices": [
+        {
+          "text": "Держитесь."
+        }
+      ]
+    },
+    {
+      "id": "dima-p0-intro",
+      "npc": "dima",
+      "text": "Ты в курсе, что в общаге воду отключили?",
+      "choices": [
+        {
+          "text": "Держись рядом.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "dima-loyal",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "dima-loyal",
+              "value": true
+            }
+          ],
+          "next": "dima-p0-loyal"
+        },
+        {
+          "text": "Сам разбирайся.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "dima-loyal",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "dima-loyal",
+              "value": false
+            }
+          ],
+          "next": "dima-p0-cold"
+        },
+        {
+          "text": "Что слышно?",
+          "next": "dima-p0-talk"
+        },
+        {
+          "text": "Пойду."
+        }
+      ]
+    },
+    {
+      "id": "dima-p0-talk",
+      "npc": "dima",
+      "text": "Говорят, ОРС-7. Официально — обычный грипп.",
+      "choices": [
+        {
+          "text": "Ясно."
+        },
+        {
+          "text": "Пойдём в аптеку.",
+          "next": "dima-p0-pharmacy"
+        }
+      ]
+    },
+    {
+      "id": "dima-p0-pharmacy",
+      "npc": "dima",
+      "text": "Очередь до улицы. Зина уже по два в руки отпускает.",
+      "choices": [
+        {
+          "text": "Вот дела."
+        }
+      ]
+    },
+    {
+      "id": "dima-p0-loyal",
+      "npc": "dima",
+      "text": "Спасибо. Я запомню.",
+      "choices": [
+        {
+          "text": "Не за что."
+        }
+      ]
+    },
+    {
+      "id": "dima-p0-cold",
+      "npc": "dima",
+      "text": "Ладно. Как хочешь.",
+      "choices": [
+        {
+          "text": "Пока."
+        }
+      ]
+    },
+    {
+      "id": "dima-p1-intro",
+      "npc": "dima",
+      "text": "Я не пойду на пары. Ты видел, что делается?",
+      "choices": [
+        {
+          "text": "Держись рядом.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "dima-loyal",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "type": "flag",
+              "id": "dima-joined",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "joinParty",
+              "npc": "dima"
+            },
+            {
+              "type": "setFlag",
+              "id": "dima-joined",
+              "value": true
+            }
+          ],
+          "next": "dima-p1-join"
+        },
+        {
+          "text": "Соберись.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "dima-loyal",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "next": "dima-p1-panic"
+        },
+        {
+          "text": "Потом поговорим."
+        }
+      ]
+    },
+    {
+      "id": "dima-p1-join",
+      "npc": "dima",
+      "text": "Хорошо. Я с тобой. Только не бросай.",
+      "choices": [
+        {
+          "text": "Не брошу."
+        }
+      ]
+    },
+    {
+      "id": "dima-p1-panic",
+      "npc": "dima",
+      "text": "Я не могу. Прости.",
+      "choices": [
+        {
+          "text": "Ладно."
+        }
+      ]
+    },
+    {
+      "id": "dima-p2-intro",
+      "npc": "dima",
+      "text": "Общага — эвакуационный пункт. Я помогаю с бумагами.",
+      "choices": [
+        {
+          "text": "Ты в деле?",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "dima-joined",
+              "op": "eq",
+              "value": true
+            }
+          ],
+          "next": "dima-p2-help"
+        },
+        {
+          "text": "Держись.",
+          "next": "dima-p2-talk"
+        }
+      ]
+    },
+    {
+      "id": "dima-p2-help",
+      "npc": "dima",
+      "text": "Список на эвакуацию. Скажи, кого вписать.",
+      "choices": [
+        {
+          "text": "Впиши Люду.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "luda-meds-done",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "type": "flag",
+              "id": "luda-evac-listed",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "luda-evac-listed",
+              "value": true
+            }
+          ]
+        },
+        {
+          "text": "Позже."
+        }
+      ]
+    },
+    {
+      "id": "dima-p2-talk",
+      "npc": "dima",
+      "text": "Держимся. Пока держимся.",
+      "choices": [
+        {
+          "text": "Держись."
+        }
+      ]
+    },
+    {
+      "id": "zina-p0-intro",
+      "npc": "zina",
+      "text": "Чего надо? Таблетки от давления — три в одни руки.",
+      "choices": [
+        {
+          "text": "Мне таблетки для Люды.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-luda-meds",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "item",
+              "id": "pills",
+              "op": "lte",
+              "value": 0
+            },
+            {
+              "type": "flag",
+              "id": "zina-pills-bought",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "resource",
+              "delta": -1
+            },
+            {
+              "type": "giveItem",
+              "item": "pills",
+              "qty": 1
+            },
+            {
+              "type": "setFlag",
+              "id": "zina-pills-bought",
+              "value": true
+            }
+          ],
+          "next": "zina-p0-sell"
+        },
+        {
+          "text": "Что слышно?",
+          "next": "zina-p0-talk"
+        },
+        {
+          "text": "До свидания."
+        }
+      ]
+    },
+    {
+      "id": "zina-p0-sell",
+      "npc": "zina",
+      "text": "Держи. И не говори, что я добренькая.",
+      "choices": [
+        {
+          "text": "Спасибо."
+        }
+      ]
+    },
+    {
+      "id": "zina-p0-talk",
+      "npc": "zina",
+      "text": "Слухи. В новостях одно, в очереди другое.",
+      "choices": [
+        {
+          "text": "Понятно."
+        }
+      ]
+    },
+    {
+      "id": "zina-p1-intro",
+      "npc": "zina",
+      "text": "Таблетки есть. Но уже не по госцене.",
+      "choices": [
+        {
+          "text": "Сколько?",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "zina-bought-p1",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "resource",
+              "delta": -2
+            },
+            {
+              "type": "giveItem",
+              "item": "pills",
+              "qty": 1
+            },
+            {
+              "type": "setFlag",
+              "id": "zina-bought-p1",
+              "value": true
+            }
+          ],
+          "next": "zina-p1-deal"
+        },
+        {
+          "text": "Это спекуляция.",
+          "next": "zina-p1-scold"
+        },
+        {
+          "text": "Я сообщу Сергею.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "zina-reported",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "zina-reported",
+              "value": true
+            }
+          ],
+          "next": "zina-p1-reported"
+        },
+        {
+          "text": "Пойду."
+        }
+      ]
+    },
+    {
+      "id": "zina-p1-deal",
+      "npc": "zina",
+      "text": "Вот и договорились.",
+      "choices": [
+        {
+          "text": "Пока."
+        }
+      ]
+    },
+    {
+      "id": "zina-p1-scold",
+      "npc": "zina",
+      "text": "Иди, жалуйся. Очередь всё равно не рассосётся.",
+      "choices": [
+        {
+          "text": "Посмотрим."
+        }
+      ]
+    },
+    {
+      "id": "zina-p1-reported",
+      "npc": "zina",
+      "text": "Пиши. Мне уже терять нечего.",
+      "choices": [
+        {
+          "text": "Напишу."
+        }
+      ]
+    },
+    {
+      "id": "zina-p2-gone",
+      "npc": "zina",
+      "text": "Дверь аптеки заколочена. Зины нет.",
+      "choices": [
+        {
+          "text": "Уйти."
+        }
+      ]
+    },
+    {
+      "id": "sergey-p0-intro",
+      "npc": "sergey",
+      "text": "Здорово. В районе пока тихо, но я на всякий случай записываю.",
+      "choices": [
+        {
+          "text": "Что слышно?",
+          "next": "sergey-p0-talk"
+        },
+        {
+          "text": "Патрули будут?",
+          "next": "sergey-p0-patrol"
+        },
+        {
+          "text": "Пойду."
+        }
+      ]
+    },
+    {
+      "id": "sergey-p0-talk",
+      "npc": "sergey",
+      "text": "Грипп. В школе карантин по классу. Пока всё.",
+      "choices": [
+        {
+          "text": "Понял."
+        }
+      ]
+    },
+    {
+      "id": "sergey-p0-patrol",
+      "npc": "sergey",
+      "text": "Пока нет приказа. Но сумки я уже проверяю.",
+      "choices": [
+        {
+          "text": "Ясно."
+        }
+      ]
+    },
+    {
+      "id": "sergey-p1-intro",
+      "npc": "sergey",
+      "text": "Обходы каждый вечер. Проверяю сумки.",
+      "choices": [
+        {
+          "text": "Зина спекулирует.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "zina-reported",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "type": "flag",
+              "id": "sergey-knows-zina",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "sergey-knows-zina",
+              "value": true
+            }
+          ],
+          "next": "sergey-p1-zina"
+        },
+        {
+          "text": "Что со складом?",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-hospital-panic",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "flag",
+              "id": "sergey-warehouse-briefed",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "sergey-warehouse-briefed",
+              "value": true
+            },
+            {
+              "type": "resource",
+              "delta": 1
+            }
+          ],
+          "next": "sergey-p1-warehouse"
+        },
+        {
+          "text": "Понял."
+        }
+      ]
+    },
+    {
+      "id": "sergey-p1-zina",
+      "npc": "sergey",
+      "text": "Разберусь. Но без заявления это просто разговор.",
+      "choices": [
+        {
+          "text": "Напишу заявление.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "zina-case-opened",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "zina-case-opened",
+              "value": true
+            },
+            {
+              "type": "stat",
+              "stat": "persuasion",
+              "delta": 1
+            }
+          ],
+          "next": "sergey-p1-case"
+        },
+        {
+          "text": "Ладно, забудь."
+        }
+      ]
+    },
+    {
+      "id": "sergey-p1-case",
+      "npc": "sergey",
+      "text": "Тогда завтра зайду в аптеку. Постарайся не влезать.",
+      "choices": [
+        {
+          "text": "Договорились."
+        }
+      ]
+    },
+    {
+      "id": "sergey-p1-warehouse",
+      "npc": "sergey",
+      "text": "Склад за аптекой. Хулиганов я знаю. Иди днём, пока они не пьяные.",
+      "choices": [
+        {
+          "text": "Спасибо."
+        }
+      ]
+    },
+    {
+      "id": "sergey-p2-intro",
+      "npc": "sergey",
+      "text": "Клещ объявился. Держись подальше от складов.",
+      "choices": [
+        {
+          "text": "Кто такой Клещ?",
+          "next": "sergey-p2-klesh"
+        },
+        {
+          "text": "Чем помочь?",
+          "next": "sergey-p2-help"
+        }
+      ]
+    },
+    {
+      "id": "sergey-p2-klesh",
+      "npc": "sergey",
+      "text": "Мародёр. С арматурой. Один я его не возьму.",
+      "choices": [
+        {
+          "text": "Понял."
+        }
+      ]
+    },
+    {
+      "id": "sergey-p2-help",
+      "npc": "sergey",
+      "text": "Не лезь под пули. Это лучшая помощь.",
+      "choices": [
+        {
+          "text": "Как скажешь."
+        }
+      ]
+    },
+    {
+      "id": "taras-p0-intro",
+      "npc": "taras",
+      "text": "Витька! Трубу в подвале прорвало, а слесарь ушёл в запой.",
+      "choices": [
+        {
+          "text": "Сейчас разберусь.",
+          "conditions": [
+            {
+              "type": "stat",
+              "id": "repair",
+              "op": "gte",
+              "value": 2
+            },
+            {
+              "type": "quest",
+              "id": "q-pipe-burst",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-pipe-burst"
+            }
+          ],
+          "next": "taras-pipe-inspect"
+        },
+        {
+          "text": "Уже осмотрел.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-pipe-burst",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "next": "taras-pipe-inspect"
+        },
+        {
+          "text": "Что нового?",
+          "next": "taras-p0-talk"
+        },
+        {
+          "text": "Пойду."
+        }
+      ]
+    },
+    {
+      "id": "taras-p0-talk",
+      "npc": "taras",
+      "text": "В подвале сухо, пока. Но это ненадолго.",
+      "choices": [
+        {
+          "text": "Держись, Тарас."
+        }
+      ]
+    },
+    {
+      "id": "taras-pipe-inspect",
+      "npc": "taras",
+      "text": "Хомут, изолента, и не забудь перекрыть стояк.",
+      "choices": [
+        {
+          "text": "Начать ремонт.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-pipe-burst",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-pipe-burst",
+              "stage": "repair"
+            }
+          ],
+          "next": "taras-pipe-repair"
+        },
+        {
+          "text": "Вернусь."
+        }
+      ]
+    },
+    {
+      "id": "taras-pipe-repair",
+      "npc": "taras",
+      "text": "Стояк перекрыт. Труба держится на честном слове.",
+      "choices": [
+        {
+          "text": "Замотать трубу.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-pipe-burst",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "takeItem",
+              "item": "duct-tape",
+              "qty": 1
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-pipe-burst",
+              "stage": "report"
+            }
+          ],
+          "next": "taras-pipe-report"
+        }
+      ]
+    },
+    {
+      "id": "taras-pipe-report",
+      "npc": "taras",
+      "text": "Вот это дело. Без тебя бы весь подвал затопило.",
+      "choices": [
+        {
+          "text": "Готово.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-pipe-burst",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "completeQuest",
+              "quest": "q-pipe-burst"
+            }
+          ],
+          "next": "taras-pipe-done"
+        }
+      ]
+    },
+    {
+      "id": "taras-pipe-done",
+      "npc": "taras",
+      "text": "Держи, пригодится. Такие руки в подвале нужны.",
+      "choices": [
+        {
+          "text": "Спасибо."
+        }
+      ]
+    },
+    {
+      "id": "taras-p1-intro",
+      "npc": "taras",
+      "text": "Свет мигает. Генератор старый, а запчастей нет.",
+      "choices": [
+        {
+          "text": "Помочь с генератором?",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "taras-generator-fixed",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "stat",
+              "stat": "repair",
+              "delta": 1
+            },
+            {
+              "type": "giveItem",
+              "item": "multimeter",
+              "qty": 1
+            },
+            {
+              "type": "setFlag",
+              "id": "taras-generator-fixed",
+              "value": true
+            }
+          ],
+          "next": "taras-p1-fixed"
+        },
+        {
+          "text": "Кто ещё в подвале?",
+          "next": "taras-p1-talk"
+        }
+      ]
+    },
+    {
+      "id": "taras-p1-fixed",
+      "npc": "taras",
+      "text": "Вот это руки. Мультиметр твой.",
+      "choices": [
+        {
+          "text": "Спасибо."
+        }
+      ]
+    },
+    {
+      "id": "taras-p1-talk",
+      "npc": "taras",
+      "text": "Люди несут сюда вещи. Подвал держит весь дом.",
+      "choices": [
+        {
+          "text": "Понял."
+        }
+      ]
+    },
+    {
+      "id": "taras-p2-intro",
+      "npc": "taras",
+      "text": "Подвал — наш бункер. Вода есть, свет — как повезёт.",
+      "choices": [
+        {
+          "text": "Научить чему-нибудь?",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "taras-taught",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "giveItem",
+              "item": "crowbar",
+              "qty": 1
+            },
+            {
+              "type": "setFlag",
+              "id": "taras-taught",
+              "value": true
+            }
+          ],
+          "next": "taras-p2-gift"
+        },
+        {
+          "text": "Как вы тут?",
+          "next": "taras-p2-talk"
+        }
+      ]
+    },
+    {
+      "id": "taras-p2-gift",
+      "npc": "taras",
+      "text": "Лом всегда пригодится. Держи крепче.",
+      "choices": [
+        {
+          "text": "Спасибо."
+        }
+      ]
+    },
+    {
+      "id": "taras-p2-talk",
+      "npc": "taras",
+      "text": "Держимся. По-другому здесь нельзя.",
+      "choices": [
+        {
+          "text": "Держись."
+        }
+      ]
     }
   ]
 }

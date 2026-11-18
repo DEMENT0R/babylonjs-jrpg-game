@@ -3,6 +3,32 @@
   "locale": "ru",
   "data": [
     {
+      "id": "medkit",
+      "name": "Аптечка",
+      "category": "consumable",
+      "stack": 2,
+      "effects": [
+        {
+          "type": "hp",
+          "delta": 6
+        }
+      ],
+      "recipe": {
+        "inputs": [
+          {
+            "item": "bandage",
+            "qty": 2
+          },
+          {
+            "item": "antiseptic",
+            "qty": 1
+          }
+        ],
+        "stat": "medicine",
+        "dc": 3
+      }
+    },
+    {
       "id": "bandage",
       "name": "Бинт",
       "category": "consumable",
@@ -12,7 +38,21 @@
           "type": "hp",
           "delta": 3
         }
-      ]
+      ],
+      "recipe": {
+        "inputs": [
+          {
+            "item": "cloth",
+            "qty": 1
+          },
+          {
+            "item": "soda",
+            "qty": 1
+          }
+        ],
+        "stat": "medicine",
+        "dc": 2
+      }
     },
     {
       "id": "pills",
@@ -31,6 +71,48 @@
       "name": "Изолента",
       "category": "material",
       "stack": 5,
+      "effects": []
+    },
+    {
+      "id": "cloth",
+      "name": "Марля",
+      "category": "material",
+      "stack": 5,
+      "effects": []
+    },
+    {
+      "id": "antiseptic",
+      "name": "Антисептик",
+      "category": "material",
+      "stack": 3,
+      "effects": []
+    },
+    {
+      "id": "soda",
+      "name": "Сода",
+      "category": "material",
+      "stack": 3,
+      "effects": []
+    },
+    {
+      "id": "multimeter",
+      "name": "Мультиметр",
+      "category": "tool",
+      "stack": 1,
+      "effects": []
+    },
+    {
+      "id": "crowbar",
+      "name": "Лом",
+      "category": "tool",
+      "stack": 1,
+      "effects": []
+    },
+    {
+      "id": "meds-crate",
+      "name": "Ящик с медикаментами",
+      "category": "material",
+      "stack": 1,
       "effects": []
     }
   ]

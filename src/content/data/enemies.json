@@ -5,7 +5,7 @@
     {
       "id": "bully",
       "name": "Хулиган",
-      "worldPhase": 0,
+      "worldPhase": 1,
       "stats": {
         "hp": 10,
         "atk": 3,
@@ -17,10 +17,54 @@
           "id": "shove",
           "name": "Толчок",
           "power": 3
+        },
+        {
+          "id": "swing",
+          "name": "Замах",
+          "power": 2
         }
       ],
-      "loot": [],
+      "loot": [
+        {
+          "item": "bandage",
+          "chance": 0.5
+        }
+      ],
       "xp": 4
+    },
+    {
+      "id": "klesh",
+      "name": "Клещ",
+      "worldPhase": 2,
+      "stats": {
+        "hp": 16,
+        "atk": 4,
+        "def": 1,
+        "spd": 4
+      },
+      "actions": [
+        {
+          "id": "rebar",
+          "name": "Удар арматурой",
+          "power": 4
+        },
+        {
+          "id": "kick",
+          "name": "Пинок",
+          "power": 2
+        }
+      ],
+      "loot": [
+        {
+          "item": "pills",
+          "chance": 0.4
+        },
+        {
+          "item": "duct-tape",
+          "chance": 0.6
+        }
+      ],
+      "xp": 8
     }
   ]
 }

@@ -3,6 +3,25 @@
   "locale": "ru",
   "data": [
     {
+      "id": "boris",
+      "name": "Борис",
+      "home": "hospital",
+      "phases": {
+        "0": {
+          "dialog": "boris-p0-intro",
+          "present": true
+        },
+        "1": {
+          "dialog": "boris-p1-intro",
+          "present": true
+        },
+        "2": {
+          "dialog": "boris-p2-intro",
+          "present": true
+        }
+      }
+    },
+    {
       "id": "luda",
       "name": "Люда",
       "home": "apartment",
@@ -12,11 +31,87 @@
           "present": true
         },
         "1": {
-          "dialog": "luda-meds-intro",
+          "dialog": "luda-p1-intro",
           "present": true
         },
         "2": {
-          "dialog": "luda-meds-intro",
+          "dialog": "luda-p2-intro",
+          "present": true
+        }
+      }
+    },
+    {
+      "id": "dima",
+      "name": "Дима",
+      "home": "campus",
+      "phases": {
+        "0": {
+          "dialog": "dima-p0-intro",
+          "present": true
+        },
+        "1": {
+          "dialog": "dima-p1-intro",
+          "present": true
+        },
+        "2": {
+          "dialog": "dima-p2-intro",
+          "present": true
+        }
+      }
+    },
+    {
+      "id": "zina",
+      "name": "Зина",
+      "home": "pharmacy",
+      "phases": {
+        "0": {
+          "dialog": "zina-p0-intro",
+          "present": true
+        },
+        "1": {
+          "dialog": "zina-p1-intro",
+          "present": true
+        },
+        "2": {
+          "dialog": "zina-p2-gone",
+          "present": false
+        }
+      }
+    },
+    {
+      "id": "sergey",
+      "name": "Сергей",
+      "home": "square",
+      "phases": {
+        "0": {
+          "dialog": "sergey-p0-intro",
+          "present": true
+        },
+        "1": {
+          "dialog": "sergey-p1-intro",
+          "present": true
+        },
+        "2": {
+          "dialog": "sergey-p2-intro",
+          "present": true
+        }
+      }
+    },
+    {
+      "id": "taras",
+      "name": "Тарас",
+      "home": "workshop",
+      "phases": {
+        "0": {
+          "dialog": "taras-p0-intro",
+          "present": true
+        },
+        "1": {
+          "dialog": "taras-p1-intro",
+          "present": true
+        },
+        "2": {
+          "dialog": "taras-p2-intro",
           "present": true
         }
       }

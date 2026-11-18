@@ -7,7 +7,7 @@
       "name": "Полевая медицина",
       "effect": {
         "type": "hp",
-        "delta": 2
+        "delta": 3
       }
     },
     {

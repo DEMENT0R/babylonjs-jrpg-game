@@ -23,13 +23,19 @@ import type {
 /** Единственный бандл контента игры; чистые системы получают его как IContentProvider. */
 export function loadBundledContent(): IContentProvider {
   const data: ContentData = {
-    dialogs: unwrapContent<DialogNode>(dialogsFile as unknown as ContentFile<DialogNode>, "dialogs"),
+    dialogs: unwrapContent<DialogNode>(
+      dialogsFile as unknown as ContentFile<DialogNode>,
+      "dialogs",
+    ),
     quests: unwrapContent<Quest>(questsFile as unknown as ContentFile<Quest>, "quests"),
     items: unwrapContent<Item>(itemsFile as unknown as ContentFile<Item>, "items"),
     enemies: unwrapContent<Enemy>(enemiesFile as unknown as ContentFile<Enemy>, "enemies"),
     npcs: unwrapContent<Npc>(npcsFile as unknown as ContentFile<Npc>, "npcs"),
     skills: unwrapContent<SkillDef>(skillsFile as unknown as ContentFile<SkillDef>, "skills"),
-    backgrounds: unwrapContent<BackgroundDef>(backgroundsFile as unknown as ContentFile<BackgroundDef>, "backgrounds"),
+    backgrounds: unwrapContent<BackgroundDef>(
+      backgroundsFile as unknown as ContentFile<BackgroundDef>,
+      "backgrounds",
+    ),
   };
   return createContentProvider(data);
 }

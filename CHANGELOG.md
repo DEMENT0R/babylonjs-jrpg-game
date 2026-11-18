@@ -34,6 +34,27 @@
   `feat(core)`-коммитов); скрипты `dev`/`build`/`preview`.
 - 2026-11-19 — `lint`-скрипт ужесточён до `eslint . --max-warnings 0`
   (требование `docs/ARCHITECTURE.md` §6).
+- 2026-11-19 — `src/state/persistence/migrations.ts`: механизм миграций версий
+  сейва — реестр шагов `migrations` (сейчас пуст: v1 — текущая и единственная),
+  `migrate()` принимает v1 как есть, гоняет цепочку шагов для старых версий,
+  отвергает неизвестные/новее текущей; тест-доказательство цепочки идёт через
+  временный реестр, не засоряя боевой (`tests/state/migrations.test.ts`).
+- 2026-11-19 — `src/state/persistence/`: `IStorageProvider` (асинхронный — задел
+  под HTTP-провайдер) и `LocalStorageProvider` (ключи `jrpg:save:<id>`, обёртка
+  `{savedAt, data}` — время сохранения в `SaveV1` не входит, ошибки не глотаются);
+  `exportSave`/`importSave` (строгая валидация схемы v1: лишние поля/типы/версия —
+  понятные ошибки с путём); `stableJson` — детерминированный порядок ключей для
+  побитово идентичного round-trip. Тесты `tests/state/persistence.test.ts` — на
+  in-memory дубле DOM Storage (порядок тестов не влияет, дубль чистится в beforeEach).
+- 2026-11-19 — `src/state/gamestate.ts`: `newGame(background, name)` — чистая
+  функция стартового состояния по `SaveV1` (HP 20 / ресурс 10, статы 1/1/1/1,
+  `apartment`, день 1, слот `morning`, фаза мира 0, пустые партия/инвентарь/
+  квесты/флаги) и `SAVE_VERSION = 1`; навыки бэкграундов: `field-medicine`,
+  `fast-learning`, `craft-without-bench` (`docs/NARRATIVE_BIBLE.md`, «Герои»).
+- 2026-11-19 — `src/state/store.ts`: observable-стор без фреймворков по контракту
+  `Store<S>` (`src/types.ts`): structural copy драфта, смена ссылки стейта на
+  `update`, подписчик, добавленный во время нотификации, текущую волну не получает,
+  вложенный `update` не рекурсит; vitest-покрытие `tests/state/store.test.ts`.
 - 2026-11-19 — базовый скелет сборки: `package.json` (пины TypeScript 5.9.3,
   vitest 5.1.1, eslint 10.15.0, typescript-eslint 8.73.0, prettier 3.10.1,
   @babylonjs/core 9.37.1), `tsconfig.json` (strict), eslint/prettier-конфиги;

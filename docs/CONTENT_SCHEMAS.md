@@ -57,7 +57,9 @@ Effect = one of:
   "onCompleteEffects": [],
   "onFailEffects": [] }
 ```
-- `timeWindow` опционален; истечение окна = `onFailEffects` (провал — не game over).
+- `timeWindow` опционален; отсчитывается от дня взятия квеста: `{from, to}` — тот же
+  день, `{days, from, to}` — со сдвигом. Провал срабатывает на первом `advanceTime`,
+  выводящем время за `to` (день взятия + `days`); провал — не game over.
 
 ## Item
 ```
@@ -78,6 +80,14 @@ Effect = one of:
 { id, name, home: "<location-id>",
   phases: { 0: { dialog: "<node-id>", present: true }, 1: { ... }, 2: { ... } } }
 ```
+
+## Background (старт героя, content)
+```
+{ id: "intern" | "student" | "engineer", name, startLocation, startNpc,
+  hp, resource, stats: Record<SkillId, number>, skill: "<skill-id>" }
+```
+`hero.skills` в сейве — список id из `content/skills.json` (v1: один на бэкграунд):
+`Skill = { id, name, effect }`, где `effect` — из общего словаря Effect выше.
 
 ## Сейв v1 (`saveVersion: 1`)
 ```ts

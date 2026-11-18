@@ -1,0 +1,354 @@
+/* UI-оверлей поверх Babylon-canvas. Тёмная минималистичная тема.
+   HUD не перехватывает мышь; диалог и меню — перехватывают. */
+
+.ui-hud,
+.ui-dialog,
+.ui-menu {
+  --ui-panel: rgba(14, 16, 24, 0.88);
+  --ui-panel-solid: #151825;
+  --ui-border: #2b3145;
+  --ui-text: #e6e8f0;
+  --ui-muted: #8d94a8;
+  --ui-accent: #d7b36a;
+  --ui-accent-dim: rgba(215, 179, 106, 0.16);
+  --ui-hp: #c8524d;
+  --ui-resource: #4d90c8;
+  --ui-xp: #7fa650;
+  --ui-danger: #b5473f;
+  font-family:
+    "Segoe UI",
+    "Roboto",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ui-text);
+}
+
+/* ─── HUD ─────────────────────────────────────────────────────────────── */
+
+.ui-hud {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 210px;
+  padding: 10px 12px;
+  background: var(--ui-panel);
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  user-select: none;
+}
+
+.ui-hud__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ui-hud__row--time {
+  justify-content: space-between;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.ui-hud__day {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ui-hud__slot {
+  color: var(--ui-accent);
+}
+
+.ui-hud__label {
+  min-width: 46px;
+  color: var(--ui-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ui-hud__value {
+  min-width: 58px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ui-hud__bar {
+  position: relative;
+  flex: 1;
+  height: 6px;
+  overflow: hidden;
+  background: #0a0c12;
+  border: 1px solid var(--ui-border);
+  border-radius: 3px;
+}
+
+.ui-hud__fill {
+  width: 0;
+  height: 100%;
+  transition: width 160ms ease-out;
+}
+
+.ui-hud__row--hp .ui-hud__fill {
+  background: var(--ui-hp);
+}
+
+.ui-hud__row--xp .ui-hud__fill {
+  background: var(--ui-xp);
+}
+
+.ui-hud__level {
+  min-width: 46px;
+  color: var(--ui-accent);
+  font-weight: 600;
+}
+
+.ui-hud__row--resource .ui-hud__value {
+  color: var(--ui-resource);
+}
+
+/* ─── Диалог ──────────────────────────────────────────────────────────── */
+
+.ui-dialog {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+  z-index: 150;
+  display: none;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0 16px;
+  pointer-events: none;
+}
+
+.ui-dialog.ui-dialog--open {
+  display: flex;
+}
+
+.ui-dialog__box {
+  width: min(760px, 100%);
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 14px 18px;
+  background: var(--ui-panel);
+  border: 1px solid var(--ui-border);
+  border-left: 3px solid var(--ui-accent);
+  border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.ui-dialog__speaker {
+  margin-bottom: 6px;
+  color: var(--ui-accent);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ui-dialog__text {
+  min-height: 2.8em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ui-dialog__choices {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 10px;
+}
+
+.ui-dialog__choice {
+  padding: 7px 10px;
+  color: var(--ui-text);
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.ui-dialog__choice:hover,
+.ui-dialog__choice--selected {
+  color: var(--ui-accent);
+  background: var(--ui-accent-dim);
+  border-color: rgba(215, 179, 106, 0.4);
+}
+
+.ui-dialog__choice:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 1px;
+}
+
+.ui-dialog__hint {
+  margin-top: 10px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  text-align: right;
+}
+
+/* ─── Меню паузы ──────────────────────────────────────────────────────── */
+
+.ui-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  background: rgba(5, 6, 10, 0.68);
+  pointer-events: auto;
+}
+
+.ui-menu.ui-menu--open {
+  display: flex;
+}
+
+.ui-menu__panel {
+  width: min(560px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  background: var(--ui-panel-solid);
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+}
+
+.ui-menu__title {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.ui-menu__slots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ui-menu__slot {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  padding: 9px 12px;
+  background: var(--ui-panel);
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+}
+
+.ui-menu__slot-title {
+  font-weight: 600;
+}
+
+.ui-menu__slot-info {
+  grid-column: 1;
+  color: var(--ui-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.ui-menu__slot-actions {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ui-menu__file-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ui-menu__file {
+  display: none;
+}
+
+.ui-menu__message {
+  min-height: 1.6em;
+  margin-top: 12px;
+  color: var(--ui-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.ui-menu__message--error {
+  color: #e58a83;
+}
+
+.ui-menu__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ui-border);
+}
+
+.ui-button {
+  padding: 6px 12px;
+  color: var(--ui-text);
+  font: inherit;
+  background: #202534;
+  border: 1px solid var(--ui-border);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.ui-button:hover:not(:disabled) {
+  border-color: var(--ui-accent);
+}
+
+.ui-button:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.ui-button:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 1px;
+}
+
+.ui-button--primary {
+  color: #14161f;
+  font-weight: 600;
+  background: var(--ui-accent);
+  border-color: var(--ui-accent);
+}
+
+.ui-button--primary:hover:not(:disabled) {
+  background: #e6c47e;
+}
+
+.ui-button--danger {
+  color: #e9a29c;
+  border-color: rgba(181, 71, 63, 0.6);
+}
+
+.ui-button--danger:hover:not(:disabled) {
+  border-color: var(--ui-danger);
+}
+
+/* Модальные оверлеи забирают мышь у canvas, пока открыты. */
+body.ui-menu-open canvas,
+body.ui-dialog-open canvas {
+  pointer-events: none;
+}

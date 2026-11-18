@@ -1,0 +1,87 @@
+.cs-root {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 30%, #243040 0%, #0d1218 70%);
+  color: #e8e2d2;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.cs-root[hidden] {
+  display: none;
+}
+
+.cs-panel {
+  max-width: 960px;
+  padding: 32px;
+  text-align: center;
+}
+
+.cs-title {
+  margin: 0 0 4px;
+  font-size: 40px;
+  letter-spacing: 2px;
+}
+
+.cs-subtitle {
+  margin: 0 0 28px;
+  color: #9aa4b0;
+}
+
+.cs-cards {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cs-card {
+  width: 240px;
+  min-height: 210px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  text-align: left;
+  background: #1a222c;
+  color: inherit;
+  border: 2px solid #2c3a48;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.cs-card--active,
+.cs-card:hover {
+  border-color: #c9a45c;
+  background: #223041;
+  transform: translateY(-2px);
+}
+
+.cs-role {
+  color: #9aa4b0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cs-name {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.cs-blurb {
+  color: #c3cbd4;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.cs-hint {
+  margin-top: 26px;
+  color: #7e8894;
+  font-size: 13px;
+}

@@ -40,7 +40,8 @@ export function createInputState(): InputState {
         }
       } else {
         held.delete(action);
-        pressed.delete(action);
+        // pressed НЕ снимаем: тап короче кадра должен дожить до ближайшего
+        // опроса и погаснуть endFrame'ом, а не потеряться в keyup
       }
     }
   };

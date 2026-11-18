@@ -15,6 +15,16 @@ describe("input edge-детект", () => {
     expect(s.pressed("up")).toBe(false);
   });
 
+  it("тап короче кадра не теряется: pressed живёт до ближайшего endFrame", () => {
+    const s = createInputState();
+    s.keyDown("KeyE");
+    s.keyUp("KeyE"); // раньше конца кадра
+    expect(s.held("confirm")).toBe(false);
+    expect(s.pressed("confirm")).toBe(true);
+    s.endFrame();
+    expect(s.pressed("confirm")).toBe(false);
+  });
+
   it("повторный keyDown без keyUp не ре-триггерит pressed", () => {
     const s = createInputState();
     s.keyDown("Enter");

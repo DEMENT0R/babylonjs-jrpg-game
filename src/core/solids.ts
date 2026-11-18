@@ -57,10 +57,14 @@ function clampAxis(
     if (fixed + radius <= perpMin || fixed - radius >= perpMax) continue;
     const center = move === "x" ? b.x : b.z;
     const half = (move === "x" ? b.w : b.d) / 2;
+    // клампим только грань ПО ходу движения (между goal и start);
+    // стена позади игрока движению не мешает
     if (goal > start) {
-      result = Math.min(result, center - half - radius);
+      const limit = center - half - radius;
+      if (limit >= start) result = Math.min(result, limit);
     } else if (goal < start) {
-      result = Math.max(result, center + half + radius);
+      const limit = center + half + radius;
+      if (limit <= start) result = Math.max(result, limit);
     }
   }
   // старт уже в контакте: кламп не должен тянуть назад против направления

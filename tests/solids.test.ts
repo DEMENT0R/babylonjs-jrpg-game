@@ -57,4 +57,16 @@ describe("canMove", () => {
     const r = f.canMove({ x: 0, z: -3 }, { x: 0, z: 3 }, 0.4);
     expect(r).toEqual({ x: 0, z: -0.9 });
   });
+
+  it("регресс: стена позади игрока не мешает движению от неё", () => {
+    const f = createSolidRegistry();
+    f.add({ x: 0, z: 10, w: 20, d: 0.5 }); // стена ПОЗАДИ (z = +10)
+    f.add({ x: 0, z: -10, w: 20, d: 0.5 }); // стена ВПЕРЕДИ (z = -10)
+    // шаг в сторону от дальней стены — свободен
+    expect(f.canMove({ x: 0, z: 6 }, { x: 0, z: 5.95 }, 0.4)).toEqual({ x: 0, z: 5.95 });
+    // много шагов к передней стене — упёрлись в грань z = -9.35
+    let pos = { x: 0, z: 6 };
+    for (let i = 0; i < 500; i++) pos = f.canMove(pos, { x: 0, z: pos.z - 0.05 }, 0.4);
+    expect(pos.z).toBeCloseTo(-9.35, 5);
+  });
 });

@@ -5,6 +5,10 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — интеграция среза слайсов 1+2+4 в `src/app/main.ts`: настоящий
+  `Store` и `newGame()` из `state/` (спавн `apartment`, день 1, утро, фаза 0),
+  реестр всех локаций слайса 4 + `isExitOpen` в `SceneManager` (метро закрыто
+  в фазах 0–1).
 - 2026-11-19 — CI-workflow `.github/workflows/ci.yml`: на каждый push/PR —
   `npm ci`, eslint (`--max-warnings 0`), prettier `--check`, `tsc --noEmit`,
   vitest, `vite build`; деплой `.github/workflows/deploy.yml`: push в main →
@@ -120,5 +124,11 @@
   между goal и start — регресс-тест «стена позади не мешает».
 - 2026-11-19 — `core/input.ts`: keyup снимал pressed — тап короче кадра
   терялся; теперь edge живёт до ближайшего endFrame (регресс-тест).
+- 2026-11-19 — интеграция слайсов 1+4: локации слайса 4 строили меши, но не
+  регистрировали коллизии (`ctx.solids`) — игрок проходил сквозь стены.
+  `registerSolids()` в `world/layout.ts` + вызов в `build()` всех 7 локаций;
+  регрессионный тест `tests/world/build-solids.test.ts` (build() ≡ solidsOf(),
+  NullEngine) — 96 тестов зелёные. Проверено вживую: зажим у стен (9.6 м),
+  переходы apartment→campus→square, метро заблокировано в фазе 0.
 - 2026-11-18 — `AGENTS.md`: удалена случайная служебная строка «]», попавшая в файл
   при правке.

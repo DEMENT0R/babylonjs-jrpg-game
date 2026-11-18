@@ -5,48 +5,15 @@ import { startGameLoop } from "../core/loop";
 import { createPhasedAssets } from "../core/phasedAssets";
 import { SceneManager, registerLocation } from "../core/scenes";
 import { advanceSlot } from "../core/time";
-import type { GameState, Store, TimeSlot } from "../types";
-import { DEMO_SPAWN, demoRoom } from "../world/locations/demo-room";
+import { newGame } from "../state/gamestate";
+import { createStore } from "../state/store";
+import type { GameState, TimeSlot } from "../types";
+import { allLocations, isExitOpen } from "../world";
+import { demoRoom } from "../world/locations/demo-room";
 
-// Демо-store до слайса 2 (state/store.ts): минимальный observable без фреймворков.
-// При мерже слайса 2 замещается настоящим Store из src/state/store.ts.
-function createDemoStore(initial: GameState): Store<GameState> {
-  let state = initial;
-  const subs = new Set<(s: GameState) => void>();
-  return {
-    get: () => state,
-    update(fn) {
-      const draft = structuredClone(state);
-      fn(draft);
-      state = draft;
-      for (const s of subs) s(state);
-    },
-    subscribe(fn) {
-      subs.add(fn);
-      return () => subs.delete(fn);
-    },
-  };
-}
-
-const initial: GameState = {
-  saveVersion: 1,
-  hero: {
-    background: "intern",
-    name: "Алекс",
-    hp: 20,
-    resource: 10,
-    stats: { medicine: 1, repair: 0, persuasion: 0, stealth: 0 },
-    skills: [],
-  },
-  party: [],
-  worldPhase: 0,
-  time: { day: 1, slot: "morning" },
-  location: "demo-room",
-  pos: [DEMO_SPAWN.x, DEMO_SPAWN.z],
-  inventory: [],
-  questStates: {},
-  flags: {},
-};
+// Стартовое состояние — newGame слайса 2 (спавн: apartment, день 1, утро, фаза 0);
+// demo-room остаётся в реестре как референс DoD-1.
+const initial: GameState = newGame("intern", "Алекс");
 
 declare global {
   interface Window {
@@ -60,13 +27,12 @@ declare global {
     };
   }
 }
-
 const { engine, scene } = createGameEngine();
 const input = createInputState();
 attachKeyboard(input);
 const assets = createPhasedAssets(scene);
 assets.setSlot(initial.time.slot);
-const store = createDemoStore(initial);
+const store = createStore(initial);
 
 // вид сверху-под-углом (2.5D): камера следует за игроком
 const camera = new ArcRotateCamera("camera", -Math.PI / 2, 0.9, 17, new Vector3(0, 0, 0), scene);
@@ -81,17 +47,19 @@ playerMat.specularColor = new Color3(0.05, 0.05, 0.05);
 playerMesh.material = playerMat;
 camera.setTarget(playerMesh);
 
-// Референс-локация DoD-1; при мерже слайса 4 заменяется его реестром
-// (registerLocation всех локаций из src/world/index.ts, вход — по save.location).
+// Реестр локаций: все локации слайса 4 + демо-референс слайса 1.
 registerLocation(demoRoom);
+for (const def of allLocations) registerLocation(def);
+
 const manager = new SceneManager({
   scene,
   assets,
   store,
   input,
   player: { mesh: playerMesh, radius: 0.4 },
+  isExitOpen, // метро закрыто в фазах 0–1 (src/world/index.ts)
 });
-manager.enter("demo-room", DEMO_SPAWN);
+manager.enter(initial.location, { x: initial.pos[0]!, z: initial.pos[1]! });
 
 // Слот времени: T — временная клавиша вне контракта Input (DoD-1: видимое
 // переключение morning/day/evening через PhasedAssets.setSlot).

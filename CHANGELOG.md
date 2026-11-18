@@ -5,6 +5,14 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — `core/solids.ts`: `SolidRegistry` + `canMove` — swept-кламп по осям
+  (скольжение вдоль стен, нет туннелирования сквозь тонкие стены большим шагом);
+  `core/scenes.ts`: реестр `registerLocation`/`getLocation` + `SceneManager`
+  (build/update локации, движение игрока через canMove, интеракции, выходы,
+  хук `isExitOpen` под интеграцию слайса 4); `core/phasedAssets.ts`: кэш
+  материалов по ключу+фазе (палитры 0–3 для floor/wall/door/wood/metal/plastic/
+  fabric/stone/glass/foliage/dirt), `setSlot` — свет/фон по слоту времени,
+  low-poly билдеры `buildBox`/`buildSolidBox`; vitest-тесты solids/scenes.
 - 2026-11-19 — `core/`: `engine.ts` (canvas + Engine/Scene + resize),
   `input.ts` (edge-детект `pressed`/`held`, раскладка WASD/стрелки + E/Enter +
   Esc + Shift, Backspace→cancel), `loop.ts` (game loop: poll → update → render,

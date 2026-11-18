@@ -5,6 +5,11 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — `src/world/layout.ts`: общая геометрия локаций — единая сетка 20×20 м
+  (координаты −10..10), стены-периметр по `SolidBox` (один источник правды для
+  коллизий: `perimeterSolids()` используют и `build()`, и `solidsOf()` локаций),
+  точки дверей/спавнов по сторонам света, хелперы мешей-примитивов Babylon
+  (пол/стены/боксы/цилиндры/двери/таблички) с материалами из `PhasedAssets`.
 - 2026-11-19 — базовый скелет сборки: `package.json` (пины TypeScript 5.9.3,
   vitest 5.1.1, eslint 10.15.0, typescript-eslint 8.73.0, prettier 3.10.1,
   @babylonjs/core 9.37.1), `tsconfig.json` (strict), eslint/prettier-конфиги;

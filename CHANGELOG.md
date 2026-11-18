@@ -5,6 +5,11 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — базовый скелет сборки: `package.json` (пины TypeScript 5.9.3,
+  vitest 5.1.1, eslint 10.15.0, typescript-eslint 8.73.0, prettier 3.10.1,
+  @babylonjs/core 9.37.1), `tsconfig.json` (strict), eslint/prettier-конфиги;
+  `src/types.ts` — межслайсовые контракты (Store, Input, SaveV1/GameState,
+  Location/SolidRegistry/PhasedAssets) как код, зеркало `docs/CONTRACTS.md`.
 - 2026-11-18 — `docs/GAME_DESIGN.md`: концепция игры (современная реальность, 4 акта
   с деградацией мира через `worldPhase`, механики рутины/времени/пошагового боя).
 - 2026-11-18 — `docs/ARCHITECTURE.md`: техплан (Vite+TS+Babylon.js, GitHub Pages,

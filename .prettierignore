@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+.worktrees
+package-lock.json
+# Доки — проза на русском, форматирование не проверяем
+AGENTS.md
+CHANGELOG.md
+README.md
+docs

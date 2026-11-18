@@ -51,8 +51,15 @@ interface BuildCtx  { scene: Scene; worldPhase: number; assets: PhasedAssets; so
 interface UpdateCtx { scene: Scene; dt: number; input: Input; store: Store<GameState> }
 ```
 - `SolidRegistry` (стены/AABB) и `PhasedAssets` (одна геометрия → перекраска по фазе) —
-  реализует слайс 1; `world/locations/*` только потребляет.
-- Открытие диалога из `InteractDef.onConfirm` — через ephemeral-стор, рисует слайс 5.
+  реализует слайс 1 в `core/`; `world/locations/*` только потребляет. Минимальный API
+  зафиксирован (расширять можно, менять — отдельным коммитом):
+  ```ts
+  interface SolidBox { x: number; z: number; w: number; d: number } // центр + полные размеры
+  interface SolidRegistry { add(box: SolidBox): void }
+  interface PhasedAssets { material(key: string, phase: number): Material } // Babylon Material
+  ```
+- Все межслайсовые типы из этой доки объявлены в `src/types.ts` — единственном общем
+  модуле; слайсы не дублируют их и не правят друг у друга файлы.
 
 ## Топология района (владелец слайс 4)
 ```

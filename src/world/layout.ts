@@ -49,6 +49,12 @@ export function perimeterSolids(): SolidBox[] {
   ];
 }
 
+/** Регистрация коллизий локации в BuildCtx: build() обязан позвать для своих SOLIDS
+ *  (меши-хелперы выше коллизии не регистрируют — единственный источник: SOLIDS). */
+export function registerSolids(ctx: BuildCtx, solids: readonly SolidBox[]): void {
+  for (const s of solids) ctx.solids.add({ ...s });
+}
+
 // ─── Меши-примитивы (только build-сторона; тесты геометрию не трогают) ─────────
 
 function mat(ctx: BuildCtx, key: string): Material {

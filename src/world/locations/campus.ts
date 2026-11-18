@@ -10,6 +10,7 @@ import {
   entry,
   floorMesh,
   perimeterSolids,
+  registerSolids,
   wallMeshes,
 } from "../layout";
 
@@ -42,6 +43,7 @@ export const campus: LocationDef = {
   interacts: [],
 
   build(ctx) {
+    registerSolids(ctx, SOLIDS);
     floorMesh(ctx, "campus:floor");
     wallMeshes(ctx, "campus");
     doorMesh(ctx, "campus:door:apartment", "north");

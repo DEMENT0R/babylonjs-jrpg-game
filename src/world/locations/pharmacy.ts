@@ -9,6 +9,7 @@ import {
   entry,
   floorMesh,
   perimeterSolids,
+  registerSolids,
   wallMeshes,
 } from "../layout";
 
@@ -33,6 +34,7 @@ export const pharmacy: LocationDef = {
   interacts: [],
 
   build(ctx) {
+    registerSolids(ctx, SOLIDS);
     floorMesh(ctx, "pharmacy:floor");
     wallMeshes(ctx, "pharmacy");
     doorMesh(ctx, "pharmacy:door:square", "south");

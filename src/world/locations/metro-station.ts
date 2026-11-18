@@ -12,6 +12,7 @@ import {
   entry,
   floorMesh,
   perimeterSolids,
+  registerSolids,
   signMesh,
   wallMeshes,
 } from "../layout";
@@ -48,6 +49,7 @@ export const metroStation: LocationDef = {
   ],
 
   build(ctx) {
+    registerSolids(ctx, SOLIDS);
     floorMesh(ctx, "metro:floor");
     wallMeshes(ctx, "metro");
     doorMesh(ctx, "metro:door:square", "north");

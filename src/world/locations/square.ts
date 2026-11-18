@@ -12,6 +12,7 @@ import {
   entry,
   floorMesh,
   perimeterSolids,
+  registerSolids,
   signMesh,
   wallMeshes,
 } from "../layout";
@@ -54,6 +55,7 @@ export const square: LocationDef = {
   ],
 
   build(ctx) {
+    registerSolids(ctx, SOLIDS);
     floorMesh(ctx, "square:floor");
     wallMeshes(ctx, "square");
     doorMesh(ctx, "square:door:campus", "west");

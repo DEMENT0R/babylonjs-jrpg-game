@@ -5,6 +5,35 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — CI-workflow `.github/workflows/ci.yml`: на каждый push/PR —
+  `npm ci`, eslint (`--max-warnings 0`), prettier `--check`, `tsc --noEmit`,
+  vitest, `vite build`; деплой `.github/workflows/deploy.yml`: push в main →
+  build → `upload-pages-artifact`/`deploy-pages` (GitHub Pages,
+  concurrency-группа `pages`).
+- 2026-11-19 — `world/locations/demo-room.ts`: референс-локация для DoD-1
+  (сетка слайса 4: 20×20, стены 0.5, спавн-запас; мебель, демо-выход «в себя»,
+  интеракция у кровати); `main.ts`: полный bootstrap — игрок-капсула, камера
+  2.5D следует за игроком, ходьба с коллизиями через canMove, клавиша T
+  переключает слот времени (morning/day/evening) со сменой света/палитры.
+- 2026-11-19 — `core/solids.ts`: `SolidRegistry` + `canMove` — swept-кламп по осям
+  (скольжение вдоль стен, нет туннелирования сквозь тонкие стены большим шагом);
+  `core/scenes.ts`: реестр `registerLocation`/`getLocation` + `SceneManager`
+  (build/update локации, движение игрока через canMove, интеракции, выходы,
+  хук `isExitOpen` под интеграцию слайса 4); `core/phasedAssets.ts`: кэш
+  материалов по ключу+фазе (палитры 0–3 для floor/wall/door/wood/metal/plastic/
+  fabric/stone/glass/foliage/dirt), `setSlot` — свет/фон по слоту времени,
+  low-poly билдеры `buildBox`/`buildSolidBox`; vitest-тесты solids/scenes.
+- 2026-11-19 — `core/`: `engine.ts` (canvas + Engine/Scene + resize),
+  `input.ts` (edge-детект `pressed`/`held`, раскладка WASD/стрелки + E/Enter +
+  Esc + Shift, Backspace→cancel), `loop.ts` (game loop: poll → update → render,
+  кламп dt), `time.ts` (чистый `advanceSlot` morning→day→evening→morning+день);
+  vitest-тесты input/time.
+- 2026-11-19 — Vite-скелет под GitHub Pages: `vite` 8.3.8 (devDependency),
+  `vite.config.ts` с `base: "/babylonjs-jrpg-game/"`, `index.html` (canvas-хост,
+  полноэкранные стили), точка входа `src/app/main.ts` (плейсхолдер до
+  `feat(core)`-коммитов); скрипты `dev`/`build`/`preview`.
+- 2026-11-19 — `lint`-скрипт ужесточён до `eslint . --max-warnings 0`
+  (требование `docs/ARCHITECTURE.md` §6).
 - 2026-11-19 — базовый скелет сборки: `package.json` (пины TypeScript 5.9.3,
   vitest 5.1.1, eslint 10.15.0, typescript-eslint 8.73.0, prettier 3.10.1,
   @babylonjs/core 9.37.1), `tsconfig.json` (strict), eslint/prettier-конфиги;
@@ -42,5 +71,10 @@
 - 2026-11-18 — `README.md`: ссылка на межслайсовые контракты.
 
 ### Исправлено
+- 2026-11-19 — `core/solids.ts`: `canMove` клампил и грани ПОЗАДИ хода
+  (стена за спиной останавливала движение); теперь клампится только грань
+  между goal и start — регресс-тест «стена позади не мешает».
+- 2026-11-19 — `core/input.ts`: keyup снимал pressed — тап короче кадра
+  терялся; теперь edge живёт до ближайшего endFrame (регресс-тест).
 - 2026-11-18 — `AGENTS.md`: удалена случайная служебная строка «]», попавшая в файл
   при правке.

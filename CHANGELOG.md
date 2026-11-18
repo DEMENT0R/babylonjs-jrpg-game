@@ -5,6 +5,12 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — Vite-скелет под GitHub Pages: `vite` 8.3.8 (devDependency),
+  `vite.config.ts` с `base: "/babylonjs-jrpg-game/"`, `index.html` (canvas-хост,
+  полноэкранные стили), точка входа `src/app/main.ts` (плейсхолдер до
+  `feat(core)`-коммитов); скрипты `dev`/`build`/`preview`.
+- 2026-11-19 — `lint`-скрипт ужесточён до `eslint . --max-warnings 0`
+  (требование `docs/ARCHITECTURE.md` §6).
 - 2026-11-19 — базовый скелет сборки: `package.json` (пины TypeScript 5.9.3,
   vitest 5.1.1, eslint 10.15.0, typescript-eslint 8.73.0, prettier 3.10.1,
   @babylonjs/core 9.37.1), `tsconfig.json` (strict), eslint/prettier-конфиги;

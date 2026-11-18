@@ -5,6 +5,11 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — `core/`: `engine.ts` (canvas + Engine/Scene + resize),
+  `input.ts` (edge-детект `pressed`/`held`, раскладка WASD/стрелки + E/Enter +
+  Esc + Shift, Backspace→cancel), `loop.ts` (game loop: poll → update → render,
+  кламп dt), `time.ts` (чистый `advanceSlot` morning→day→evening→morning+день);
+  vitest-тесты input/time.
 - 2026-11-19 — Vite-скелет под GitHub Pages: `vite` 8.3.8 (devDependency),
   `vite.config.ts` с `base: "/babylonjs-jrpg-game/"`, `index.html` (canvas-хост,
   полноэкранные стили), точка входа `src/app/main.ts` (плейсхолдер до

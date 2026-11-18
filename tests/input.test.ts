@@ -1,0 +1,48 @@
+import { describe, expect, it } from "vitest";
+import { createInputState } from "../src/core/input";
+
+describe("input edge-детект", () => {
+  it("pressed — только в кадр нажатия, held — пока зажата", () => {
+    const s = createInputState();
+    s.keyDown("KeyW");
+    expect(s.pressed("up")).toBe(true);
+    expect(s.held("up")).toBe(true);
+    s.endFrame();
+    expect(s.pressed("up")).toBe(false);
+    expect(s.held("up")).toBe(true);
+    s.keyUp("KeyW");
+    expect(s.held("up")).toBe(false);
+    expect(s.pressed("up")).toBe(false);
+  });
+
+  it("повторный keyDown без keyUp не ре-триггерит pressed", () => {
+    const s = createInputState();
+    s.keyDown("Enter");
+    s.endFrame();
+    s.keyDown("Enter"); // имитация e.repeat, пропущенного обёрткой
+    expect(s.pressed("confirm")).toBe(false);
+    expect(s.held("confirm")).toBe(true);
+  });
+
+  it("axis: WASD и стрелки, противоположные клавиши гасятся", () => {
+    const s = createInputState();
+    s.keyDown("KeyD");
+    s.keyDown("ArrowUp");
+    expect(s.axis()).toEqual({ x: 1, y: 1 });
+    s.keyDown("KeyA"); // left + right = 0 по оси
+    expect(s.axis()).toEqual({ x: 0, y: 1 });
+    s.keyDown("KeyS");
+    expect(s.axis()).toEqual({ x: 0, y: 0 });
+  });
+
+  it("Shift = run, Esc = menu", () => {
+    const s = createInputState();
+    s.keyDown("ShiftLeft");
+    expect(s.held("run")).toBe(true);
+    expect(s.pressed("run")).toBe(true);
+    s.endFrame();
+    s.keyDown("Escape");
+    expect(s.pressed("menu")).toBe(true);
+    expect(s.held("run")).toBe(true);
+  });
+});

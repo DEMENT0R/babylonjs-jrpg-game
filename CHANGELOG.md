@@ -5,6 +5,10 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — `src/state/store.ts`: observable-стор без фреймворков по контракту
+  `Store<S>` (`src/types.ts`): structural copy драфта, смена ссылки стейта на
+  `update`, подписчик, добавленный во время нотификации, текущую волну не получает,
+  вложенный `update` не рекурсит; vitest-покрытие `tests/state/store.test.ts`.
 - 2026-11-19 — базовый скелет сборки: `package.json` (пины TypeScript 5.9.3,
   vitest 5.1.1, eslint 10.15.0, typescript-eslint 8.73.0, prettier 3.10.1,
   @babylonjs/core 9.37.1), `tsconfig.json` (strict), eslint/prettier-конфиги;

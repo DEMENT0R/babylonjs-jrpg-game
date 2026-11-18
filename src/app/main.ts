@@ -51,7 +51,13 @@ const initial: GameState = {
 declare global {
   interface Window {
     /** Отладочный доступ для ручной проверки DoD-1 (позиция/время из консоли браузера). */
-    __jrpg?: { pos(): [number, number]; time(): { day: number; slot: TimeSlot } };
+    __jrpg?: {
+      pos(): [number, number];
+      time(): { day: number; slot: TimeSlot };
+      engineInfo(): { fps: number; dtMs: number };
+      heldUp(): boolean;
+      debug(): { axis: { x: number; y: number }; def: string | null; mesh: [number, number] };
+    };
   }
 }
 
@@ -98,7 +104,17 @@ window.addEventListener("keydown", (e) => {
   assets.setSlot(time.slot);
 });
 
-window.__jrpg = { pos: () => store.get().pos, time: () => store.get().time };
+window.__jrpg = {
+  pos: () => store.get().pos,
+  time: () => store.get().time,
+  engineInfo: () => ({ fps: engine.getFps(), dtMs: engine.getDeltaTime() }),
+  heldUp: () => input.held("up"),
+  debug: () => ({
+    axis: input.axis(),
+    def: manager.currentId,
+    mesh: [playerMesh.position.x, playerMesh.position.z],
+  }),
+};
 
 startGameLoop(engine, scene, input, (dt) => {
   manager.update(dt);

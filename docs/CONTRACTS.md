@@ -71,7 +71,8 @@ interface ExitDef {
 }
 interface InteractDef { at: { x: number; z: number; r: number }; onConfirm(ctx: UpdateCtx): void }
 interface BuildCtx  { scene: Scene; worldPhase: number; assets: PhasedAssets; solids: SolidRegistry }
-interface UpdateCtx { scene: Scene; dt: number; input: Input; store: Store<GameState> }
+interface UpdateCtx { scene: Scene; dt: number; input: Input; store: Store<GameState>;
+                     content: IContentProvider } // интеракции могут двигать время с провалом окон квестов
 ```
 - `SolidRegistry` (стены/AABB) и `PhasedAssets` (одна геометрия → перекраска по фазе) —
   реализует слайс 1 в `core/`; `world/locations/*` только потребляет. Минимальный API

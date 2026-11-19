@@ -14,7 +14,7 @@
 ## Словарь условий и эффектов (общий для всех типов)
 
 ```
-Cond   = { type: "flag" | "item" | "stat" | "quest" | "worldPhase" | "timeSlot",
+Cond   = { type: "flag" | "item" | "stat" | "quest" | "worldPhase" | "timeSlot" | "day",
            id?: string, op: "eq" | "gte" | "lte", value: number | string | boolean }
 Effect = one of:
   { type: "setFlag",        id, value? }
@@ -27,6 +27,8 @@ Effect = one of:
   { type: "setWorldPhase",  phase: 0|1|2|3 }  // единственный способ сменить фазу мира
   { type: "joinParty" | "leaveParty", npc }
 ```
+- `day` сравнивает `time.day` целым числом (`{ "type": "day", "op": "gte", "value": 3 }`
+  — «не раньше третьего дня»); `id` не используется.
 
 ## DialogNode
 ```json
@@ -74,6 +76,18 @@ Effect = one of:
   actions: [{ id, name, power, effects: Effect[] }],
   loot: [{ item, chance }], xp }
 ```
+
+## Encounter (стычка в локации)
+```
+{ id, location: "<location-id>", enemy: "<enemy-id>",
+  conditions?: Cond[],                 // когда стычка появляется
+  onWinEffects?: Effect[],             // победа; стычка закрывается флагом encounter:<id>:done
+  onLoseEffects?: Effect[] }           // поражение/побег; попытка сохраняется
+```
+- Проверяется при входе в локацию (`systems/encounters.ts` + `app/main.ts`), бой
+  запускается без диалога. Победа выставляет `encounter:<id>:done` в `flags` и
+  применяет `onWinEffects`; поражение/побег применяет `onLoseEffects` и оставляет
+  стычку доступной при повторном входе.
 
 ## NPC
 ```

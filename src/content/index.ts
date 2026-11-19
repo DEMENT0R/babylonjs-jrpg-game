@@ -28,6 +28,8 @@ export interface IContentProvider {
   getBackground(id: BackgroundId): BackgroundDef;
   /** НПС, присутствующие в локации в данной фазе мира (для расстановки/интеракций). */
   npcsAt(location: string, phase: number): Npc[];
+  /** Все предметы контента (для меню крафта); порядок — как в JSON. */
+  allItems(): Item[];
 }
 
 export type { ContentData } from "./types";
@@ -73,6 +75,7 @@ export function createContentProvider(data: ContentData): IContentProvider {
         const p = npc.phases[phase];
         return npc.home === location && p !== undefined && p.present;
       }),
+    allItems: () => data.items.map((item) => item),
   };
 }
 

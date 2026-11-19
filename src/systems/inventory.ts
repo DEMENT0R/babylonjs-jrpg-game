@@ -39,3 +39,50 @@ export function removeItem(
   if (entry.qty === 0) draft.inventory = draft.inventory.filter((it) => it !== entry);
   return true;
 }
+
+// ─── Крафт (рецепты из контента, docs/CONTENT_SCHEMAS.md) ─────────────────────
+
+export interface CraftStatus {
+  ok: boolean;
+  /** Причина недоступности для UI; null, если крафт возможен. */
+  reason: string | null;
+}
+
+/** Почему крафт недоступен: навык, ингредиенты или стек результата. Чистая. */
+export function craftStatus(
+  state: GameState,
+  content: IContentProvider,
+  itemId: string,
+): CraftStatus {
+  const item = content.getItem(itemId);
+  const recipe = item.recipe;
+  if (!recipe) throw new Error(`Крафт: у предмета "${itemId}" нет рецепта`);
+  if (state.hero.stats[recipe.stat] < recipe.dc) {
+    return { ok: false, reason: `навык ${recipe.stat} ниже ${recipe.dc}` };
+  }
+  for (const input of recipe.inputs) {
+    const have = countItem(state, input.item);
+    if (have < input.qty) {
+      return { ok: false, reason: `не хватает ${input.item} (${have}/${input.qty})` };
+    }
+  }
+  if (countItem(state, itemId) + 1 > item.stack) {
+    return { ok: false, reason: "стек результата полон" };
+  }
+  return { ok: true, reason: null };
+}
+
+/** Крафт: тратит ингредиенты и добавляет 1 шт. результата; false — недоступен
+ *  (навык/ингредиенты/стек; стейт в этом случае не меняется). */
+export function craftItem(
+  draft: GameState,
+  content: IContentProvider,
+  itemId: string,
+): boolean {
+  if (!craftStatus(draft, content, itemId).ok) return false;
+  const recipe = content.getItem(itemId).recipe;
+  if (!recipe) throw new Error(`Крафт: у предмета "${itemId}" нет рецепта`);
+  for (const input of recipe.inputs) removeItem(draft, content, input.item, input.qty);
+  addItem(draft, content, itemId, 1);
+  return true;
+}

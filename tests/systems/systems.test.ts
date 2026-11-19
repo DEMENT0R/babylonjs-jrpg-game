@@ -6,7 +6,13 @@ import type { GameState } from "../../src/types";
 import { resolveCond, resolveConds } from "../../src/systems/conditions";
 import { chooseDialog, npcDialogId, openDialog, visibleChoices } from "../../src/systems/dialog";
 import { applyEffects, advanceTime } from "../../src/systems/effects";
-import { addItem, countItem, removeItem } from "../../src/systems/inventory";
+import {
+  addItem,
+  countItem,
+  craftItem,
+  craftStatus,
+  removeItem,
+} from "../../src/systems/inventory";
 import { awardXp, maxHp, spendSkillPoint, xpToNextLevel } from "../../src/systems/stats";
 
 const data: ContentData = {
@@ -70,6 +76,21 @@ const data: ContentData = {
   items: [
     { id: "bandage", name: "Бинт", category: "consumable", stack: 2, effects: [] },
     { id: "pill", name: "Таблетка", category: "consumable", stack: 5, effects: [] },
+    {
+      id: "medkit",
+      name: "Аптечка",
+      category: "consumable",
+      stack: 1,
+      effects: [],
+      recipe: {
+        inputs: [
+          { item: "bandage", qty: 2 },
+          { item: "pill", qty: 1 },
+        ],
+        stat: "medicine",
+        dc: 2,
+      },
+    },
   ],
   enemies: [],
   encounters: [],
@@ -371,5 +392,48 @@ describe("character", () => {
     });
     expect(save.hero.stats.repair).toBe(3);
     expect(newGameForBackground(full, "engineer", "Свой").hero.name).toBe("Свой");
+  });
+});
+
+describe("craft", () => {
+  function craftable(): GameState {
+    return stateWith((s) => {
+      s.hero.stats.medicine = 2;
+      addItem(s, content, "bandage", 2);
+      addItem(s, content, "pill", 1);
+    });
+  }
+
+  it("крафт тратит входы и добавляет результат", () => {
+    const s = craftable();
+    expect(craftItem(s, content, "medkit")).toBe(true);
+    expect(countItem(s, "medkit")).toBe(1);
+    expect(countItem(s, "bandage")).toBe(0);
+    expect(countItem(s, "pill")).toBe(0);
+  });
+
+  it("низкий навык — false без изменений стейта", () => {
+    const s = craftable();
+    s.hero.stats.medicine = 1;
+    expect(craftItem(s, content, "medkit")).toBe(false);
+    expect(craftStatus(s, content, "medkit").reason).toContain("medicine");
+    expect(s.inventory).toHaveLength(2);
+  });
+
+  it("нехватка ингредиентов и полный стек результата — false без изменений", () => {
+    const noPills = craftable();
+    removeItem(noPills, content, "pill", 1);
+    expect(craftItem(noPills, content, "medkit")).toBe(false);
+    expect(craftStatus(noPills, content, "medkit").reason).toContain("pill");
+
+    const fullStack = craftable();
+    addItem(fullStack, content, "medkit", 1);
+    expect(craftItem(fullStack, content, "medkit")).toBe(false);
+    expect(craftStatus(fullStack, content, "medkit").reason).toContain("стек");
+  });
+
+  it("предмет без рецепта — ошибка контента", () => {
+    const s = craftable();
+    expect(() => craftItem(s, content, "bandage")).toThrow("нет рецепта");
   });
 });

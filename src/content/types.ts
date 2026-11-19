@@ -13,7 +13,7 @@ export interface ContentFile<T> {
 
 /** Условие показа/доступности. `id` обязателен для flag/item/stat/quest. */
 export interface Cond {
-  type: "flag" | "item" | "stat" | "quest" | "worldPhase" | "timeSlot";
+  type: "flag" | "item" | "stat" | "quest" | "worldPhase" | "timeSlot" | "day";
   id?: string;
   op: "eq" | "gte" | "lte";
   value: number | string | boolean;
@@ -104,6 +104,18 @@ export interface Enemy {
   xp: number;
 }
 
+/** Стычка в локации: враг из контента, условия появления и эффекты исхода.
+ *  Одноразовый: победа помечает `encounter:<id>:done`, поражение/побег — нет
+ *  (можно вернуться и попробовать снова). */
+export interface Encounter {
+  id: string;
+  location: string;
+  enemy: string;
+  conditions?: Cond[];
+  onWinEffects?: Effect[];
+  onLoseEffects?: Effect[];
+}
+
 export interface NpcPhase {
   dialog: string;
   present: boolean;
@@ -139,6 +151,7 @@ export interface ContentData {
   quests: Quest[];
   items: Item[];
   enemies: Enemy[];
+  encounters: Encounter[];
   npcs: Npc[];
   skills: SkillDef[];
   backgrounds: BackgroundDef[];

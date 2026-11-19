@@ -289,42 +289,10 @@
     {
       "id": "boris-p1-warehouse",
       "npc": "boris",
-      "text": "Склад за аптекой. Там уже хулиганы. Ящик с медикаментами надо забрать.",
+      "text": "Склад за аптекой. Там уже хулиганы — без драки ящик не отдадут. Забери его.",
       "choices": [
         {
-          "text": "Забрать ящик.",
-          "conditions": [
-            {
-              "type": "quest",
-              "id": "q-hospital-panic",
-              "op": "eq",
-              "value": "active"
-            },
-            {
-              "type": "flag",
-              "id": "meds-crate-taken",
-              "op": "eq",
-              "value": false
-            }
-          ],
-          "effects": [
-            {
-              "type": "setFlag",
-              "id": "meds-crate-taken",
-              "value": true
-            },
-            {
-              "type": "giveItem",
-              "item": "meds-crate",
-              "qty": 1
-            },
-            {
-              "type": "advanceQuest",
-              "quest": "q-hospital-panic",
-              "stage": "deliver"
-            }
-          ],
-          "next": "boris-p1-deliver"
+          "text": "Понял, иду."
         },
         {
           "text": "Не сейчас."
@@ -626,6 +594,11 @@
               "id": "q-day3-end",
               "op": "eq",
               "value": "none"
+            },
+            {
+              "type": "day",
+              "op": "gte",
+              "value": 3
             }
           ],
           "effects": [
@@ -644,6 +617,11 @@
               "id": "q-day3-end",
               "op": "eq",
               "value": "active"
+            },
+            {
+              "type": "day",
+              "op": "gte",
+              "value": 3
             },
             {
               "type": "timeSlot",
@@ -715,6 +693,11 @@
               "id": "q-day3-end",
               "op": "eq",
               "value": "none"
+            },
+            {
+              "type": "day",
+              "op": "gte",
+              "value": 3
             }
           ],
           "effects": [

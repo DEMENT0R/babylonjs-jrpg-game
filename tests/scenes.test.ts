@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Mesh, Scene } from "@babylonjs/core";
+import type { IContentProvider } from "../src/content";
 import type { GameState, LocationDef, PhasedAssets, Store } from "../src/types";
 import {
   findExit,
@@ -123,6 +124,7 @@ describe("SceneManager: смена локации", () => {
       assets: fakeAssets,
       store,
       input: idleInput,
+      content: {} as IContentProvider,
       player: { mesh: playerMesh, radius: 0.4 },
       isExitOpen: isExitOpen,
     });

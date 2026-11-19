@@ -6,6 +6,7 @@ import type {
   ContentData,
   ContentFile,
   DialogNode,
+  Encounter,
   Enemy,
   Item,
   Npc,
@@ -19,6 +20,9 @@ export interface IContentProvider {
   getQuest(id: string): Quest;
   getItem(id: string): Item;
   getEnemy(id: string): Enemy;
+  getEncounter(id: string): Encounter;
+  /** Стычки, привязанные к локации (условия проверяет systems/encounters). */
+  encountersAt(location: string): Encounter[];
   getNpc(id: string): Npc;
   getSkill(id: string): SkillDef;
   getBackground(id: BackgroundId): BackgroundDef;
@@ -49,6 +53,7 @@ export function createContentProvider(data: ContentData): IContentProvider {
   const quests = indexById("quest", data.quests);
   const items = indexById("item", data.items);
   const enemies = indexById("enemy", data.enemies);
+  const encounters = indexById("encounter", data.encounters);
   const npcs = indexById("npc", data.npcs);
   const skills = indexById("skill", data.skills);
   const backgrounds = indexById("background", data.backgrounds);
@@ -58,6 +63,8 @@ export function createContentProvider(data: ContentData): IContentProvider {
     getQuest: (id) => require_("quest", quests, id),
     getItem: (id) => require_("item", items, id),
     getEnemy: (id) => require_("enemy", enemies, id),
+    getEncounter: (id) => require_("encounter", encounters, id),
+    encountersAt: (location) => data.encounters.filter((e) => e.location === location),
     getNpc: (id) => require_("npc", npcs, id),
     getSkill: (id) => require_("skill", skills, id),
     getBackground: (id) => require_("background", backgrounds, id),

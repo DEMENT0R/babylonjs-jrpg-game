@@ -3,6 +3,7 @@ import { unwrapContent } from "../../src/content";
 import { loadBundledContent } from "../../src/content/bundled";
 import backgroundsFile from "../../src/content/data/backgrounds.json";
 import dialogsFile from "../../src/content/data/dialogs.json";
+import encountersFile from "../../src/content/data/encounters.json";
 import enemiesFile from "../../src/content/data/enemies.json";
 import itemsFile from "../../src/content/data/items.json";
 import npcsFile from "../../src/content/data/npcs.json";
@@ -13,6 +14,7 @@ import type {
   ContentData,
   ContentFile,
   DialogNode,
+  Encounter,
   Enemy,
   Item,
   Npc,
@@ -30,6 +32,10 @@ function bundledData(): ContentData {
     quests: unwrapContent<Quest>(questsFile as unknown as ContentFile<Quest>, "quests"),
     items: unwrapContent<Item>(itemsFile as unknown as ContentFile<Item>, "items"),
     enemies: unwrapContent<Enemy>(enemiesFile as unknown as ContentFile<Enemy>, "enemies"),
+    encounters: unwrapContent<Encounter>(
+      encountersFile as unknown as ContentFile<Encounter>,
+      "encounters",
+    ),
     npcs: unwrapContent<Npc>(npcsFile as unknown as ContentFile<Npc>, "npcs"),
     skills: unwrapContent<SkillDef>(skillsFile as unknown as ContentFile<SkillDef>, "skills"),
     backgrounds: unwrapContent<BackgroundDef>(
@@ -96,5 +102,17 @@ describe("validateContent", () => {
     first(data.quests).stages = [];
     const errors = validateContent(data);
     expect(errors.some((error) => error.includes("stages: пустой массив"))).toBe(true);
+  });
+
+  it("стычка: битые локация/враг и нечисловой день", () => {
+    const data = structuredClone(bundledData());
+    const encounter = first(data.encounters);
+    encounter.location = "nowhere";
+    encounter.enemy = "nobody";
+    encounter.conditions = [{ type: "day", op: "gte", value: 0 }];
+    const errors = validateContent(data);
+    expect(errors.some((error) => error.includes("encounters[0].location"))).toBe(true);
+    expect(errors.some((error) => error.includes("encounters[0].enemy"))).toBe(true);
+    expect(errors.some((error) => error.includes("номер дня"))).toBe(true);
   });
 });

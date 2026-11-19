@@ -21,7 +21,7 @@ const LOCATIONS: Record<string, true> = {
 const BACKGROUND_IDS = ["intern", "student", "engineer"] as const;
 const ITEM_CATEGORIES = ["consumable", "material", "tool"] as const;
 const RECIPE_STATS = ["repair", "medicine"] as const;
-const COND_TYPES = ["flag", "item", "stat", "quest", "worldPhase", "timeSlot"] as const;
+const COND_TYPES = ["flag", "item", "stat", "quest", "worldPhase", "timeSlot", "day"] as const;
 const COND_OPS = ["eq", "gte", "lte"] as const;
 const QUEST_STATUSES = ["none", "active", "done", "failed"] as const;
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -84,6 +84,14 @@ const ENEMY_ACTION_FIELDS: Record<string, true> = {
   effects: true,
 };
 const LOOT_FIELDS: Record<string, true> = { item: true, chance: true };
+const ENCOUNTER_FIELDS: Record<string, true> = {
+  id: true,
+  location: true,
+  enemy: true,
+  conditions: true,
+  onWinEffects: true,
+  onLoseEffects: true,
+};
 const NPC_FIELDS: Record<string, true> = { id: true, name: true, home: true, phases: true };
 const NPC_PHASE_FIELDS: Record<string, true> = { dialog: true, present: true };
 const SKILL_FIELDS: Record<string, true> = { id: true, name: true, effect: true };
@@ -388,6 +396,10 @@ function validateCond(raw: unknown, path: string, refs: Refs, errors: string[]):
     if (typeof value !== "boolean") errors.push(`${path}.value: для flag ожидался boolean`);
   } else if (type === "stat" || type === "item") {
     if (typeof value !== "number") errors.push(`${path}.value: ожидалось число`);
+  } else if (type === "day") {
+    if (typeof value !== "number" || !Number.isInteger(value) || value < 1) {
+      errors.push(`${path}.value: номер дня должен быть целым >= 1`);
+    }
   }
 }
 
@@ -680,6 +692,28 @@ function validateEnemy(raw: unknown, path: string, refs: Refs, errors: string[])
   if (xp !== undefined && xp < 0) errors.push(`${path}.xp: ожидалось число >= 0`);
 }
 
+function validateEncounter(raw: unknown, path: string, refs: Refs, errors: string[]): void {
+  if (!isObject(raw)) {
+    errors.push(`${path}: ожидался объект стычки`);
+    return;
+  }
+  checkFields(raw, ENCOUNTER_FIELDS, path, errors);
+  const location = readString(raw, "location", path, errors);
+  if (location !== undefined && LOCATIONS[location] !== true) {
+    errors.push(`${path}.location: неизвестная локация "${location}"`);
+  }
+  readRef(raw, "enemy", refs.enemies, "враг", path, errors);
+
+  if (raw.conditions !== undefined) {
+    const conditions = asArray(raw.conditions, `${path}.conditions`, errors);
+    conditions.forEach((cond, index) =>
+      validateCond(cond, `${path}.conditions[${index}]`, refs, errors),
+    );
+  }
+  checkArrayOfEffects(raw.onWinEffects, `${path}.onWinEffects`, refs, errors, false);
+  checkArrayOfEffects(raw.onLoseEffects, `${path}.onLoseEffects`, refs, errors, false);
+}
+
 function validateNpc(raw: unknown, path: string, refs: Refs, errors: string[]): void {
   if (!isObject(raw)) {
     errors.push(`${path}: ожидался объект NPC`);
@@ -770,6 +804,7 @@ export function validateContent(data: ContentData): string[] {
   const quests = asArray(rawData.quests, "quests", errors);
   const items = asArray(rawData.items, "items", errors);
   const enemies = asArray(rawData.enemies, "enemies", errors);
+  const encounters = asArray(rawData.encounters, "encounters", errors);
   const npcs = asArray(rawData.npcs, "npcs", errors);
   const skills = asArray(rawData.skills, "skills", errors);
   const backgrounds = asArray(rawData.backgrounds, "backgrounds", errors);
@@ -789,6 +824,9 @@ export function validateContent(data: ContentData): string[] {
   quests.forEach((entry, index) => validateQuest(entry, `quests[${index}]`, refs, errors));
   items.forEach((entry, index) => validateItem(entry, `items[${index}]`, refs, errors));
   enemies.forEach((entry, index) => validateEnemy(entry, `enemies[${index}]`, refs, errors));
+  encounters.forEach((entry, index) =>
+    validateEncounter(entry, `encounters[${index}]`, refs, errors),
+  );
   npcs.forEach((entry, index) => validateNpc(entry, `npcs[${index}]`, refs, errors));
   skills.forEach((entry, index) => validateSkill(entry, `skills[${index}]`, refs, errors));
   backgrounds.forEach((entry, index) =>

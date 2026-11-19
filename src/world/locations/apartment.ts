@@ -2,6 +2,8 @@
 // Дверь: юг → campus (общага/универ рядом с домом).
 
 import type { ExitDef, LocationDef, SolidBox } from "../../types";
+import { slotsToEvening, slotsToMorning } from "../../core/time";
+import { advanceTime } from "../../systems/effects";
 import {
   boxMesh,
   doorMesh,
@@ -38,7 +40,27 @@ export const apartment: LocationDef = {
       label: "Выход во двор — к общаге",
     },
   ] satisfies ExitDef[],
-  interacts: [],
+  interacts: [
+    {
+      // Кровать: сон до следующего утра (день 1 → день 2 → день 3).
+      at: { x: -7.5, z: -4.1, r: 1.5 },
+      onConfirm: (ctx) => {
+        ctx.store.update((draft) =>
+          advanceTime(draft, ctx.content, slotsToMorning(draft.time.slot)),
+        );
+      },
+    },
+    {
+      // Стол: переждать до вечера, не тратя ночь.
+      at: { x: 5, z: 2.3, r: 1.5 },
+      onConfirm: (ctx) => {
+        ctx.store.update((draft) => {
+          const slots = slotsToEvening(draft.time.slot);
+          if (slots > 0) advanceTime(draft, ctx.content, slots);
+        });
+      },
+    },
+  ],
 
   build(ctx) {
     registerSolids(ctx, SOLIDS);

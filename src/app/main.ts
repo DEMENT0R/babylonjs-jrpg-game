@@ -1,6 +1,7 @@
 import { ArcRotateCamera, Color3, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { createNpcPresenter } from "./npcs";
 import { loadBundledContent } from "../content/bundled";
+import type { Encounter } from "../content/types";
 import { createGameEngine } from "../core/engine";
 import { createGamepadDriver } from "../core/gamepad";
 import { attachKeyboard, createInputState } from "../core/input";
@@ -12,6 +13,7 @@ import { LocalStorageProvider } from "../state/persistence/LocalStorageProvider"
 import { createStore } from "../state/store";
 import { act, startCombat, type CombatState } from "../systems/combat";
 import { advanceTime } from "../systems/effects";
+import { selectEncounter, settleEncounter } from "../systems/encounters";
 import { npcDialogId } from "../systems/dialog";
 import { newGameForBackground } from "../systems/character";
 import { addItem } from "../systems/inventory";
@@ -78,6 +80,7 @@ const manager = new SceneManager({
   assets,
   store,
   input,
+  content,
   player: { mesh: playerMesh, radius: 0.4 },
   isExitOpen,
 });
@@ -94,6 +97,8 @@ const menu = createPauseMenu({
   onQuit: () => window.location.reload(),
   onLoad: (loaded) => {
     assets.setSlot(loaded.time.slot);
+    // Сейв мог быть сохранён уже в локации стычки — перепроверить её при загрузке.
+    encounterCheckedLocation = "";
     manager.enter(loaded.location, { x: loaded.pos[0]!, z: loaded.pos[1]! });
   },
 });
@@ -101,6 +106,8 @@ const menu = createPauseMenu({
 // Бой: экран только рисует состояние, вся логика — systems/combat.ts.
 let battle: CombatState | null = null;
 let battleXp = 0;
+/** Стычка, запустившая текущий бой (null — отладочный бой с клавиши B). */
+let activeEncounter: Encounter | null = null;
 const battleScreen = createBattleScreen(document.body, {
   onAction: (action) => {
     if (!battle || battle.outcome !== "ongoing") return;
@@ -138,6 +145,8 @@ function startBattle(enemyId: string): void {
 
 /** Исход боя в сейв: HP, XP/лут за победу; поражение — больница-квартира с 1 HP. */
 function settleBattle(result: CombatState): void {
+  const encounter = activeEncounter;
+  activeEncounter = null;
   store.update((draft) => {
     draft.hero.hp = Math.min(maxHp(draft), Math.max(0, result.hero.hp));
     if (result.outcome === "win") {
@@ -147,6 +156,9 @@ function settleBattle(result: CombatState): void {
       draft.hero.hp = 1;
       draft.location = "apartment";
       draft.pos = [0, 0];
+    }
+    if (encounter && result.outcome !== "ongoing") {
+      settleEncounter(content, encounter, result.outcome, draft);
     }
   });
 }
@@ -208,6 +220,8 @@ function modalOpen(): boolean {
   return dialog.isOpen() || menu.isOpen() || select.isOpen() || battle !== null;
 }
 
+let encounterCheckedLocation = "";
+
 const gamepad = createGamepadDriver(input, (action) => {
   if (modalOpen()) emitUiAction(action);
 });
@@ -222,6 +236,19 @@ startGameLoop(engine, scene, input, (dt) => {
   const state = store.get();
   npcPresenter.sync(state.location, state.worldPhase);
   if (modalOpen()) return;
+
+  // Стычка проверяется один раз на вход в локацию: побег/поражение не запирают
+  // игрока, а повторный вход даёт новую попытку (успех помечает стычку пройденной).
+  if (state.location !== encounterCheckedLocation) {
+    encounterCheckedLocation = state.location;
+    const encounter = selectEncounter(content, state);
+    if (encounter) {
+      activeEncounter = encounter;
+      startBattle(encounter.enemy);
+      return;
+    }
+  }
+
   manager.update(dt);
 
   if (input.pressed("confirm")) {

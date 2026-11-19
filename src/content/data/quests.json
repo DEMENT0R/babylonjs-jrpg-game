@@ -163,7 +163,7 @@
           "id": "dinner",
           "description": "Собрать соседей за столом.",
           "timeWindow": {
-            "days": 2,
+            "days": 0,
             "from": "morning",
             "to": "evening"
           }

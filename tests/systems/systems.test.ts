@@ -72,6 +72,7 @@ const data: ContentData = {
     { id: "pill", name: "Таблетка", category: "consumable", stack: 5, effects: [] },
   ],
   enemies: [],
+  encounters: [],
   npcs: [
     {
       id: "luda",
@@ -118,6 +119,16 @@ describe("conditions", () => {
     const s = stateWith();
     expect(resolveCond({ type: "quest", id: "q", op: "eq", value: "none" }, s)).toBe(true);
     expect(resolveCond({ type: "quest", id: "q", op: "eq", value: "active" }, s)).toBe(false);
+  });
+
+  it("day: сравнение номера дня (гейт дня 3)", () => {
+    const s = stateWith();
+    s.time.day = 2;
+    expect(resolveCond({ type: "day", op: "gte", value: 3 }, s)).toBe(false);
+    s.time.day = 3;
+    expect(resolveCond({ type: "day", op: "gte", value: 3 }, s)).toBe(true);
+    expect(resolveCond({ type: "day", op: "eq", value: 3 }, s)).toBe(true);
+    expect(resolveCond({ type: "day", op: "lte", value: 2 }, s)).toBe(false);
   });
 
   it("timeSlot: morning < day < evening для gte/lte", () => {

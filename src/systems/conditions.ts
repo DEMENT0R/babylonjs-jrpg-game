@@ -43,6 +43,8 @@ export function resolveCond(cond: Cond, state: GameState): boolean {
     }
     case "worldPhase":
       return compare(state.worldPhase, cond.op, Number(cond.value));
+    case "day":
+      return compare(state.time.day, cond.op, Number(cond.value));
     case "timeSlot": {
       const rank = SLOT_RANK[state.time.slot];
       const target = SLOT_RANK[cond.value as TimeSlot];

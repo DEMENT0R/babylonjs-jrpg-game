@@ -10,6 +10,7 @@ import type {
   UpdateCtx,
   WorldPhase,
 } from "../types";
+import type { IContentProvider } from "../content";
 import { createSolidRegistry, type SolidField } from "./solids";
 
 const registry = new Map<string, LocationDef>();
@@ -51,6 +52,7 @@ export interface SceneManagerOptions {
   assets: PhasedAssets;
   store: Store<GameState>;
   input: Input;
+  content: IContentProvider;
   /** Меш игрока: позицию ведёт менеджер (радиус — для коллизий). */
   player: { mesh: Mesh; radius: number };
   /** Хук интеграции слайса 4 (isExitOpen); по умолчанию все переходы открыты. */
@@ -104,6 +106,7 @@ export class SceneManager {
       dt,
       input: this.o.input,
       store: this.o.store,
+      content: this.o.content,
     };
     this.def.update(uctx);
     this.checkInteracts(uctx);

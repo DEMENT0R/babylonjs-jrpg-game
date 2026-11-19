@@ -1,0 +1,48 @@
+{
+  "contentVersion": 1,
+  "locale": "ru",
+  "data": [
+    {
+      "id": "warehouse-guards",
+      "location": "pharmacy",
+      "enemy": "bully",
+      "conditions": [
+        {
+          "type": "quest",
+          "id": "q-hospital-panic",
+          "op": "eq",
+          "value": "active"
+        },
+        {
+          "type": "item",
+          "id": "meds-crate",
+          "op": "lte",
+          "value": 0
+        },
+        {
+          "type": "flag",
+          "id": "warehouse-cleared",
+          "op": "eq",
+          "value": false
+        }
+      ],
+      "onWinEffects": [
+        {
+          "type": "setFlag",
+          "id": "warehouse-cleared",
+          "value": true
+        },
+        {
+          "type": "giveItem",
+          "item": "meds-crate",
+          "qty": 1
+        },
+        {
+          "type": "advanceQuest",
+          "quest": "q-hospital-panic",
+          "stage": "deliver"
+        }
+      ]
+    }
+  ]
+}

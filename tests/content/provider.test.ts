@@ -15,6 +15,7 @@ const data: ContentData = {
   quests: [],
   items: [],
   enemies: [],
+  encounters: [],
   npcs: [npc("a", "apartment", true), npc("b", "apartment", false), npc("c", "square", true)],
   skills: [],
   backgrounds: [],

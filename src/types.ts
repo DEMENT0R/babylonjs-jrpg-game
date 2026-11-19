@@ -3,6 +3,7 @@
 // тем же коммитом. Менять сигнатуры — только отдельным коммитом с правкой доков.
 
 import type { Material, Scene } from "@babylonjs/core";
+import type { IContentProvider } from "./content";
 
 // ─── Store (state/store.ts, слайс 2; потребители 3, 5, 6) ─────────────────────
 
@@ -125,6 +126,8 @@ export interface UpdateCtx {
   dt: number;
   input: Input;
   store: Store<GameState>;
+  /** Контент для интеракций локаций (например, провал окон квестов при отдыхе). */
+  content: IContentProvider;
 }
 
 export interface LocationDef {

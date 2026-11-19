@@ -7,13 +7,14 @@ import type { GameState, Store } from "../types";
 import { onUiAction } from "../core/uiActions";
 import "./ui.css";
 
-/** Задержка печати одного символа, мс. */
-const TYPE_MS = 30;
+/** Задержка печати одного символа по умолчанию, мс. */
+const DEFAULT_TYPE_MS = 30;
 
 export interface DialogBoxOptions {
   content: IContentProvider;
   store: Store<GameState>;
-  /** Хост оверлея (по умолчанию document.body). */
+  /** Задержка печати символа, мс; 0 — печатать сразу. Меняется настройкой. */
+  typeMs?: number;
   host?: HTMLElement;
   onClose?(): void;
 }
@@ -22,6 +23,8 @@ export interface DialogBox {
   open(nodeId: string): void;
   close(): void;
   isOpen(): boolean;
+  /** Новая задержка печати, мс (0 — сразу); применяется к следующему open. */
+  setTextSpeed(ms: number): void;
   dispose(): void;
 }
 
@@ -29,6 +32,7 @@ export interface DialogBox {
 export function createDialogBox(opts: DialogBoxOptions): DialogBox {
   const { content, store } = opts;
   const host = opts.host ?? document.body;
+  let typeMs = Math.max(0, opts.typeMs ?? DEFAULT_TYPE_MS);
 
   const root = document.createElement("div");
   root.className = "ui-dialog";
@@ -127,11 +131,15 @@ export function createDialogBox(opts: DialogBoxOptions): DialogBox {
       finishTyping();
       return;
     }
+    if (typeMs === 0) {
+      finishTyping();
+      return;
+    }
     typeTimer = window.setInterval(() => {
       typedCount += 1;
       textEl.textContent = typed.slice(0, typedCount).join("");
       if (typedCount >= typed.length) finishTyping();
-    }, TYPE_MS);
+    }, typeMs);
   };
 
   const show = (view: DialogView): void => {
@@ -248,6 +256,9 @@ export function createDialogBox(opts: DialogBoxOptions): DialogBox {
     },
     close,
     isOpen: () => shown,
+    setTextSpeed(ms: number): void {
+      typeMs = Math.max(0, ms);
+    },
     dispose(): void {
       close();
       offUiAction();

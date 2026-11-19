@@ -25,6 +25,7 @@ import { createDialogBox } from "../ui/dialogBox";
 import { createHud } from "../ui/hud";
 import { createPauseMenu } from "../ui/menu";
 import { attachTouchControls, prefersTouchControls } from "../ui/touchControls";
+import { readTextSpeed, readTouchSetting, writeTouchSetting } from "../ui/settings";
 import { allLocations, isExitOpen } from "../world";
 import { demoRoom } from "../world/locations/demo-room";
 
@@ -54,7 +55,23 @@ const content = loadBundledContent();
 const { engine, scene } = createGameEngine();
 const input = createInputState();
 attachKeyboard(input);
-const touch = prefersTouchControls() ? attachTouchControls(input) : null;
+// Тач-панель: ?touch=1|0 — ручной override, иначе сохранённая настройка или auto-detect.
+const forcedTouch = new URLSearchParams(window.location.search).get("touch");
+const touchEnabled =
+  forcedTouch !== null ? forcedTouch === "1" : (readTouchSetting() ?? prefersTouchControls());
+let touch = touchEnabled ? attachTouchControls(input) : null;
+
+/** Применить настройку тач-панели: панель создаётся/убирается на лету. */
+function setTouchEnabled(on: boolean): void {
+  writeTouchSetting(on);
+  if (on) {
+    touch ??= attachTouchControls(input);
+  } else if (touch) {
+    touch.dispose();
+    touch = null;
+  }
+}
+
 const assets = createPhasedAssets(scene);
 
 // До character select — стартовый сейв интерна; выбор бэкграунда заменит его.
@@ -88,13 +105,17 @@ manager.enter(store.get().location, { x: store.get().pos[0]!, z: store.get().pos
 
 const npcPresenter = createNpcPresenter(scene, content);
 createHud(store); // живёт до перезагрузки страницы
-const dialog = createDialogBox({ content, store });
+const dialog = createDialogBox({ content, store, typeMs: readTextSpeed() });
 const storage = new LocalStorageProvider();
 const menu = createPauseMenu({
   storage,
   store,
+  content,
   onResume: () => {},
   onQuit: () => window.location.reload(),
+  isTouchEnabled: () => touch !== null,
+  onTouchChange: setTouchEnabled,
+  onTextSpeedChange: (ms) => dialog.setTextSpeed(ms),
   onLoad: (loaded) => {
     assets.setSlot(loaded.time.slot);
     // Сейв мог быть сохранён уже в локации стычки — перепроверить её при загрузке.

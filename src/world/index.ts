@@ -10,6 +10,17 @@ import { pharmacy, solidsOf as pharmacySolids } from "./locations/pharmacy";
 import { square, solidsOf as squareSolids } from "./locations/square";
 import { workshop, solidsOf as workshopSolids } from "./locations/workshop";
 
+/** Русские названия локаций для меню/карты; id — ключи LOCATION_IDS. */
+export const LOCATION_TITLES: Readonly<Record<string, string>> = {
+  apartment: "Квартира",
+  campus: "Универ и общага",
+  square: "Площадь района",
+  hospital: "Больница",
+  pharmacy: "Аптека",
+  workshop: "Мастерская",
+  "metro-station": "Метро",
+};
+
 export const allLocations = [apartment, campus, square, hospital, pharmacy, workshop, metroStation];
 
 export const LOCATION_IDS = allLocations.map((l) => l.id) as string[];

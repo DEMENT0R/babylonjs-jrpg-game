@@ -5,7 +5,8 @@ import type { GameState, Store, TimeSlot } from "../types";
 import { maxHp, xpToNextLevel } from "../systems/stats";
 import "./ui.css";
 
-const SLOT_LABELS: Record<TimeSlot, string> = {
+/** Русские метки слотов времени (общие для HUD и меню). */
+export const SLOT_LABELS: Record<TimeSlot, string> = {
   morning: "Утро",
   day: "День",
   evening: "Вечер",

@@ -346,9 +346,11 @@
   border-radius: 6px;
 }
 
+.ui-menu__title {
+  margin: 0 0 16px;
+  font-size: 18px;
   font-weight: 600;
-  background: var(--ui-accent);
-  border-color: var(--ui-accent);
+  letter-spacing: 0.04em;
 }
 .ui-menu__slots {
   display: flex;

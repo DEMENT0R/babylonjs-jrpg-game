@@ -803,6 +803,40 @@
           "next": "luda-meds-wait"
         },
         {
+          "text": "Вот ваши таблетки.",
+          "conditions": [
+            {
+              "type": "item",
+              "id": "pills",
+              "op": "gte",
+              "value": 1
+            },
+            {
+              "type": "quest",
+              "id": "q-luda-meds",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "takeItem",
+              "item": "pills",
+              "qty": 1
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-luda-meds",
+              "stage": "give"
+            },
+            {
+              "type": "completeQuest",
+              "quest": "q-luda-meds"
+            }
+          ],
+          "next": "luda-meds-thanks"
+        },
+        {
           "text": "Возьмите таблетки.",
           "conditions": [
             {

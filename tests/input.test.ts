@@ -55,4 +55,33 @@ describe("input edge-детект", () => {
     expect(s.pressed("menu")).toBe(true);
     expect(s.held("run")).toBe(true);
   });
+
+  it("setAction даёт touch/gamepad тот же edge-детект, что клавиши", () => {
+    const s = createInputState();
+    s.setAction("confirm", true);
+    expect(s.pressed("confirm")).toBe(true);
+    expect(s.held("confirm")).toBe(true);
+    s.endFrame();
+    s.setAction("confirm", true); // удержание не ре-триггерит
+    expect(s.pressed("confirm")).toBe(false);
+    s.setAction("confirm", false);
+    expect(s.held("confirm")).toBe(false);
+  });
+
+  it("аналоговый стик складывается с цифровыми осями и клампится", () => {
+    const s = createInputState();
+    s.setStick(0.6, -0.4);
+    expect(s.axis()).toEqual({ x: 0.6, y: -0.4 });
+    s.keyDown("KeyD");
+    s.keyDown("ArrowUp");
+    expect(s.axis()).toEqual({ x: 1, y: 0.6 });
+    s.setStick(5, -5);
+    expect(s.axis()).toEqual({ x: 1, y: 0 });
+    s.setStick(5, 5);
+    expect(s.axis()).toEqual({ x: 1, y: 1 });
+    s.setStick(0, 0);
+    s.keyUp("KeyD");
+    s.keyUp("ArrowUp");
+    expect(s.axis()).toEqual({ x: 0, y: 0 });
+  });
 });

@@ -5,6 +5,14 @@
 ## [Unreleased]
 
 ### Добавлено
+- 2026-11-19 — управление смартфонами и геймпадами: `core/input.ts` получил
+  `setAction`/`setStick` (один `InputState` для клавиатуры, тача и геймпада);
+  `core/gamepad.ts` — опрос Gamepad API (A/B/Start/плечи, DPad и левый стик с
+  мёртвой зоной); `ui/touchControls.ts` — виртуальный стик, кнопки ◆/☰/«Бег»,
+  включается на coarse pointer, override `?touch=1|0`; `core/uiActions.ts` —
+  edge-действия геймпада в открытые модалы без протекания в сцену. Диалоги
+  закрываются тапом, меню и бой навигируются DPad/стиком/стрелками и A/Enter,
+  тач-цели увеличены, `viewport-fit=cover` для safe-area.
 - 2026-11-19 — слайс 6, бой: `src/systems/combat.ts` — чистый детерминированный
   движок 1×1 (`startCombat`/`availableActions`/`act`, инъекция `rng`), формулы
   «Баланс боя v1» (урон `max(1, atk-def)`, хил `6+medicine` + бинт, побег

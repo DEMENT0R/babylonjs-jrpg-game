@@ -4,6 +4,7 @@ import type { IContentProvider } from "../content";
 import type { DialogView } from "../systems/dialog";
 import { chooseDialog, openDialog } from "../systems/dialog";
 import type { GameState, Store } from "../types";
+import { onUiAction } from "../core/uiActions";
 import "./ui.css";
 
 /** Задержка печати одного символа, мс. */
@@ -99,9 +100,10 @@ export function createDialogBox(opts: DialogBoxOptions): DialogBox {
       choicesEl.append(button);
     });
     if (current.choices.length > 0) {
-      hintEl.textContent = "W/S — выбор · E/Enter — подтвердить · Esc — закрыть";
+      hintEl.textContent =
+        "↑/↓ — выбор · E/Enter/A — подтвердить · Esc/B — закрыть · тап по варианту";
     } else {
-      hintEl.textContent = "E/Enter — закрыть · Esc — закрыть";
+      hintEl.textContent = "E/Enter/A или тап — продолжить";
     }
     updateSelection();
   };
@@ -159,6 +161,12 @@ export function createDialogBox(opts: DialogBoxOptions): DialogBox {
     }
   }
 
+  function moveSelection(delta: number): void {
+    if (!shown || isTyping() || choiceButtons.length === 0) return;
+    selected = (selected + delta + choiceButtons.length) % choiceButtons.length;
+    updateSelection();
+  }
+
   function confirm(): void {
     if (!shown) return;
     if (isTyping()) {
@@ -182,17 +190,11 @@ export function createDialogBox(opts: DialogBoxOptions): DialogBox {
     switch (event.code) {
       case "ArrowUp":
       case "KeyW":
-        if (!isTyping() && choiceButtons.length > 0) {
-          selected = (selected - 1 + choiceButtons.length) % choiceButtons.length;
-          updateSelection();
-        }
+        moveSelection(-1);
         break;
       case "ArrowDown":
       case "KeyS":
-        if (!isTyping() && choiceButtons.length > 0) {
-          selected = (selected + 1) % choiceButtons.length;
-          updateSelection();
-        }
+        moveSelection(1);
         break;
       case "KeyE":
       case "Enter":
@@ -208,10 +210,16 @@ export function createDialogBox(opts: DialogBoxOptions): DialogBox {
     }
   };
 
-  // Клик по тексту/коробке: пока идёт печать — допечатать. Клики по выборам
-  // обрабатываются кнопками (они всплывают сюда уже после своего обработчика).
+  // Клик/тап по тексту/коробке: пока идёт печать — допечатать, после — закрыть
+  // реплику без выборов. Клики по выборам обрабатываются кнопками (они всплывают
+  // сюда уже после своего обработчика).
   const onClick = (): void => {
-    if (shown && isTyping()) finishTyping();
+    if (!shown) return;
+    if (isTyping()) {
+      finishTyping();
+      return;
+    }
+    if (current && current.choices.length === 0) close();
   };
 
   function close(): void {
@@ -226,6 +234,13 @@ export function createDialogBox(opts: DialogBoxOptions): DialogBox {
 
   root.addEventListener("click", onClick);
   window.addEventListener("keydown", onKeyDown, true);
+  const offUiAction = onUiAction((action) => {
+    if (!shown) return;
+    if (action === "up") moveSelection(-1);
+    else if (action === "down") moveSelection(1);
+    else if (action === "confirm") confirm();
+    else if (action === "cancel" || action === "menu") close();
+  });
 
   return {
     open(nodeId: string): void {
@@ -235,6 +250,7 @@ export function createDialogBox(opts: DialogBoxOptions): DialogBox {
     isOpen: () => shown,
     dispose(): void {
       close();
+      offUiAction();
       window.removeEventListener("keydown", onKeyDown, true);
       root.removeEventListener("click", onClick);
       root.remove();

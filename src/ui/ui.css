@@ -294,6 +294,13 @@
   color: #e58a83;
 }
 
+.ui-menu__hint {
+  margin-top: 8px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  text-align: right;
+}
+
 .ui-menu__footer {
   display: flex;
   justify-content: flex-end;
@@ -351,4 +358,15 @@
 body.ui-menu-open canvas,
 body.ui-dialog-open canvas {
   pointer-events: none;
+}
+
+/* На тач-экранах элементы управления крупнее: палец, а не курсор. */
+@media (pointer: coarse) {
+  .ui-dialog__choice {
+    padding: 11px 12px;
+  }
+
+  .ui-button {
+    padding: 10px 14px;
+  }
 }

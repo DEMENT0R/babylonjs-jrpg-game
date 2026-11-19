@@ -3,6 +3,7 @@
 import type { IStorageProvider, SaveSlotInfo } from "../state/persistence/IStorageProvider";
 import { exportSave, importSave } from "../state/persistence/exportImport";
 import type { GameState, Store } from "../types";
+import { onUiAction } from "../core/uiActions";
 import "./ui.css";
 
 const SLOT_IDS = ["1", "2", "3"] as const;
@@ -143,6 +144,10 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   messageEl.className = "ui-menu__message";
   messageEl.setAttribute("role", "status");
 
+  const hintEl = document.createElement("div");
+  hintEl.className = "ui-menu__hint";
+  hintEl.textContent = "↑/↓ — выбор · Enter/A — нажать · Esc/B — закрыть";
+
   const footer = document.createElement("div");
   footer.className = "ui-menu__footer";
 
@@ -162,7 +167,7 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   });
 
   footer.append(resumeButton, quitButton);
-  panel.append(title, slotsEl, fileRow, messageEl, footer);
+  panel.append(title, slotsEl, fileRow, messageEl, hintEl, footer);
   root.append(panel);
   host.append(root);
 
@@ -187,6 +192,29 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
       row.load.disabled = !slot;
       row.remove.disabled = !slot;
     }
+  }
+
+  const menuButtons = (): HTMLButtonElement[] =>
+    Array.from(panel.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"));
+
+  function moveFocus(delta: number): void {
+    const buttons = menuButtons();
+    if (buttons.length === 0) return;
+    const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    if (index < 0) {
+      buttons[0]!.focus();
+      return;
+    }
+    buttons[(index + delta + buttons.length) % buttons.length]!.focus();
+  }
+
+  function activateFocused(): void {
+    const focused = document.activeElement;
+    if (focused instanceof HTMLButtonElement && panel.contains(focused) && !focused.disabled) {
+      focused.click();
+      return;
+    }
+    menuButtons()[0]?.focus();
   }
 
   async function refreshSlots(): Promise<void> {
@@ -286,8 +314,27 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
     if (!shown) return;
     event.preventDefault();
     event.stopPropagation();
-    if (event.code === "Escape" && !event.repeat) resume();
+    if (event.code === "Escape") {
+      if (!event.repeat) resume();
+      return;
+    }
+    if (event.code === "ArrowUp") moveFocus(-1);
+    else if (event.code === "ArrowDown") moveFocus(1);
+    else if ((event.code === "Enter" || event.code === "Space") && !event.repeat) {
+      activateFocused();
+    }
   };
+
+  const offUiAction = onUiAction((action) => {
+    if (!shown) return;
+    if (action === "cancel" || action === "menu") {
+      resume();
+      return;
+    }
+    if (action === "up") moveFocus(-1);
+    else if (action === "down") moveFocus(1);
+    else if (action === "confirm") activateFocused();
+  });
 
   // Мышь/колесо внутри оверлея не всплывают к документу и canvas.
   const stopEvent = (event: Event): void => {
@@ -318,6 +365,8 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
     shown = false;
     applyVisibility();
     window.removeEventListener("keydown", onKeyDown, true);
+    const focused = document.activeElement;
+    if (focused instanceof HTMLElement && panel.contains(focused)) focused.blur();
   }
 
   function resume(): void {
@@ -335,6 +384,7 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
     isOpen: () => shown,
     dispose(): void {
       disposed = true;
+      offUiAction();
       close();
       root.removeEventListener("click", stopEvent);
       root.removeEventListener("pointerdown", stopEvent);

@@ -2,10 +2,12 @@ import { ArcRotateCamera, Color3, MeshBuilder, StandardMaterial, Vector3 } from 
 import { createNpcPresenter } from "./npcs";
 import { loadBundledContent } from "../content/bundled";
 import { createGameEngine } from "../core/engine";
+import { createGamepadDriver } from "../core/gamepad";
 import { attachKeyboard, createInputState } from "../core/input";
 import { startGameLoop } from "../core/loop";
 import { createPhasedAssets } from "../core/phasedAssets";
 import { SceneManager, registerLocation } from "../core/scenes";
+import { emitUiAction } from "../core/uiActions";
 import { LocalStorageProvider } from "../state/persistence/LocalStorageProvider";
 import { createStore } from "../state/store";
 import { act, startCombat, type CombatState } from "../systems/combat";
@@ -20,6 +22,7 @@ import { createCharacterSelect } from "../ui/characterSelect";
 import { createDialogBox } from "../ui/dialogBox";
 import { createHud } from "../ui/hud";
 import { createPauseMenu } from "../ui/menu";
+import { attachTouchControls, prefersTouchControls } from "../ui/touchControls";
 import { allLocations, isExitOpen } from "../world";
 import { demoRoom } from "../world/locations/demo-room";
 
@@ -49,6 +52,7 @@ const content = loadBundledContent();
 const { engine, scene } = createGameEngine();
 const input = createInputState();
 attachKeyboard(input);
+const touch = prefersTouchControls() ? attachTouchControls(input) : null;
 const assets = createPhasedAssets(scene);
 
 // До character select — стартовый сейв интерна; выбор бэкграунда заменит его.
@@ -200,9 +204,21 @@ window.__jrpg = {
   save: () => store.get(),
 };
 
-const modalOpen = () => dialog.isOpen() || menu.isOpen() || select.isOpen() || battle !== null;
+function modalOpen(): boolean {
+  return dialog.isOpen() || menu.isOpen() || select.isOpen() || battle !== null;
+}
+
+const gamepad = createGamepadDriver(input, (action) => {
+  if (modalOpen()) emitUiAction(action);
+});
 
 startGameLoop(engine, scene, input, (dt) => {
+  const modalWasOpen = modalOpen();
+  gamepad.poll(navigator.getGamepads?.() ?? []);
+  touch?.setActive(!modalWasOpen);
+  // Кадр, в котором модал закрыли геймпадом, не должен протекать в сцену.
+  if (modalWasOpen) return;
+
   const state = store.get();
   npcPresenter.sync(state.location, state.worldPhase);
   if (modalOpen()) return;

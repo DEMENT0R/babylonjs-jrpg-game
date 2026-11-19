@@ -2,6 +2,7 @@
 // Оверлей создаётся из JS; после выбора onPick получает BackgroundId.
 import type { BackgroundId } from "../types";
 import type { IContentProvider } from "../content";
+import { onUiAction } from "../core/uiActions";
 import "./characterSelect.css";
 
 const BACKGROUND_ORDER: readonly BackgroundId[] = ["intern", "student", "engineer"];
@@ -60,7 +61,7 @@ export function createCharacterSelect(opts: {
 
   const hint = document.createElement("p");
   hint.className = "cs-hint";
-  hint.textContent = "← → выбрать · Enter подтвердить";
+  hint.textContent = "← → / стик — выбрать · Enter / A — подтвердить · тап по карточке";
   panel.append(title, subtitle, cards, hint);
   root.append(panel);
   document.body.append(root);
@@ -78,14 +79,17 @@ export function createCharacterSelect(opts: {
     opts.onPick(id);
   };
 
+  const moveSelection = (delta: number): void => {
+    selected = (selected + delta + buttons.length) % buttons.length;
+    highlight();
+  };
+
   const onKey = (event: KeyboardEvent) => {
     if (closed) return;
     if (event.code === "ArrowLeft" || event.code === "KeyA") {
-      selected = (selected + buttons.length - 1) % buttons.length;
-      highlight();
+      moveSelection(-1);
     } else if (event.code === "ArrowRight" || event.code === "KeyD") {
-      selected = (selected + 1) % buttons.length;
-      highlight();
+      moveSelection(1);
     } else if (event.code === "Enter" || event.code === "KeyE") {
       pick(BACKGROUND_ORDER[selected]!);
     } else {
@@ -96,6 +100,16 @@ export function createCharacterSelect(opts: {
   };
 
   window.addEventListener("keydown", onKey, true);
+  const offUiAction = onUiAction((action) => {
+    if (closed) return;
+    if (action === "left" || action === "up") {
+      moveSelection(-1);
+    } else if (action === "right" || action === "down") {
+      moveSelection(1);
+    } else if (action === "confirm") {
+      pick(BACKGROUND_ORDER[selected]!);
+    }
+  });
 
   function close(): void {
     closed = true;
@@ -112,6 +126,7 @@ export function createCharacterSelect(opts: {
     close,
     isOpen: () => !closed,
     dispose() {
+      offUiAction();
       window.removeEventListener("keydown", onKey, true);
       root.remove();
     },

@@ -2,6 +2,7 @@
 // Вся логика — в systems/combat.ts; Babylon и store здесь не используются.
 import type { CombatActionId, CombatState } from "../systems/combat";
 import { availableActions } from "../systems/combat";
+import { onUiAction } from "../core/uiActions";
 
 export interface BattleScreenOptions {
   onAction(action: CombatActionId): void;
@@ -122,6 +123,15 @@ export function createBattleScreen(host: HTMLElement, opts: BattleScreenOptions)
     gap: "8px",
   } satisfies Partial<CSSStyleDeclaration>);
 
+  const hint = document.createElement("div");
+  Object.assign(hint.style, {
+    marginTop: "10px",
+    color: "#8d94a8",
+    fontSize: "11px",
+    textAlign: "right",
+  } satisfies Partial<CSSStyleDeclaration>);
+  hint.textContent = "←/→ — выбор · Enter/A — действие · тап по кнопке";
+
   const result = document.createElement("div");
   Object.assign(result.style, {
     display: "none",
@@ -148,9 +158,68 @@ export function createBattleScreen(host: HTMLElement, opts: BattleScreenOptions)
   closeButton.addEventListener("click", () => opts.onClose());
   result.append(resultText, closeButton);
 
-  panel.append(title, enemyRow, heroRow, log, actions, result);
+  panel.append(title, enemyRow, heroRow, log, actions, hint, result);
   root.appendChild(panel);
   host.appendChild(root);
+
+  let visible = false;
+  let ongoing = false;
+  let selected = 0;
+  let actionButtons: HTMLButtonElement[] = [];
+
+  const highlight = (): void => {
+    actionButtons.forEach((button, index) => {
+      const active = index === selected;
+      button.style.borderColor = active ? "#d7b36a" : "#3a4d70";
+      button.style.background = active ? "#2d3b55" : "#22304a";
+    });
+  };
+
+  function moveSelection(delta: number): void {
+    if (actionButtons.length === 0) return;
+    selected = (selected + delta + actionButtons.length) % actionButtons.length;
+    highlight();
+  }
+
+  function confirmSelection(): void {
+    if (actionButtons.length > 0) {
+      actionButtons[selected]?.click();
+      return;
+    }
+    if (!ongoing) opts.onClose();
+  }
+
+  const onKeyDown = (event: KeyboardEvent): void => {
+    if (!visible) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.repeat) return;
+    const confirm = event.code === "Enter" || event.code === "Space" || event.code === "KeyE";
+    if (!ongoing) {
+      if (confirm || event.code === "Escape") opts.onClose();
+      return;
+    }
+    if (event.code === "ArrowLeft" || event.code === "ArrowUp" || event.code === "KeyA") {
+      moveSelection(-1);
+    } else if (event.code === "ArrowRight" || event.code === "ArrowDown" || event.code === "KeyD") {
+      moveSelection(1);
+    } else if (confirm) {
+      confirmSelection();
+    }
+  };
+
+  const offUiAction = onUiAction((action) => {
+    if (!visible) return;
+    if (!ongoing) {
+      if (action === "confirm" || action === "cancel" || action === "menu") opts.onClose();
+      return;
+    }
+    if (action === "left" || action === "up") moveSelection(-1);
+    else if (action === "right" || action === "down") moveSelection(1);
+    else if (action === "confirm") confirmSelection();
+  });
+
+  window.addEventListener("keydown", onKeyDown, true);
 
   function updateFighter(
     nameEl: HTMLElement,
@@ -171,7 +240,12 @@ export function createBattleScreen(host: HTMLElement, opts: BattleScreenOptions)
     log.scrollTop = log.scrollHeight;
 
     actions.replaceChildren();
-    if (state.outcome === "ongoing") {
+    actionButtons = [];
+    selected = 0;
+    const outcome = state.outcome;
+    ongoing = outcome === "ongoing";
+    hint.style.display = ongoing ? "block" : "none";
+    if (outcome === "ongoing") {
       result.style.display = "none";
       actions.style.display = "flex";
       for (const action of availableActions(state)) {
@@ -189,23 +263,30 @@ export function createBattleScreen(host: HTMLElement, opts: BattleScreenOptions)
         } satisfies Partial<CSSStyleDeclaration>);
         button.addEventListener("click", () => opts.onAction(action));
         actions.appendChild(button);
+        actionButtons.push(button);
       }
+      highlight();
     } else {
       actions.style.display = "none";
       result.style.display = "flex";
-      resultText.textContent = OUTCOME_LABELS[state.outcome];
+      resultText.textContent = OUTCOME_LABELS[outcome];
     }
   }
 
   return {
     render,
     show(): void {
+      visible = true;
       root.style.display = "flex";
     },
     hide(): void {
+      visible = false;
       root.style.display = "none";
     },
     dispose(): void {
+      visible = false;
+      offUiAction();
+      window.removeEventListener("keydown", onKeyDown, true);
       root.remove();
     },
   };

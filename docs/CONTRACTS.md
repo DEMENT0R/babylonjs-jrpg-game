@@ -48,6 +48,11 @@ interface Input {
 ```
 Раскладка: WASD/стрелки — движение, `E`/`Enter` — confirm, `Esc` — menu, `Shift` — run.
 HTML-меню (слайс 5) инпут не проходят — обычные DOM-события.
+Touch (`ui/touchControls.ts`) и геймпад (`core/gamepad.ts`) пишут в тот же `InputState`
+через `setAction(action, down)`/`setStick(x, y)`: сцена не знает об источнике.
+Геймпад: A/Cross/X/Y — confirm, B/Circle — cancel, Start/Back — menu, LB/RB/LT/RT — run,
+DPad/левый стик — движение. Для открытых модалов edge-действия геймпада идут через
+`core/uiActions.ts` (`jrpg:ui-action`), чтобы не смешиваться с игровым инпутом.
 
 ## Location (`core/scenes.ts` + `world/`, владельцы 1 и 4)
 ```ts

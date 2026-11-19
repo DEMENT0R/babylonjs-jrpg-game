@@ -1,11 +1,11 @@
 // HTML-оверлей боя: только рисует CombatState и зовёт onAction/onClose.
 // Вся логика — в systems/combat.ts; Babylon и store здесь не используются.
-import type { CombatActionId, CombatState } from "../systems/combat";
-import { availableActions } from "../systems/combat";
+import type { CombatAction, CombatActionId, CombatState } from "../systems/combat";
+import { availableActions, availableItems } from "../systems/combat";
 import { onUiAction } from "../core/uiActions";
 
 export interface BattleScreenOptions {
-  onAction(action: CombatActionId): void;
+  onAction(action: CombatAction): void;
   onClose(): void;
 }
 
@@ -164,6 +164,8 @@ export function createBattleScreen(host: HTMLElement, opts: BattleScreenOptions)
 
   let visible = false;
   let ongoing = false;
+  let itemMode = false;
+  let current: CombatState | null = null;
   let selected = 0;
   let actionButtons: HTMLButtonElement[] = [];
 
@@ -199,6 +201,10 @@ export function createBattleScreen(host: HTMLElement, opts: BattleScreenOptions)
       if (confirm || event.code === "Escape") opts.onClose();
       return;
     }
+    if (itemMode && event.code === "Escape") {
+      backToActions();
+      return;
+    }
     if (event.code === "ArrowLeft" || event.code === "ArrowUp" || event.code === "KeyA") {
       moveSelection(-1);
     } else if (event.code === "ArrowRight" || event.code === "ArrowDown" || event.code === "KeyD") {
@@ -214,7 +220,8 @@ export function createBattleScreen(host: HTMLElement, opts: BattleScreenOptions)
       if (action === "confirm" || action === "cancel" || action === "menu") opts.onClose();
       return;
     }
-    if (action === "left" || action === "up") moveSelection(-1);
+    if (itemMode && action === "cancel") backToActions();
+    else if (action === "left" || action === "up") moveSelection(-1);
     else if (action === "right" || action === "down") moveSelection(1);
     else if (action === "confirm") confirmSelection();
   });
@@ -239,38 +246,83 @@ export function createBattleScreen(host: HTMLElement, opts: BattleScreenOptions)
     log.textContent = state.log.join("\n");
     log.scrollTop = log.scrollHeight;
 
-    actions.replaceChildren();
-    actionButtons = [];
-    selected = 0;
+    current = state;
     const outcome = state.outcome;
     ongoing = outcome === "ongoing";
     hint.style.display = ongoing ? "block" : "none";
     if (outcome === "ongoing") {
       result.style.display = "none";
-      actions.style.display = "flex";
-      for (const action of availableActions(state)) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.textContent = ACTION_LABELS[action];
-        Object.assign(button.style, {
-          padding: "8px 14px",
-          background: "#22304a",
-          color: "#e6ebf2",
-          border: "1px solid #3a4d70",
-          borderRadius: "6px",
-          cursor: "pointer",
-          fontSize: "14px",
-        } satisfies Partial<CSSStyleDeclaration>);
-        button.addEventListener("click", () => opts.onAction(action));
-        actions.appendChild(button);
-        actionButtons.push(button);
-      }
-      highlight();
+      renderActions(state);
     } else {
       actions.style.display = "none";
       result.style.display = "flex";
       resultText.textContent = OUTCOME_LABELS[outcome];
     }
+  }
+
+  function button(label: string, onClick: () => void): HTMLButtonElement {
+    const element = document.createElement("button");
+    element.type = "button";
+    element.textContent = label;
+    Object.assign(element.style, {
+      padding: "8px 14px",
+      background: "#22304a",
+      color: "#e6ebf2",
+      border: "1px solid #3a4d70",
+      borderRadius: "6px",
+      cursor: "pointer",
+      fontSize: "14px",
+    } satisfies Partial<CSSStyleDeclaration>);
+    element.addEventListener("click", onClick);
+    return element;
+  }
+
+  /** Основной ряд: базовые действия + «Предмет», если есть что использовать. */
+  function renderActions(state: CombatState): void {
+    itemMode = false;
+    actions.style.display = "flex";
+    actions.replaceChildren();
+    actionButtons = [];
+    selected = 0;
+    for (const action of availableActions(state)) {
+      const element = button(ACTION_LABELS[action], () => opts.onAction(action));
+      actions.appendChild(element);
+      actionButtons.push(element);
+    }
+    const items = availableItems(state);
+    if (items.length > 0) {
+      const element = button("Предмет", () => renderItems(state));
+      actions.appendChild(element);
+      actionButtons.push(element);
+    }
+    highlight();
+  }
+
+  /** Ряд предметов: расходники с остатком + «Назад». */
+  function renderItems(state: CombatState): void {
+    itemMode = true;
+    actions.replaceChildren();
+    actionButtons = [];
+    selected = 0;
+    for (const id of availableItems(state)) {
+      const usable = state.usableItems[id];
+      if (!usable) continue;
+      const qty = state.items[id] ?? 0;
+      const element = button(`${usable.name} ×${qty}`, () =>
+        opts.onAction({ type: "item", item: id }),
+      );
+      element.title = `Восстановить ${usable.hp} HP`;
+      actions.appendChild(element);
+      actionButtons.push(element);
+    }
+    const back = button("Назад", () => renderActions(state));
+    actions.appendChild(back);
+    actionButtons.push(back);
+    highlight();
+  }
+
+  function backToActions(): void {
+    if (current) renderActions(current);
   }
 
   return {

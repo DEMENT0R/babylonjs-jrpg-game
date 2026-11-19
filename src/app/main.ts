@@ -1,7 +1,7 @@
 import { ArcRotateCamera, Color3, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { createNpcPresenter } from "./npcs";
 import { loadBundledContent } from "../content/bundled";
-import type { Encounter } from "../content/types";
+import type { Effect, Encounter } from "../content/types";
 import { createGameEngine } from "../core/engine";
 import { createGamepadDriver } from "../core/gamepad";
 import { attachKeyboard, createInputState } from "../core/input";
@@ -16,7 +16,7 @@ import { advanceTime } from "../systems/effects";
 import { selectEncounter, settleEncounter } from "../systems/encounters";
 import { npcDialogId } from "../systems/dialog";
 import { newGameForBackground } from "../systems/character";
-import { addItem } from "../systems/inventory";
+import { addItem, countItem, removeItem } from "../systems/inventory";
 import { awardXp, maxHp } from "../systems/stats";
 import { createBattleScreen } from "../ui/battleScreen";
 import type { BackgroundId, GameState, TimeSlot, WorldPhase } from "../types";
@@ -147,7 +147,18 @@ function startBattle(enemyId: string): void {
   const state = store.get();
   const enemy = content.getEnemy(enemyId);
   const items: Record<string, number> = {};
-  for (const entry of state.inventory) items[entry.item] = entry.qty;
+  const usableItems: Record<string, { name: string; hp: number }> = {};
+  for (const entry of state.inventory) {
+    items[entry.item] = entry.qty;
+    const item = content.getItem(entry.item);
+    const hpEffect = item.effects.find(
+      (effect): effect is Extract<Effect, { type: "hp" }> =>
+        effect.type === "hp" && effect.delta > 0,
+    );
+    if (item.category === "consumable" && hpEffect) {
+      usableItems[entry.item] = { name: item.name, hp: hpEffect.delta };
+    }
+  }
   battleXp = enemy.xp;
   battle = startCombat(
     {
@@ -157,6 +168,7 @@ function startBattle(enemyId: string): void {
       maxHp: maxHp(state),
       stats: { ...state.hero.stats },
       items,
+      usableItems,
     },
     enemy,
   );
@@ -170,6 +182,11 @@ function settleBattle(result: CombatState): void {
   activeEncounter = null;
   store.update((draft) => {
     draft.hero.hp = Math.min(maxHp(draft), Math.max(0, result.hero.hp));
+    // Расходники, потраченные в бою (в т.ч. «Перевязать»), уходят из сейва.
+    for (const [itemId, qty] of Object.entries(result.items)) {
+      const have = countItem(draft, itemId);
+      if (qty < have) removeItem(draft, content, itemId, have - qty);
+    }
     if (result.outcome === "win") {
       awardXp(draft, battleXp);
       for (const item of result.loot) addItem(draft, content, item, 1);

@@ -307,11 +307,9 @@
   border-radius: 6px;
 }
 
-.ui-menu__title {
-  margin: 0 0 16px;
-  font-size: 18px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  background: var(--ui-accent);
+  border-color: var(--ui-accent);
 }
 .ui-menu__slots {
   display: flex;

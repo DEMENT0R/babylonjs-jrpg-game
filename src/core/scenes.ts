@@ -118,8 +118,9 @@ export class SceneManager {
     if (a.x === 0 && a.y === 0) return;
     const speed = this.o.input.held("run") ? RUN_SPEED : WALK_SPEED;
     const [px, pz] = this.o.store.get().pos;
-    // ось y инпута (вперёд) → −z мира: камера смотрит «сверху-под-углом»
-    const to = { x: px + a.x * speed * dt, z: pz - a.y * speed * dt };
+    // Ось y инпута (экранное «вверх») → +z мира: камера стоит с юга (−z) и
+    // смотрит на север (+z), поэтому вперёд по экрану — рост z.
+    const to = { x: px + a.x * speed * dt, z: pz + a.y * speed * dt };
     const p = this.solids.canMove({ x: px, z: pz }, to, this.o.player.radius);
     if (p.x !== px || p.z !== pz) {
       this.o.store.update((draft) => {

@@ -161,3 +161,35 @@ describe("SceneManager: смена локации", () => {
     expect(() => manager.enter("mgr-nowhere")).toThrow(/Unknown location/);
   });
 });
+
+describe("SceneManager: направление движения", () => {
+  it("«вверх» двигает на север (+z), «вниз» — на юг (−z)", () => {
+    const id = "mgr-move-axis";
+    const locationMesh = fakeMesh();
+    const playerMesh = fakeMesh();
+    registerLocation({
+      id,
+      build: (ctx) => {
+        ctx.scene.meshes.push(locationMesh);
+      },
+      update: () => {},
+      exits: [],
+      interacts: [],
+    });
+    const store = fakeStore(save(id, [0, 0]));
+    const input = { ...idleInput, axis: () => ({ x: 0, y: 1 }) };
+    const manager = new SceneManager({
+      scene: fakeScene(),
+      assets: fakeAssets,
+      store,
+      input,
+      content: {} as IContentProvider,
+      player: { mesh: playerMesh, radius: 0.4 },
+    });
+    manager.enter(id);
+    manager.update(0.1);
+    expect(store.get().pos[0]).toBe(0);
+    expect(store.get().pos[1]).toBeCloseTo(0.32);
+    expect(playerMesh.position.z).toBeCloseTo(0.32);
+  });
+});

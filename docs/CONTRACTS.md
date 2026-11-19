@@ -69,7 +69,8 @@ interface ExitDef {
   spawn: { x: number; z: number; yaw?: number }; // где появиться в целевой
   label: string;
 }
-interface InteractDef { at: { x: number; z: number; r: number }; onConfirm(ctx: UpdateCtx): void }
+interface InteractDef { at: { x: number; z: number; r: number }; label?: string;
+                       onConfirm(ctx: UpdateCtx): void } // label — подпись для подсказки в фокусе (E), опционально
 interface BuildCtx  { scene: Scene; worldPhase: number; assets: PhasedAssets; solids: SolidRegistry }
 interface UpdateCtx { scene: Scene; dt: number; input: Input; store: Store<GameState>;
                      content: IContentProvider } // интеракции могут двигать время с провалом окон квестов

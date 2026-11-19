@@ -3,6 +3,7 @@
 
 .ui-hud,
 .ui-dialog,
+.ui-interact-hint,
 .ui-menu {
   --ui-panel: rgba(14, 16, 24, 0.88);
   --ui-panel-solid: #151825;
@@ -113,6 +114,44 @@
 
 .ui-hud__row--resource .ui-hud__value {
   color: var(--ui-resource);
+}
+
+/* ─── Подпись интеракции в фокусе ──────────────────────────────────────── */
+
+/* Плашка над зоной диалога: имя/действие объекта, до которого дотягивается E.
+   Скрыта при открытых модалах — main.ts зовёт hide() на каждом раннем return. */
+.ui-interact-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 32vh;
+  transform: translateX(-50%);
+  z-index: 140;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--ui-panel);
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.ui-interact-hint--open {
+  display: flex;
+}
+
+.ui-interact-hint__key {
+  padding: 1px 7px;
+  border: 1px solid var(--ui-accent);
+  border-radius: 5px;
+  color: var(--ui-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ui-interact-hint__text {
+  color: var(--ui-text);
 }
 
 /* ─── Диалог ──────────────────────────────────────────────────────────── */

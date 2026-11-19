@@ -2,6 +2,7 @@ import type { AbstractMesh, Mesh, Scene } from "@babylonjs/core";
 import type {
   BuildCtx,
   ExitDef,
+  InteractDef,
   GameState,
   Input,
   LocationDef,
@@ -33,6 +34,18 @@ export function locationIds(): string[] {
 export function findExit(exits: readonly ExitDef[], x: number, z: number): ExitDef | undefined {
   for (const e of exits) {
     if ((x - e.at.x) ** 2 + (z - e.at.z) ** 2 < e.at.r ** 2) return e;
+  }
+  return undefined;
+}
+
+/** Чистая проверка интеракции: первый InteractDef, чей круг накрывает игрока. */
+export function findInteract(
+  interacts: readonly InteractDef[],
+  x: number,
+  z: number,
+): InteractDef | undefined {
+  for (const i of interacts) {
+    if ((x - i.at.x) ** 2 + (z - i.at.z) ** 2 < i.at.r ** 2) return i;
   }
   return undefined;
 }
@@ -134,12 +147,13 @@ export class SceneManager {
   private checkInteracts(uctx: UpdateCtx): void {
     if (!this.def || !uctx.input.pressed("confirm")) return;
     const [x, z] = this.o.store.get().pos;
-    for (const i of this.def.interacts) {
-      if ((x - i.at.x) ** 2 + (z - i.at.z) ** 2 < i.at.r ** 2) {
-        i.onConfirm(uctx);
-        break;
-      }
-    }
+    const interact = findInteract(this.def.interacts, x, z);
+    if (interact) interact.onConfirm(uctx);
+  }
+
+  /** Первый интеракт локации под точкой — для подписи «E: ...» в фокусе (ui/). */
+  interactAt(x: number, z: number): InteractDef | undefined {
+    return this.def ? findInteract(this.def.interacts, x, z) : undefined;
   }
 
   private checkExit(dt: number): void {

@@ -23,6 +23,7 @@ import type { BackgroundId, GameState, TimeSlot, WorldPhase } from "../types";
 import { createCharacterSelect } from "../ui/characterSelect";
 import { createDialogBox } from "../ui/dialogBox";
 import { createHud } from "../ui/hud";
+import { createInteractHint } from "../ui/interactHint";
 import { createPauseMenu } from "../ui/menu";
 import { attachTouchControls, prefersTouchControls } from "../ui/touchControls";
 import { readTextSpeed, readTouchSetting, writeTouchSetting } from "../ui/settings";
@@ -106,6 +107,9 @@ manager.enter(store.get().location, { x: store.get().pos[0]!, z: store.get().pos
 const npcPresenter = createNpcPresenter(scene, content);
 createHud(store); // живёт до перезагрузки страницы
 const dialog = createDialogBox({ content, store, typeMs: readTextSpeed() });
+
+// Подпись объекта в фокусе: E — клавиатура, ◆ — тач-панель (меню меняет на лету).
+const interactHint = createInteractHint({ keyLabel: () => (touch ? "◆" : "E") });
 const storage = new LocalStorageProvider();
 const menu = createPauseMenu({
   storage,
@@ -269,11 +273,17 @@ startGameLoop(engine, scene, input, (dt) => {
   gamepad.poll(navigator.getGamepads?.() ?? []);
   touch?.setActive(!modalWasOpen);
   // Кадр, в котором модал закрыли геймпадом, не должен протекать в сцену.
-  if (modalWasOpen) return;
+  if (modalWasOpen) {
+    interactHint.hide();
+    return;
+  }
 
   const state = store.get();
   npcPresenter.sync(state.location, state.worldPhase);
-  if (modalOpen()) return;
+  if (modalOpen()) {
+    interactHint.hide();
+    return;
+  }
 
   // Стычка проверяется один раз на вход в локацию: побег/поражение не запирают
   // игрока, а повторный вход даёт новую попытку (успех помечает стычку пройденной).
@@ -282,6 +292,7 @@ startGameLoop(engine, scene, input, (dt) => {
     const encounter = selectEncounter(content, state);
     if (encounter) {
       activeEncounter = encounter;
+      interactHint.hide();
       startBattle(encounter.enemy);
       return;
     }
@@ -289,16 +300,23 @@ startGameLoop(engine, scene, input, (dt) => {
 
   manager.update(dt);
 
-  if (input.pressed("confirm")) {
-    const [x, z] = store.get().pos;
-    const npcId = npcPresenter.nearest(x, z, TALK_RADIUS);
-    if (npcId) {
-      const nodeId = npcDialogId(content, npcId, store.get().worldPhase);
-      if (nodeId) {
-        dialog.open(nodeId);
-        return;
-      }
-    }
+  // Подпись в фокусе: ровно то, что сработает по confirm — НПС в радиусе
+  // разговора (имя из контента) либо интеракт с label. Иначе скрыть.
+  const now = store.get();
+  const npcId = npcPresenter.nearest(now.pos[0]!, now.pos[1]!, TALK_RADIUS);
+  const npcNode = npcId ? npcDialogId(content, npcId, now.worldPhase) : undefined;
+  if (npcId && npcNode) {
+    interactHint.show(`говорить: ${content.getNpc(npcId).name}`);
+  } else {
+    const label = manager.interactAt(now.pos[0]!, now.pos[1]!)?.label;
+    if (label) interactHint.show(label);
+    else interactHint.hide();
+  }
+
+  if (input.pressed("confirm") && npcId && npcNode) {
+    interactHint.hide();
+    dialog.open(npcNode);
+    return;
   }
   if (input.pressed("menu")) menu.toggle();
 });

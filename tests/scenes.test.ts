@@ -4,6 +4,7 @@ import type { IContentProvider } from "../src/content";
 import type { GameState, LocationDef, PhasedAssets, Store } from "../src/types";
 import {
   findExit,
+  findInteract,
   getLocation,
   locationIds,
   registerLocation,
@@ -89,6 +90,28 @@ describe("findExit", () => {
   it("вне радиуса и на границе — нет", () => {
     expect(findExit(exits, 2, 0)).toBeUndefined();
     expect(findExit(exits, 1, 0)).toBeUndefined(); // строгое <
+  });
+});
+
+describe("findInteract", () => {
+  const interacts = [
+    { at: { x: 0, z: 0, r: 1 }, label: "Кровать", onConfirm: () => {} },
+    { at: { x: 5, z: 5, r: 1 }, onConfirm: () => {} },
+  ];
+
+  it("внутри радиуса — интеракт найден; без label тоже", () => {
+    expect(findInteract(interacts, 0.5, 0.5)).toBe(interacts[0]);
+    expect(findInteract(interacts, 5.5, 5.5)).toBe(interacts[1]);
+  });
+
+  it("вне радиуса и на границе — нет; первый в списке приоритетнее", () => {
+    expect(findInteract(interacts, 2, 0)).toBeUndefined();
+    expect(findInteract(interacts, 1, 0)).toBeUndefined(); // строгое <
+    const overlapped = [
+      { at: { x: 0, z: 0, r: 3 }, label: "первый", onConfirm: () => {} },
+      { at: { x: 0, z: 0, r: 3 }, label: "второй", onConfirm: () => {} },
+    ];
+    expect(findInteract(overlapped, 0, 0)).toBe(overlapped[0]);
   });
 });
 

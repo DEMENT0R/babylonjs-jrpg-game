@@ -18,6 +18,7 @@ export const demoRoom: LocationDef = {
   interacts: [
     {
       at: { x: -6, z: -6, r: 1.4 },
+      label: "Кровать (демо)",
       onConfirm: () => {
         console.info("Кровать. Поспать пока нельзя — это демо-комната.");
       },

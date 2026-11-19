@@ -111,6 +111,8 @@ export interface ExitDef {
 
 export interface InteractDef {
   at: { x: number; z: number; r: number };
+  /** Подпись объекта для подсказки в фокусе (ui/interactHint.ts); без label — без подсказки. */
+  label?: string;
   onConfirm(ctx: UpdateCtx): void;
 }
 

@@ -74,11 +74,7 @@ export function craftStatus(
 
 /** Крафт: тратит ингредиенты и добавляет 1 шт. результата; false — недоступен
  *  (навык/ингредиенты/стек; стейт в этом случае не меняется). */
-export function craftItem(
-  draft: GameState,
-  content: IContentProvider,
-  itemId: string,
-): boolean {
+export function craftItem(draft: GameState, content: IContentProvider, itemId: string): boolean {
   if (!craftStatus(draft, content, itemId).ok) return false;
   const recipe = content.getItem(itemId).recipe;
   if (!recipe) throw new Error(`Крафт: у предмета "${itemId}" нет рецепта`);

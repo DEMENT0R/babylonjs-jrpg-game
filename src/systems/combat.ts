@@ -5,6 +5,15 @@ import type { Enemy, EnemyAction } from "../content/types";
 
 export type CombatActionId = "strike" | "defend" | "heal" | "persuade" | "flee";
 
+/** Расходник, который движок умеет применить в бою (лечит на `hp`). */
+export interface UsableItem {
+  name: string;
+  hp: number;
+}
+
+/** Действие боя: базовое или использование предмета из инвентаря героя. */
+export type CombatAction = CombatActionId | { type: "item"; item: string };
+
 export interface Fighter {
   id: string;
   name: string;
@@ -23,6 +32,8 @@ export interface HeroInput {
   maxHp: number;
   stats: { medicine: number; repair: number; persuasion: number; stealth: number };
   items: Record<string, number>;
+  /** Каталог расходников, доступных в этом бою (id → имя и лечение). */
+  usableItems?: Record<string, UsableItem>;
 }
 
 export type Outcome = "ongoing" | "win" | "lose" | "fled";
@@ -41,6 +52,7 @@ export interface CombatState {
   // таблица действий/лута врага должны жить в самом состоянии.
   heroStats: HeroInput["stats"];
   items: Record<string, number>;
+  usableItems: Record<string, UsableItem>;
   enemyActions: EnemyAction[];
   enemyLoot: Enemy["loot"];
 }
@@ -78,6 +90,7 @@ function clone(state: CombatState): CombatState {
     loot: [...state.loot],
     heroStats: { ...state.heroStats },
     items: { ...state.items },
+    usableItems: { ...state.usableItems },
     enemyActions: state.enemyActions.map((action) => ({ ...action })),
     enemyLoot: state.enemyLoot.map((drop) => ({ ...drop })),
   };
@@ -110,6 +123,7 @@ export function startCombat(hero: HeroInput, enemy: Enemy): CombatState {
     loot: [],
     heroStats: { ...hero.stats },
     items: { ...hero.items },
+    usableItems: { ...(hero.usableItems ?? {}) },
     enemyActions: enemy.actions.map((action) => ({ ...action })),
     enemyLoot: enemy.loot.map((drop) => ({ ...drop })),
   };
@@ -127,67 +141,91 @@ export function availableActions(state: CombatState): CombatActionId[] {
   return actions;
 }
 
+/** Расходники, доступные сейчас: есть в наличии и героя есть что лечить. */
+export function availableItems(state: CombatState): string[] {
+  if (state.outcome !== "ongoing") return [];
+  if (state.hero.hp >= state.hero.maxHp) return [];
+  return Object.keys(state.usableItems).filter((id) => (state.items[id] ?? 0) > 0);
+}
+
 /**
  * Одно действие героя + ответ врага. Чистая функция: исходное состояние не мутируется.
  * Бросает, если бой уже завершён или действие недоступно.
  */
 export function act(
   state: CombatState,
-  action: CombatActionId,
+  action: CombatAction,
   rng: () => number = Math.random,
 ): CombatState {
+  const actionLabel = typeof action === "string" ? action : `item:${action.item}`;
   if (state.outcome !== "ongoing") {
-    throw new Error(`Бой: действие "${action}" после завершения боя (${state.outcome})`);
+    throw new Error(`Бой: действие "${actionLabel}" после завершения боя (${state.outcome})`);
   }
-  if (!availableActions(state).includes(action)) {
-    throw new Error(`Бой: действие "${action}" недоступно`);
+  if (typeof action === "string") {
+    if (!availableActions(state).includes(action)) {
+      throw new Error(`Бой: действие "${action}" недоступно`);
+    }
+  } else if (!availableItems(state).includes(action.item)) {
+    throw new Error(`Бой: предмет "${action.item}" недоступен`);
   }
 
   const next = clone(state);
   const { hero, enemy } = next;
 
-  switch (action) {
-    case "strike": {
-      const dmg = damage(hero.atk, enemy.def);
-      enemy.hp = Math.max(0, enemy.hp - dmg);
-      next.log.push(`${hero.name} бьёт: ${dmg} урона (${enemy.name}: ${enemy.hp}/${enemy.maxHp})`);
-      break;
-    }
-    case "defend": {
-      next.defending = true;
-      next.log.push(`${hero.name} защищается: +${DEFEND_DEF_BONUS} к защите до конца хода`);
-      break;
-    }
-    case "heal": {
-      next.items[BANDAGE_ITEM] = (next.items[BANDAGE_ITEM] ?? 0) - 1;
-      const before = hero.hp;
-      hero.hp = Math.min(hero.maxHp, hero.hp + HEAL_BASE + next.heroStats.medicine);
-      next.log.push(
-        `${hero.name} перевязывает раны: +${hero.hp - before} HP (${hero.hp}/${hero.maxHp})`,
-      );
-      break;
-    }
-    case "persuade": {
-      const chance = PERSUADE_BASE_CHANCE + next.heroStats.persuasion * PERSUADE_STAT_BONUS;
-      if (rng() < chance) {
-        next.outcome = "fled";
-        next.log.push(`${enemy.name} отступает под напором слов — бой окончен`);
-        return next;
+  if (typeof action !== "string") {
+    const usable = next.usableItems[action.item];
+    if (!usable) throw new Error(`Бой: у предмета "${action.item}" нет боевого эффекта`);
+    next.items[action.item] = (next.items[action.item] ?? 0) - 1;
+    const before = hero.hp;
+    hero.hp = Math.min(hero.maxHp, hero.hp + usable.hp);
+    next.log.push(
+      `${hero.name} использует ${usable.name}: +${hero.hp - before} HP (${hero.hp}/${hero.maxHp})`,
+    );
+  } else
+    switch (action) {
+      case "strike": {
+        const dmg = damage(hero.atk, enemy.def);
+        enemy.hp = Math.max(0, enemy.hp - dmg);
+        next.log.push(
+          `${hero.name} бьёт: ${dmg} урона (${enemy.name}: ${enemy.hp}/${enemy.maxHp})`,
+        );
+        break;
       }
-      next.log.push(`${hero.name} пытается договориться, но ${enemy.name} не слушает`);
-      break;
-    }
-    case "flee": {
-      const chance = FLEE_BASE_CHANCE + next.heroStats.stealth * FLEE_STEALTH_BONUS;
-      if (rng() < chance) {
-        next.outcome = "fled";
-        next.log.push(`${hero.name} сбегает из боя`);
-        return next;
+      case "defend": {
+        next.defending = true;
+        next.log.push(`${hero.name} защищается: +${DEFEND_DEF_BONUS} к защите до конца хода`);
+        break;
       }
-      next.log.push(`${hero.name} пытается сбежать, но не выходит`);
-      break;
+      case "heal": {
+        next.items[BANDAGE_ITEM] = (next.items[BANDAGE_ITEM] ?? 0) - 1;
+        const before = hero.hp;
+        hero.hp = Math.min(hero.maxHp, hero.hp + HEAL_BASE + next.heroStats.medicine);
+        next.log.push(
+          `${hero.name} перевязывает раны: +${hero.hp - before} HP (${hero.hp}/${hero.maxHp})`,
+        );
+        break;
+      }
+      case "persuade": {
+        const chance = PERSUADE_BASE_CHANCE + next.heroStats.persuasion * PERSUADE_STAT_BONUS;
+        if (rng() < chance) {
+          next.outcome = "fled";
+          next.log.push(`${enemy.name} отступает под напором слов — бой окончен`);
+          return next;
+        }
+        next.log.push(`${hero.name} пытается договориться, но ${enemy.name} не слушает`);
+        break;
+      }
+      case "flee": {
+        const chance = FLEE_BASE_CHANCE + next.heroStats.stealth * FLEE_STEALTH_BONUS;
+        if (rng() < chance) {
+          next.outcome = "fled";
+          next.log.push(`${hero.name} сбегает из боя`);
+          return next;
+        }
+        next.log.push(`${hero.name} пытается сбежать, но не выходит`);
+        break;
+      }
     }
-  }
 
   // Победа: враг повержен — трофеи, без начисления XP (это делает app через awardXp).
   if (enemy.hp <= 0) {

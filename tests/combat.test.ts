@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Enemy } from "../src/content/types";
 import type { CombatState, HeroInput } from "../src/systems/combat";
-import { act, availableActions, startCombat } from "../src/systems/combat";
+import { act, availableActions, availableItems, startCombat } from "../src/systems/combat";
 
 const hero: HeroInput = {
   id: "hero",
@@ -138,5 +138,61 @@ describe("combat", () => {
     expect(won.outcome).toBe("win");
     expect(() => act(won, "strike", sequence(0.99))).toThrow(/после завершения/);
     expect(availableActions(won)).toEqual([]);
+  });
+});
+
+describe("combat: предметы", () => {
+  it("использование лечит по hp предмета и тратит штуку", () => {
+    const state = startCombat(
+      withHero({
+        hp: 5,
+        items: { medkit: 2 },
+        usableItems: { medkit: { name: "Аптечка", hp: 6 } },
+      }),
+      enemy(),
+    );
+    expect(availableItems(state)).toEqual(["medkit"]);
+    const next = act(state, { type: "item", item: "medkit" }, sequence(0.99));
+    expect(next.items.medkit).toBe(1);
+    expect(next.log.join("\n")).toContain("использует Аптечка: +6 HP (11/20)");
+    // затем враг бьёт на 3
+    expect(next.hero.hp).toBe(8);
+  });
+
+  it("недоступен при полном HP, нулевом остатке или отсутствии в каталоге", () => {
+    const empty = startCombat(
+      withHero({
+        hp: 5,
+        items: { pills: 0 },
+        usableItems: { pills: { name: "Таблетки", hp: 4 } },
+      }),
+      enemy(),
+    );
+    expect(availableItems(empty)).toEqual([]);
+    expect(() => act(empty, { type: "item", item: "pills" })).toThrow(/недоступен/);
+
+    const full = startCombat(
+      withHero({ items: { pills: 1 }, usableItems: { pills: { name: "Таблетки", hp: 4 } } }),
+      enemy(),
+    );
+    expect(availableItems(full)).toEqual([]);
+    expect(() => act(full, { type: "item", item: "pills" })).toThrow(/недоступен/);
+
+    const unknown = startCombat(withHero({ hp: 5, items: { soda: 3 } }), enemy());
+    expect(() => act(unknown, { type: "item", item: "soda" })).toThrow(/недоступен/);
+  });
+
+  it("последняя штука уходит из доступных", () => {
+    const state = startCombat(
+      withHero({
+        hp: 5,
+        items: { pills: 1 },
+        usableItems: { pills: { name: "Таблетки", hp: 4 } },
+      }),
+      enemy(),
+    );
+    const next = act(state, { type: "item", item: "pills" }, sequence(0.99));
+    expect(next.items.pills).toBe(0);
+    expect(availableItems(next)).toEqual([]);
   });
 });

@@ -92,6 +92,20 @@ const ENCOUNTER_FIELDS: Record<string, true> = {
   onWinEffects: true,
   onLoseEffects: true,
 };
+const CONTAINER_FIELDS: Record<string, true> = {
+  id: true,
+  name: true,
+  location: true,
+  at: true,
+  phases: true,
+  conditions: true,
+  contents: true,
+  onOpenEffects: true,
+  locked: true,
+};
+const CONTAINER_AT_FIELDS: Record<string, true> = { x: true, z: true, r: true };
+const CONTAINER_LOOT_FIELDS: Record<string, true> = { item: true, qty: true, chance: true };
+const CONTAINER_LOCK_FIELDS: Record<string, true> = { skill: true, dc: true, tool: true };
 const NPC_FIELDS: Record<string, true> = { id: true, name: true, home: true, phases: true };
 const NPC_PHASE_FIELDS: Record<string, true> = { dialog: true, present: true };
 const SKILL_FIELDS: Record<string, true> = { id: true, name: true, effect: true };
@@ -136,6 +150,8 @@ interface Refs {
   quests: Set<string>;
   items: Set<string>;
   enemies: Set<string>;
+  encounters: Set<string>;
+  containers: Set<string>;
   npcs: Set<string>;
   skills: Set<string>;
   backgrounds: Set<string>;
@@ -714,6 +730,87 @@ function validateEncounter(raw: unknown, path: string, refs: Refs, errors: strin
   checkArrayOfEffects(raw.onLoseEffects, `${path}.onLoseEffects`, refs, errors, false);
 }
 
+function validateContainer(raw: unknown, path: string, refs: Refs, errors: string[]): void {
+  if (!isObject(raw)) {
+    errors.push(`${path}: ожидался объект контейнера`);
+    return;
+  }
+  checkFields(raw, CONTAINER_FIELDS, path, errors);
+  readString(raw, "name", path, errors);
+  const location = readString(raw, "location", path, errors);
+  if (location !== undefined && LOCATIONS[location] !== true) {
+    errors.push(`${path}.location: неизвестная локация "${location}"`);
+  }
+
+  if (!isObject(raw.at)) {
+    errors.push(`${path}.at: ожидался объект { x, z, r }`);
+  } else {
+    checkFields(raw.at, CONTAINER_AT_FIELDS, `${path}.at`, errors);
+    readNumber(raw.at, "x", `${path}.at`, errors);
+    readNumber(raw.at, "z", `${path}.at`, errors);
+    const radius = readNumber(raw.at, "r", `${path}.at`, errors);
+    if (radius !== undefined && radius <= 0) {
+      errors.push(`${path}.at.r: ожидалось число > 0`);
+    }
+  }
+
+  if (raw.phases !== undefined) {
+    const phases = asArray(raw.phases, `${path}.phases`, errors);
+    const seen = new Set<number>();
+    phases.forEach((phase, index) => {
+      const phasePath = `${path}.phases[${index}]`;
+      if (typeof phase !== "number" || !Number.isInteger(phase)) {
+        errors.push(`${phasePath}: ожидалась целая фаза 0..3`);
+        return;
+      }
+      if (!PHASES.includes(phase as 0)) {
+        errors.push(`${phasePath}: фаза мира должна быть 0..3`);
+      }
+      if (seen.has(phase)) errors.push(`${phasePath}: дубликат фазы ${phase}`);
+      seen.add(phase);
+    });
+  }
+
+  if (raw.conditions !== undefined) {
+    const conditions = asArray(raw.conditions, `${path}.conditions`, errors);
+    conditions.forEach((cond, index) =>
+      validateCond(cond, `${path}.conditions[${index}]`, refs, errors),
+    );
+  }
+
+  const contents = asArray(raw.contents, `${path}.contents`, errors);
+  contents.forEach((entry, index) => {
+    const lootPath = `${path}.contents[${index}]`;
+    if (!isObject(entry)) {
+      errors.push(`${lootPath}: ожидался объект добычи`);
+      return;
+    }
+    checkFields(entry, CONTAINER_LOOT_FIELDS, lootPath, errors);
+    readRef(entry, "item", refs.items, "item", lootPath, errors);
+    checkOptionalPositiveInt(entry, "qty", lootPath, errors);
+    const chance = optionalNumber(entry, "chance", lootPath, errors);
+    if (chance !== undefined && (chance < 0 || chance > 1)) {
+      errors.push(`${lootPath}.chance: ожидалось число 0..1`);
+    }
+  });
+
+  checkArrayOfEffects(raw.onOpenEffects, `${path}.onOpenEffects`, refs, errors, false);
+
+  if (raw.locked !== undefined) {
+    if (!isObject(raw.locked)) {
+      errors.push(`${path}.locked: ожидался объект замка`);
+      return;
+    }
+    checkFields(raw.locked, CONTAINER_LOCK_FIELDS, `${path}.locked`, errors);
+    readEnum(raw.locked, "skill", STATS, `${path}.locked`, errors);
+    const dc = readInteger(raw.locked, "dc", `${path}.locked`, errors);
+    if (dc !== undefined && dc <= 0) {
+      errors.push(`${path}.locked.dc: ожидалось целое число > 0`);
+    }
+    readOptionalRef(raw.locked, "tool", refs.items, "item", `${path}.locked`, errors);
+  }
+}
+
 function validateNpc(raw: unknown, path: string, refs: Refs, errors: string[]): void {
   if (!isObject(raw)) {
     errors.push(`${path}: ожидался объект NPC`);
@@ -802,9 +899,10 @@ export function validateContent(data: ContentData): string[] {
 
   const dialogs = asArray(rawData.dialogs, "dialogs", errors);
   const quests = asArray(rawData.quests, "quests", errors);
-  const items = asArray(rawData.items, "items", errors);
   const enemies = asArray(rawData.enemies, "enemies", errors);
+  const items = asArray(rawData.items, "items", errors);
   const encounters = asArray(rawData.encounters, "encounters", errors);
+  const containers = asArray(rawData.containers, "containers", errors);
   const npcs = asArray(rawData.npcs, "npcs", errors);
   const skills = asArray(rawData.skills, "skills", errors);
   const backgrounds = asArray(rawData.backgrounds, "backgrounds", errors);
@@ -814,6 +912,8 @@ export function validateContent(data: ContentData): string[] {
     quests: collectIds(quests, "quests", errors),
     items: collectIds(items, "items", errors),
     enemies: collectIds(enemies, "enemies", errors),
+    encounters: collectIds(encounters, "encounters", errors),
+    containers: collectIds(containers, "containers", errors),
     npcs: collectIds(npcs, "npcs", errors),
     skills: collectIds(skills, "skills", errors),
     backgrounds: collectIds(backgrounds, "backgrounds", errors),
@@ -826,6 +926,9 @@ export function validateContent(data: ContentData): string[] {
   enemies.forEach((entry, index) => validateEnemy(entry, `enemies[${index}]`, refs, errors));
   encounters.forEach((entry, index) =>
     validateEncounter(entry, `encounters[${index}]`, refs, errors),
+  );
+  containers.forEach((entry, index) =>
+    validateContainer(entry, `containers[${index}]`, refs, errors),
   );
   npcs.forEach((entry, index) => validateNpc(entry, `npcs[${index}]`, refs, errors));
   skills.forEach((entry, index) => validateSkill(entry, `skills[${index}]`, refs, errors));

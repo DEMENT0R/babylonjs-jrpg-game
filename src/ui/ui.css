@@ -4,6 +4,7 @@
 .ui-hud,
 .ui-dialog,
 .ui-interact-hint,
+.ui-loot-toast,
 .ui-menu {
   --ui-panel: rgba(14, 16, 24, 0.88);
   --ui-panel-solid: #151825;
@@ -152,6 +153,29 @@
 
 .ui-interact-hint__text {
   color: var(--ui-text);
+}
+
+/* ─── Тост найденного лута ─────────────────────────────────────────── */
+
+/* Плашка «Найдено: …» над зоной диалога; живёт 2.6 с, мышь не перехватывает. */
+.ui-loot-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 44vh;
+  transform: translateX(-50%);
+  z-index: 150;
+  display: none;
+  padding: 6px 14px;
+  background: var(--ui-panel);
+  border: 1px solid var(--ui-accent);
+  border-radius: 8px;
+  color: var(--ui-accent);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.ui-loot-toast--open {
+  display: block;
 }
 
 /* ─── Диалог ──────────────────────────────────────────────────────────── */

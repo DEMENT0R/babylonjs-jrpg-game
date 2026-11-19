@@ -3,14 +3,10 @@
 import backgroundsFile from "./data/backgrounds.json";
 import dialogsFile from "./data/dialogs.json";
 import encountersFile from "./data/encounters.json";
-import enemiesFile from "./data/enemies.json";
-import itemsFile from "./data/items.json";
-import npcsFile from "./data/npcs.json";
-import questsFile from "./data/quests.json";
-import skillsFile from "./data/skills.json";
-import { createContentProvider, unwrapContent, type IContentProvider } from "./index";
+import containersFile from "./data/containers.json";
 import type {
   BackgroundDef,
+  Container,
   ContentData,
   ContentFile,
   DialogNode,
@@ -21,6 +17,12 @@ import type {
   Quest,
   SkillDef,
 } from "./types";
+import enemiesFile from "./data/enemies.json";
+import itemsFile from "./data/items.json";
+import npcsFile from "./data/npcs.json";
+import questsFile from "./data/quests.json";
+import skillsFile from "./data/skills.json";
+import { createContentProvider, unwrapContent, type IContentProvider } from "./index";
 
 /** Единственный бандл контента игры; чистые системы получают его как IContentProvider. */
 export function loadBundledContent(): IContentProvider {
@@ -35,6 +37,10 @@ export function loadBundledContent(): IContentProvider {
     encounters: unwrapContent<Encounter>(
       encountersFile as unknown as ContentFile<Encounter>,
       "encounters",
+    ),
+    containers: unwrapContent<Container>(
+      containersFile as unknown as ContentFile<Container>,
+      "containers",
     ),
     npcs: unwrapContent<Npc>(npcsFile as unknown as ContentFile<Npc>, "npcs"),
     skills: unwrapContent<SkillDef>(skillsFile as unknown as ContentFile<SkillDef>, "skills"),

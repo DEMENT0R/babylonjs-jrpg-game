@@ -115,6 +115,36 @@ export interface Encounter {
   onWinEffects?: Effect[];
   onLoseEffects?: Effect[];
 }
+/** Дроп контейнера: тот же словарь, что `Enemy.loot`; `qty` по умолчанию 1,
+ *  `chance` по умолчанию 1 (всегда). */
+export interface ContainerLoot {
+  item: string;
+  qty?: number;
+  chance?: number;
+}
+
+/** Замок: открывается при навыке `skill` >= `dc` и предмете `tool` (если задан). */
+export interface ContainerLock {
+  skill: SkillId;
+  dc: number;
+  tool?: string;
+}
+
+/** Контейнер в локации (аптечка/ящик/тележка): осматривается один раз, лут
+ *  роллится по шансу; открытие помечает флагом `container:<id>:opened`
+ *  (сейв-модель не меняется). */
+export interface Container {
+  id: string;
+  name: string;
+  location: string;
+  at: { x: number; z: number; r: number };
+  /** Фазы мира, где контейнер существует; без поля — все фазы. */
+  phases?: WorldPhase[];
+  conditions?: Cond[];
+  contents: ContainerLoot[];
+  onOpenEffects?: Effect[];
+  locked?: ContainerLock;
+}
 
 export interface NpcPhase {
   dialog: string;
@@ -155,4 +185,5 @@ export interface ContentData {
   npcs: Npc[];
   skills: SkillDef[];
   backgrounds: BackgroundDef[];
+  containers: Container[];
 }

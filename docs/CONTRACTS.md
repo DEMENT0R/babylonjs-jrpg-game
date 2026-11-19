@@ -30,6 +30,13 @@ npcDialogId(content, npcId, phase): string | undefined
 applyEffects(effects, draft, content): void   // внутри store.update
 advanceTime(draft, content, slots): void      // двигает слоты и проваливает окна квестов
 
+// containers.ts
+containerOpenedFlag(id): string                          // container:<id>:opened
+findContainerAt(content, state, x, z): Container | undefined  // видимый и не открытый под точкой
+canOpenContainer(container, state): boolean               // замок: stat >= dc и tool в инвентаре
+containerHint(container, state, content): string         // подпись подсказки: «осмотреть» / «заперто — …»
+openContainer(content, container, draft, rng?): {item, qty}[]  // лут + onOpenEffects + флаг; rng injectable
+
 // quest.ts / inventory.ts / stats.ts — чистые хелперы над драфтом GameState
 ```
 - UI никогда не мутирует сейв сам: только `store.update(draft => …)` с этими функциями.

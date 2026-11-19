@@ -89,6 +89,25 @@ Effect = one of:
   применяет `onWinEffects`; поражение/побег применяет `onLoseEffects` и оставляет
   стычку доступной при повторном входе.
 
+## Container (контейнер в локации)
+```
+{ id, name, location, at: { x, z, r },
+  phases?: [0|1|2|3, ...],               // без поля — все фазы
+  conditions?: Cond[],
+  contents: [{ item, qty?, chance? }],   // словарь дропа Enemy.loot; qty/chance — 1
+  onOpenEffects?: Effect[],
+  locked?: { skill: "medicine"|"repair"|"persuasion"|"stealth", dc, tool? } }
+```
+- Осматривается один раз: открытие ставит флаг `container:<id>:opened` (сейв
+  не меняется); маркер/подпись при повторном подходе пропадают.
+- `at` — круг интеракции в локации (`x, z, r`, r > 0); первый контейнер под
+  точкой игрока получает confirm (`systems/containers.ts`, вызов из `app/main.ts`).
+- `locked` — нужен навык `skill` уровня `dc` и предмет `tool` (если задан);
+  иначе подпись «заперто — …» и confirm ничего не делает. Замок не вскрывается
+  тратой времени — только прокачкой/инструментом.
+- `onOpenEffects` — общий словарь; типовое применение — флаг «кражи»
+  (`stole:…`) для будущих реплик НПС.
+
 ## NPC
 ```
 { id, name, home: "<location-id>",

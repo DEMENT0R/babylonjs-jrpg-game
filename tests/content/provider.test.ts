@@ -14,8 +14,9 @@ const data: ContentData = {
   dialogs: [],
   quests: [],
   items: [],
-  enemies: [],
   encounters: [],
+  enemies: [],
+  containers: [],
   npcs: [npc("a", "apartment", true), npc("b", "apartment", false), npc("c", "square", true)],
   skills: [],
   backgrounds: [],
@@ -69,5 +70,21 @@ describe("loadBundledContent", () => {
     }
     expect(content.getQuest("q-luda-meds").stages.map((s) => s.id)).toEqual(["take", "give"]);
     expect(content.getNpc("luda").home).toBe("apartment");
+  });
+
+  it("containersAt: контейнеры по локации, дубль id — ошибка", () => {
+    const content = loadBundledContent();
+    expect(content.containersAt("workshop").map((c) => c.id)).toEqual(["workshop-crates"]);
+    expect(content.containersAt("campus")).toEqual([]);
+    expect(content.getContainer("pharmacy-fridge").location).toBe("pharmacy");
+    expect(() =>
+      createContentProvider({
+        ...data,
+        containers: [
+          { ...content.getContainer("workshop-crates") },
+          { ...content.getContainer("workshop-crates") },
+        ],
+      }),
+    ).toThrow(/дубликат container "workshop-crates"/);
   });
 });

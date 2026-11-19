@@ -4,6 +4,7 @@ import { loadBundledContent } from "../../src/content/bundled";
 import backgroundsFile from "../../src/content/data/backgrounds.json";
 import dialogsFile from "../../src/content/data/dialogs.json";
 import encountersFile from "../../src/content/data/encounters.json";
+import containersFile from "../../src/content/data/containers.json";
 import enemiesFile from "../../src/content/data/enemies.json";
 import itemsFile from "../../src/content/data/items.json";
 import npcsFile from "../../src/content/data/npcs.json";
@@ -11,6 +12,7 @@ import questsFile from "../../src/content/data/quests.json";
 import skillsFile from "../../src/content/data/skills.json";
 import type {
   BackgroundDef,
+  Container,
   ContentData,
   ContentFile,
   DialogNode,
@@ -35,6 +37,10 @@ function bundledData(): ContentData {
     encounters: unwrapContent<Encounter>(
       encountersFile as unknown as ContentFile<Encounter>,
       "encounters",
+    ),
+    containers: unwrapContent<Container>(
+      containersFile as unknown as ContentFile<Container>,
+      "containers",
     ),
     npcs: unwrapContent<Npc>(npcsFile as unknown as ContentFile<Npc>, "npcs"),
     skills: unwrapContent<SkillDef>(skillsFile as unknown as ContentFile<SkillDef>, "skills"),
@@ -114,5 +120,20 @@ describe("validateContent", () => {
     expect(errors.some((error) => error.includes("encounters[0].location"))).toBe(true);
     expect(errors.some((error) => error.includes("encounters[0].enemy"))).toBe(true);
     expect(errors.some((error) => error.includes("номер дня"))).toBe(true);
+  });
+
+  it("контейнер: битая локация/предмет/шанс и замок", () => {
+    const data = structuredClone(bundledData());
+    const container = first(data.containers);
+    container.location = "nowhere";
+    container.contents = [{ item: "nobody", qty: 0, chance: 2 }];
+    container.locked = { skill: "repair", dc: 0, tool: "nobody" };
+    const errors = validateContent(data);
+    expect(errors.some((error) => error.includes("containers[0].location"))).toBe(true);
+    expect(errors.some((error) => error.includes("containers[0].contents[0].item"))).toBe(true);
+    expect(errors.some((error) => error.includes("contents[0].qty"))).toBe(true);
+    expect(errors.some((error) => error.includes("contents[0].chance"))).toBe(true);
+    expect(errors.some((error) => error.includes("containers[0].locked.dc"))).toBe(true);
+    expect(errors.some((error) => error.includes("containers[0].locked.tool"))).toBe(true);
   });
 });

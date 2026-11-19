@@ -6,6 +6,7 @@ import type {
   ContentData,
   ContentFile,
   DialogNode,
+  Container,
   Encounter,
   Enemy,
   Item,
@@ -21,8 +22,11 @@ export interface IContentProvider {
   getItem(id: string): Item;
   getEnemy(id: string): Enemy;
   getEncounter(id: string): Encounter;
+  getContainer(id: string): Container;
   /** Стычки, привязанные к локации (условия проверяет systems/encounters). */
   encountersAt(location: string): Encounter[];
+  /** Контейнеры, привязанные к локации (условия/замок проверяет systems/containers). */
+  containersAt(location: string): Container[];
   getNpc(id: string): Npc;
   getSkill(id: string): SkillDef;
   getBackground(id: BackgroundId): BackgroundDef;
@@ -56,6 +60,7 @@ export function createContentProvider(data: ContentData): IContentProvider {
   const items = indexById("item", data.items);
   const enemies = indexById("enemy", data.enemies);
   const encounters = indexById("encounter", data.encounters);
+  const containers = indexById("container", data.containers);
   const npcs = indexById("npc", data.npcs);
   const skills = indexById("skill", data.skills);
   const backgrounds = indexById("background", data.backgrounds);
@@ -64,9 +69,11 @@ export function createContentProvider(data: ContentData): IContentProvider {
     getDialog: (id) => require_("dialog", dialogs, id),
     getQuest: (id) => require_("quest", quests, id),
     getItem: (id) => require_("item", items, id),
-    getEnemy: (id) => require_("enemy", enemies, id),
     getEncounter: (id) => require_("encounter", encounters, id),
+    getEnemy: (id) => require_("enemy", enemies, id),
+    getContainer: (id) => require_("container", containers, id),
     encountersAt: (location) => data.encounters.filter((e) => e.location === location),
+    containersAt: (location) => data.containers.filter((c) => c.location === location),
     getNpc: (id) => require_("npc", npcs, id),
     getSkill: (id) => require_("skill", skills, id),
     getBackground: (id) => require_("background", backgrounds, id),

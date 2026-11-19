@@ -1,5 +1,6 @@
 import { ArcRotateCamera, Color3, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { createNpcPresenter } from "./npcs";
+import { createContainerPresenter } from "./containers";
 import { loadBundledContent } from "../content/bundled";
 import type { Effect, Encounter } from "../content/types";
 import { createGameEngine } from "../core/engine";
@@ -14,6 +15,12 @@ import { createStore } from "../state/store";
 import { act, startCombat, type CombatState } from "../systems/combat";
 import { advanceTime } from "../systems/effects";
 import { selectEncounter, settleEncounter } from "../systems/encounters";
+import {
+  canOpenContainer,
+  containerHint,
+  findContainerAt,
+  openContainer,
+} from "../systems/containers";
 import { npcDialogId } from "../systems/dialog";
 import { newGameForBackground } from "../systems/character";
 import { addItem, countItem, removeItem } from "../systems/inventory";
@@ -24,6 +31,7 @@ import { createCharacterSelect } from "../ui/characterSelect";
 import { createDialogBox } from "../ui/dialogBox";
 import { createHud } from "../ui/hud";
 import { createInteractHint } from "../ui/interactHint";
+import { createLootToast } from "../ui/lootToast";
 import { createPauseMenu } from "../ui/menu";
 import { attachTouchControls, prefersTouchControls } from "../ui/touchControls";
 import { readTextSpeed, readTouchSetting, writeTouchSetting } from "../ui/settings";
@@ -105,6 +113,8 @@ const manager = new SceneManager({
 manager.enter(store.get().location, { x: store.get().pos[0]!, z: store.get().pos[1]! });
 
 const npcPresenter = createNpcPresenter(scene, content);
+const containerPresenter = createContainerPresenter(scene, content);
+const lootToast = createLootToast(); // найденное в контейнерах; живёт до перезагрузки
 createHud(store); // живёт до перезагрузки страницы
 const dialog = createDialogBox({ content, store, typeMs: readTextSpeed() });
 
@@ -280,6 +290,7 @@ startGameLoop(engine, scene, input, (dt) => {
 
   const state = store.get();
   npcPresenter.sync(state.location, state.worldPhase);
+  containerPresenter.sync(state);
   if (modalOpen()) {
     interactHint.hide();
     return;
@@ -301,12 +312,17 @@ startGameLoop(engine, scene, input, (dt) => {
   manager.update(dt);
 
   // Подпись в фокусе: ровно то, что сработает по confirm — НПС в радиусе
-  // разговора (имя из контента) либо интеракт с label. Иначе скрыть.
+  // разговора (имя из контента), контейнер либо интеракт с label. Иначе скрыть.
   const now = store.get();
   const npcId = npcPresenter.nearest(now.pos[0]!, now.pos[1]!, TALK_RADIUS);
   const npcNode = npcId ? npcDialogId(content, npcId, now.worldPhase) : undefined;
+  const container = findContainerAt(content, now, now.pos[0]!, now.pos[1]!);
   if (npcId && npcNode) {
     interactHint.show(`говорить: ${content.getNpc(npcId).name}`);
+  } else if (container) {
+    // Контейнер в фокусе: подпись — ровно то, что даст confirm («осмотреть»
+    // либо требование замка; запертый confirm молчит).
+    interactHint.show(containerHint(container, now, content));
   } else {
     const label = manager.interactAt(now.pos[0]!, now.pos[1]!)?.label;
     if (label) interactHint.show(label);
@@ -316,6 +332,21 @@ startGameLoop(engine, scene, input, (dt) => {
   if (input.pressed("confirm") && npcId && npcNode) {
     interactHint.hide();
     dialog.open(npcNode);
+    return;
+  }
+  if (input.pressed("confirm") && container && canOpenContainer(container, now)) {
+    // Открытие: ролл лута внутри store.update; тост показывает результат.
+    interactHint.hide();
+    store.update((draft) => {
+      const gained = openContainer(content, container, draft);
+      lootToast.show(
+        gained.length === 0
+          ? `${container.name}: пусто`
+          : `${container.name}: ${gained
+              .map((g) => `${content.getItem(g.item).name}${g.qty > 1 ? ` ×${g.qty}` : ""}`)
+              .join(", ")}`,
+      );
+    });
     return;
   }
   if (input.pressed("menu")) menu.toggle();

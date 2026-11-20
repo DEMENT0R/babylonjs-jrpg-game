@@ -501,7 +501,7 @@
       "stages": [
         {
           "id": "triage",
-          "description": "Помочь Борису принять поток в приёмном.",
+          "description": "Помочь Борису принять поток в приёмном покое.",
           "timeWindow": {
             "days": 2,
             "from": "morning",

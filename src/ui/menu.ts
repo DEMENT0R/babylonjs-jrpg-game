@@ -122,9 +122,25 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   const panel = document.createElement("div");
   panel.className = "ui-menu__panel";
 
-  const title = document.createElement("h2");
-  title.className = "ui-menu__title";
-  title.textContent = "Меню";
+  // Хедер: живое состояние героя — обновляется при открытии и после мутаций.
+  const header = document.createElement("header");
+  header.className = "ui-menu__head";
+  const headName = document.createElement("span");
+  headName.className = "ui-menu__head-name";
+  const headHp = document.createElement("span");
+  headHp.className = "ui-menu__head-hp";
+  const headMeta = document.createElement("span");
+  headMeta.className = "ui-menu__head-meta";
+  header.append(headName, headHp, headMeta);
+
+  function renderHeader(): void {
+    const state = store.get();
+    headName.textContent = state.hero.name;
+    headHp.textContent = `HP ${state.hero.hp}/${maxHp(state)}`;
+    headMeta.textContent =
+      `Ур. ${state.hero.level} · День ${state.time.day} · ${SLOT_LABELS[state.time.slot]}` +
+      ` · ${LOCATION_TITLES[state.location] ?? state.location}`;
+  }
 
   // ── Вкладки ──────────────────────────────────────────────────────────────
   const tabbar = document.createElement("div");
@@ -164,6 +180,14 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   const hintEl = document.createElement("div");
   hintEl.className = "ui-menu__hint";
   hintEl.textContent = "↑/↓ — выбор · ←/→ — вкладка · Enter — нажать · Esc — закрыть";
+
+  // Двухпанельный каркас: слева вертикальные вкладки, справа контент.
+  const body = document.createElement("div");
+  body.className = "ui-menu__body";
+  const contentCol = document.createElement("div");
+  contentCol.className = "ui-menu__col";
+  contentCol.append(paneHost, messageEl);
+  body.append(tabbar, contentCol);
 
   // ── Вкладка «Система» (строится один раз) ────────────────────────────────
   const systemPane = panes.get("system")!;
@@ -259,7 +283,7 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   });
   footer.append(resumeButton, quitButton);
 
-  panel.append(title, tabbar, paneHost, messageEl, hintEl, footer);
+  panel.append(header, body, footer, hintEl);
   root.append(panel);
   host.append(root);
 
@@ -506,6 +530,7 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   function afterChange(): void {
     const focused = visibleButtons().indexOf(document.activeElement as HTMLButtonElement);
     renderPane(activeTab);
+    renderHeader();
     const buttons = visibleButtons();
     if (focused >= 0 && buttons.length > 0) {
       buttons[Math.min(focused, buttons.length - 1)]?.focus();
@@ -715,6 +740,7 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
     if (shown || disposed) return;
     shown = true;
     setMessage("");
+    renderHeader();
     applyVisibility();
     window.addEventListener("keydown", onKeyDown, true);
     switchTab(activeTab, { focusTab: true });

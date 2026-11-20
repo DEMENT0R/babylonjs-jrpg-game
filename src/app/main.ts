@@ -8,7 +8,7 @@ import { createGamepadDriver } from "../core/gamepad";
 import { attachKeyboard, createInputState } from "../core/input";
 import { startGameLoop } from "../core/loop";
 import { createPhasedAssets } from "../core/phasedAssets";
-import { SceneManager, registerLocation } from "../core/scenes";
+import { getLocation, SceneManager, registerLocation } from "../core/scenes";
 import { emitUiAction } from "../core/uiActions";
 import { LocalStorageProvider } from "../state/persistence/LocalStorageProvider";
 import { createStore } from "../state/store";
@@ -41,6 +41,7 @@ import { ARRIVAL, allLocations, isExitOpen } from "../world";
 import { demoRoom } from "../world/locations/demo-room";
 
 const TALK_RADIUS = 1.8;
+const FIRST_VISIT_TOAST_MS = 6000;
 
 declare global {
   interface Window {
@@ -326,6 +327,7 @@ function modalOpen(): boolean {
 }
 
 let encounterCheckedLocation = "";
+let visitCheckedLocation = "";
 
 const gamepad = createGamepadDriver(input, (action) => {
   if (modalOpen()) emitUiAction(action);
@@ -347,6 +349,19 @@ startGameLoop(engine, scene, input, (dt) => {
   if (modalOpen()) {
     interactHint.hide();
     return;
+  }
+
+  // Подпись локации показывается один раз на сейв: первый вход помечается
+  // флагом visited-<id> в стейте (переживает загрузки).
+  if (state.location !== visitCheckedLocation) {
+    visitCheckedLocation = state.location;
+    const def = getLocation(state.location);
+    if (def?.firstVisitText && !state.flags[`visited-${state.location}`]) {
+      store.update((draft) => {
+        draft.flags[`visited-${state.location}`] = true;
+      });
+      lootToast.show(def.firstVisitText, FIRST_VISIT_TOAST_MS);
+    }
   }
 
   // Стычка проверяется один раз на вход в локацию: побег/поражение не запирают

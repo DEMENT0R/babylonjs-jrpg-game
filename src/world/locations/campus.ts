@@ -30,6 +30,8 @@ export function solidsOf(): SolidBox[] {
 
 export const campus: LocationDef = {
   id: "campus",
+  firstVisitText:
+    "Общага и университетский корпус — через двор от твоего дома. Студенты заперты на этажах.",
   exits: [
     {
       to: "apartment",

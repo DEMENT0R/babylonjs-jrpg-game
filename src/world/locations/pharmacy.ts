@@ -28,6 +28,7 @@ export function solidsOf(): SolidBox[] {
 
 export const pharmacy: LocationDef = {
   id: "pharmacy",
+  firstVisitText: "Аптека Зины: остатки на прилавках идут по три в одни руки.",
   exits: [
     { to: "square", at: doorTrigger("south"), spawn: entry("north"), label: "Обратно на площадь" },
   ] satisfies ExitDef[],

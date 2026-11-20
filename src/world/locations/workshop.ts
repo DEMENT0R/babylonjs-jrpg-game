@@ -28,6 +28,7 @@ export function solidsOf(): SolidBox[] {
 
 export const workshop: LocationDef = {
   id: "workshop",
+  firstVisitText: "Мастерская Тараса: инструменты, хлам и подвал с текущей трубой.",
   exits: [
     { to: "square", at: doorTrigger("west"), spawn: entry("east"), label: "Наверх, на площадь" },
   ] satisfies ExitDef[],

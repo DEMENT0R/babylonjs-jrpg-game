@@ -3,7 +3,7 @@
 import "./ui.css";
 
 export interface LootToast {
-  show(text: string): void;
+  show(text: string, visibleMs?: number): void;
   dispose(): void;
 }
 
@@ -16,14 +16,14 @@ export function createLootToast(host: HTMLElement = document.body): LootToast {
   let timer: number | undefined;
 
   return {
-    show(text) {
+    show(text, visibleMs = VISIBLE_MS) {
       root.textContent = text;
       root.classList.add("ui-loot-toast--open");
       clearTimeout(timer);
       timer = window.setTimeout(() => {
         timer = undefined;
         root.classList.remove("ui-loot-toast--open");
-      }, VISIBLE_MS);
+      }, visibleMs);
     },
     dispose() {
       clearTimeout(timer);

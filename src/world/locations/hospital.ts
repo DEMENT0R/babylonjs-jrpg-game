@@ -31,6 +31,7 @@ let lampTime = 0;
 
 export const hospital: LocationDef = {
   id: "hospital",
+  firstVisitText: "Больница. Коридоры забиты, врачи спят стоя между сменами.",
   exits: [
     { to: "campus", at: doorTrigger("east"), spawn: entry("west"), label: "Обратно в универ" },
   ] satisfies ExitDef[],

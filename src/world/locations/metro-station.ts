@@ -37,6 +37,7 @@ let lampTime = 0;
 
 export const metroStation: LocationDef = {
   id: "metro-station",
+  firstVisitText: "Станция метро — убежище коменданта на случай эвакуации.",
   exits: [
     { to: "square", at: doorTrigger("north"), spawn: entry("south"), label: "Выход на площадь" },
   ] satisfies ExitDef[],

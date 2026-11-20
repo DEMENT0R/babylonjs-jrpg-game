@@ -138,4 +138,6 @@ export interface LocationDef {
   update(ctx: UpdateCtx): void;
   exits: ExitDef[];
   interacts: InteractDef[];
+  /** Одноразовая подпись при первом входе (тост ui/lootToast.ts; флаг visited-<id> в сейве). */
+  firstVisitText?: string;
 }

@@ -39,6 +39,7 @@ export const metroSignAt = { x: DOOR.south.x + 1.5, z: DOOR.south.z + 0.6, r: 1.
 
 export const square: LocationDef = {
   id: "square",
+  firstVisitText: "Площадь района: стихийный рынок, пункт раздачи и доска объявлений.",
   exits: [
     { to: "campus", at: doorTrigger("west"), spawn: entry("east"), label: "К универу" },
     { to: "pharmacy", at: doorTrigger("north"), spawn: entry("south"), label: "В аптеку" },

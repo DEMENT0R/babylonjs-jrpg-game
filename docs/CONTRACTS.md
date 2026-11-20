@@ -69,6 +69,8 @@ interface LocationDef {
   update(ctx: UpdateCtx): void;         // каждый кадр
   exits: ExitDef[];
   interacts: InteractDef[];
+  firstVisitText?: string;                // одноразовая подпись при первом входе
+                                         // (тост ui/lootToast.ts, флаг visited-<id> в сейве)
 }
 interface ExitDef {
   to: string;                           // id целевой локации

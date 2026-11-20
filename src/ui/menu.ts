@@ -11,7 +11,8 @@ import { applyEffects } from "../systems/effects";
 import { countItem, craftItem, craftStatus, removeItem } from "../systems/inventory";
 import { isWindowExpired } from "../systems/quest";
 import { maxHp, spendSkillPoint, xpToNextLevel } from "../systems/stats";
-import { allLocations, isExitOpen, LOCATION_TITLES } from "../world";
+import { LOCATION_TITLES } from "../world";
+import { buildMapModel, renderMapSVG } from "./map";
 import { onUiAction } from "../core/uiActions";
 import { SLOT_LABELS } from "./hud";
 import { TEXT_SPEED_STEPS, readTextSpeed, writeTextSpeed, writeTouchSetting } from "./settings";
@@ -462,19 +463,15 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   }
 
   function buildMapPane(): HTMLElement[] {
-    const state = store.get();
-    const els = [row("Вы здесь", LOCATION_TITLES[state.location] ?? state.location)];
-    for (const def of allLocations) {
-      const exits = def.exits
-        .map((exit) => {
-          const open = isExitOpen(def.id, exit.to, state.worldPhase);
-          return `${LOCATION_TITLES[exit.to] ?? exit.to}${open ? "" : " (закрыто)"}`;
-        })
-        .join(", ");
-      const here = def.id === state.location ? " · вы здесь" : "";
-      els.push(row((LOCATION_TITLES[def.id] ?? def.id) + here, exits || "нет выходов"));
-    }
-    return els;
+    const wrap = document.createElement("div");
+    wrap.className = "ui-menu__map";
+    wrap.append(renderMapSVG(buildMapModel(store.get(), content)));
+    const legend = document.createElement("div");
+    legend.className = "ui-menu__map-legend";
+    legend.textContent =
+      "Сплошная линия — проход открыт, пунктир — закрыто. Подсвеченный блок — вы здесь. " +
+      "Под названием: кто встретится и что можно обыскать.";
+    return [wrap, legend];
   }
 
   function buildSettingsPane(): HTMLElement[] {

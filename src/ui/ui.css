@@ -471,6 +471,63 @@
   border-radius: 6px;
 }
 
+/* ── Вкладка «Карта»: SVG-схема района ──────────────────────────────────── */
+
+.ui-menu__map {
+  padding: 10px 12px;
+  background: var(--ui-panel);
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+}
+
+.ui-map {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ui-map-edge {
+  stroke: var(--ui-muted);
+  stroke-width: 2;
+}
+
+.ui-map-edge--closed {
+  stroke: var(--ui-border);
+  stroke-dasharray: 5 4;
+}
+
+.ui-map-node rect {
+  fill: var(--ui-panel-solid);
+  stroke: var(--ui-border);
+  stroke-width: 1.5;
+}
+
+.ui-map-node--here rect {
+  fill: var(--ui-accent-dim);
+  stroke: var(--ui-accent);
+}
+
+.ui-map-node-title {
+  fill: var(--ui-text);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ui-map-node--here .ui-map-node-title {
+  fill: var(--ui-accent);
+}
+
+.ui-map-marker {
+  fill: var(--ui-muted);
+  font-size: 10px;
+}
+
+.ui-menu__map-legend {
+  color: var(--ui-muted);
+  font-size: 11px;
+  text-align: center;
+}
+
 .ui-menu__slots {
   display: flex;
   flex-direction: column;

@@ -65,6 +65,40 @@
         }
       ],
       "xp": 8
+    },
+    {
+      "id": "looter",
+      "name": "Мародёр",
+      "worldPhase": 2,
+      "stats": {
+        "hp": 12,
+        "atk": 3,
+        "def": 1,
+        "spd": 4
+      },
+      "actions": [
+        {
+          "id": "rush",
+          "name": "Рывок",
+          "power": 3
+        },
+        {
+          "id": "shove",
+          "name": "Толчок",
+          "power": 2
+        }
+      ],
+      "loot": [
+        {
+          "item": "bandage",
+          "chance": 0.5
+        },
+        {
+          "item": "pills",
+          "chance": 0.3
+        }
+      ],
+      "xp": 5
     }
   ]
 }

@@ -82,6 +82,49 @@
           "value": "evening"
         }
       ]
+    },
+    {
+      "id": "pharmacy-looter",
+      "location": "pharmacy",
+      "enemy": "looter",
+      "conditions": [
+        {
+          "type": "worldPhase",
+          "op": "eq",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "id": "klesh-warehouse",
+      "location": "workshop",
+      "enemy": "klesh",
+      "conditions": [
+        {
+          "type": "quest",
+          "id": "q-klesh",
+          "op": "eq",
+          "value": "active"
+        }
+      ],
+      "onWinEffects": [
+        {
+          "type": "advanceQuest",
+          "quest": "q-klesh",
+          "stage": "report"
+        },
+        {
+          "type": "setFlag",
+          "id": "klesh-defeated",
+          "value": true
+        }
+      ],
+      "onLoseEffects": [
+        {
+          "type": "resource",
+          "delta": -1
+        }
+      ]
     }
   ]
 }

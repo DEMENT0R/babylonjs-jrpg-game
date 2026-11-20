@@ -76,7 +76,10 @@ describe("loadBundledContent", () => {
   it("containersAt: контейнеры по локации, дубль id — ошибка", () => {
     const content = loadBundledContent();
     expect(content.containersAt("workshop").map((c) => c.id)).toEqual(["workshop-crates"]);
-    expect(content.containersAt("campus").map((c) => c.id)).toEqual(["campus-vending"]);
+    expect(content.containersAt("campus").map((c) => c.id)).toEqual([
+      "campus-vending",
+      "campus-evac-box",
+    ]);
     expect(content.getContainer("pharmacy-fridge").location).toBe("pharmacy");
     expect(() =>
       createContentProvider({

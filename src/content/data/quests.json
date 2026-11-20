@@ -453,6 +453,274 @@
         }
       ],
       "onFailEffects": []
+    },
+    {
+      "id": "q-shelter-metro",
+      "title": "Убежище",
+      "giver": "sergey",
+      "targetLocation": "metro-station",
+      "worldPhases": [2],
+      "stages": [
+        {
+          "id": "enter",
+          "description": "Дойти до убежища в метро.",
+          "timeWindow": {
+            "days": 3,
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "inspect",
+          "description": "Осмотреть запасы убежища."
+        },
+        {
+          "id": "report",
+          "description": "Доложить Сергею о запасах."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "resource",
+          "delta": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "shelter-checked",
+          "value": true
+        }
+      ],
+      "onFailEffects": []
+    },
+    {
+      "id": "q-boris-triage",
+      "title": "Ночная смена",
+      "giver": "boris",
+      "targetLocation": "hospital",
+      "worldPhases": [2],
+      "stages": [
+        {
+          "id": "triage",
+          "description": "Помочь Борису принять поток в приёмном.",
+          "timeWindow": {
+            "days": 2,
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "supplies",
+          "description": "Принести Борису антисептик и бинты."
+        },
+        {
+          "id": "shift",
+          "description": "Дежурить с Борисом до утра."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "stat",
+          "stat": "medicine",
+          "delta": 1
+        },
+        {
+          "type": "giveItem",
+          "item": "medkit",
+          "qty": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "boris-shift-done",
+          "value": true
+        }
+      ],
+      "onFailEffects": []
+    },
+    {
+      "id": "q-evac-list",
+      "title": "Список на эвакуацию",
+      "giver": "dima",
+      "targetLocation": "campus",
+      "worldPhases": [2],
+      "stages": [
+        {
+          "id": "list",
+          "description": "Попросить Диму о месте в списке.",
+          "timeWindow": {
+            "days": 3,
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "luda",
+          "description": "Уговорить Люду вписаться в список."
+        },
+        {
+          "id": "close",
+          "description": "Вернуться к Диме с новостями."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "stat",
+          "stat": "persuasion",
+          "delta": 1
+        }
+      ],
+      "onFailEffects": []
+    },
+    {
+      "id": "q-luda-bandages",
+      "title": "Рецепты Люды",
+      "giver": "luda",
+      "targetLocation": "apartment",
+      "worldPhases": [2],
+      "stages": [
+        {
+          "id": "ask",
+          "description": "Попросить Люду показать рецепты."
+        },
+        {
+          "id": "learn",
+          "description": "Выучить рецепты бинтов."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "giveItem",
+          "item": "cloth",
+          "qty": 3
+        },
+        {
+          "type": "giveItem",
+          "item": "soda",
+          "qty": 2
+        },
+        {
+          "type": "giveItem",
+          "item": "antiseptic",
+          "qty": 2
+        },
+        {
+          "type": "stat",
+          "stat": "medicine",
+          "delta": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "luda-taught",
+          "value": true
+        }
+      ],
+      "onFailEffects": []
+    },
+    {
+      "id": "q-blackout",
+      "title": "Темнота",
+      "giver": "taras",
+      "targetLocation": "workshop",
+      "worldPhases": [2],
+      "stages": [
+        {
+          "id": "panel",
+          "description": "Осмотреть щиток в мастерской.",
+          "timeWindow": {
+            "days": 2,
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "fix",
+          "description": "Починить щиток (нужен мультиметр и ремонт 3)."
+        },
+        {
+          "id": "restore",
+          "description": "Проверить свет в подвале."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "stat",
+          "stat": "repair",
+          "delta": 1
+        },
+        {
+          "type": "resource",
+          "delta": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "power-restored",
+          "value": true
+        }
+      ],
+      "onFailEffects": []
+    },
+    {
+      "id": "q-klesh",
+      "title": "Клещ",
+      "giver": "sergey",
+      "targetLocation": "workshop",
+      "worldPhases": [2],
+      "stages": [
+        {
+          "id": "track",
+          "description": "Расспросить Тараса о Клеще.",
+          "timeWindow": {
+            "days": 4,
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "fight",
+          "description": "Разобраться с Клещом у складов."
+        },
+        {
+          "id": "report",
+          "description": "Доложить Сергею о Клеще."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "stat",
+          "stat": "persuasion",
+          "delta": 1
+        }
+      ],
+      "onFailEffects": []
+    },
+    {
+      "id": "q-quarantine-end",
+      "title": "День четырнадцатый",
+      "giver": "luda",
+      "targetLocation": "apartment",
+      "worldPhases": [2],
+      "stages": [
+        {
+          "id": "gather",
+          "description": "Собраться у Люды вечером.",
+          "timeWindow": {
+            "days": 1,
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "broadcast",
+          "description": "Послушать эфир коменданта."
+        }
+      ],
+      "onCompleteEffects": [],
+      "onFailEffects": [
+        {
+          "type": "setFlag",
+          "id": "finale-skipped",
+          "value": true
+        }
+      ]
     }
   ]
 }

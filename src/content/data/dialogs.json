@@ -458,6 +458,98 @@
           "next": "boris-p2-leave"
         },
         {
+          "text": "Остаться на смену?",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-boris-triage",
+              "op": "eq",
+              "value": "none"
+            },
+            {
+              "type": "day",
+              "op": "gte",
+              "value": 9
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-boris-triage",
+              "stage": "triage"
+            }
+          ],
+          "next": "boris-triage-start"
+        },
+        {
+          "text": "У меня антисептик и бинты.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-boris-triage",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "item",
+              "id": "antiseptic",
+              "op": "gte",
+              "value": 1
+            },
+            {
+              "type": "item",
+              "id": "bandage",
+              "op": "gte",
+              "value": 1
+            }
+          ],
+          "effects": [
+            {
+              "type": "takeItem",
+              "item": "antiseptic",
+              "qty": 1
+            },
+            {
+              "type": "takeItem",
+              "item": "bandage",
+              "qty": 1
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-boris-triage",
+              "stage": "shift"
+            }
+          ],
+          "next": "boris-triage-supplies"
+        },
+        {
+          "text": "Дежурить до утра.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-boris-triage",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "timeSlot",
+              "op": "eq",
+              "value": "evening"
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceTime",
+              "slots": 1
+            },
+            {
+              "type": "completeQuest",
+              "quest": "q-boris-triage"
+            }
+          ],
+          "next": "boris-triage-done"
+        },
+        {
           "text": "Что происходит?",
           "next": "boris-p2-talk"
         }
@@ -490,6 +582,69 @@
       "choices": [
         {
           "text": "Держитесь, Борис."
+        }
+      ]
+    },
+    {
+      "id": "boris-triage-start",
+      "npc": "boris",
+      "text": "Приёмный переполнен, поток не редеет. Надевай халат.",
+      "choices": [
+        {
+          "text": "Принять поток.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-boris-triage",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "resource",
+              "delta": -1
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-boris-triage",
+              "stage": "supplies"
+            }
+          ],
+          "next": "boris-triage-flow"
+        },
+        {
+          "text": "Не сейчас."
+        }
+      ]
+    },
+    {
+      "id": "boris-triage-flow",
+      "npc": "boris",
+      "text": "Двенадцать принятых, двое тяжёлых. Расходники на исходе: нужен антисептик и бинты.",
+      "choices": [
+        {
+          "text": "Принесу."
+        }
+      ]
+    },
+    {
+      "id": "boris-triage-supplies",
+      "npc": "boris",
+      "text": "Антисептик и бинты — это чья-то ночь спасена. Приходи вечером, дежурим до утра.",
+      "choices": [
+        {
+          "text": "Договорились."
+        }
+      ]
+    },
+    {
+      "id": "boris-triage-done",
+      "npc": "boris",
+      "text": "Утро. Смена сдана. Держи аптечку, ты её заработал.",
+      "choices": [
+        {
+          "text": "Спасибо, Борис."
         }
       ]
     },
@@ -1023,32 +1178,77 @@
           ],
           "effects": [
             {
-              "type": "giveItem",
-              "item": "cloth",
-              "qty": 3
-            },
-            {
-              "type": "giveItem",
-              "item": "soda",
-              "qty": 2
-            },
-            {
-              "type": "giveItem",
-              "item": "antiseptic",
-              "qty": 2
-            },
-            {
-              "type": "stat",
-              "stat": "medicine",
-              "delta": 1
-            },
-            {
-              "type": "setFlag",
-              "id": "luda-taught",
-              "value": true
+              "type": "startQuest",
+              "quest": "q-luda-bandages",
+              "stage": "ask"
             }
           ],
           "next": "luda-p2-recipe"
+        },
+        {
+          "text": "Соберёмся, как в день третий.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-quarantine-end",
+              "op": "eq",
+              "value": "none"
+            },
+            {
+              "type": "day",
+              "op": "gte",
+              "value": 14
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-quarantine-end",
+              "stage": "gather"
+            }
+          ],
+          "next": "luda-finale-wait"
+        },
+        {
+          "text": "Я за стол.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-quarantine-end",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "day",
+              "op": "gte",
+              "value": 14
+            },
+            {
+              "type": "timeSlot",
+              "op": "eq",
+              "value": "evening"
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-quarantine-end",
+              "stage": "broadcast"
+            }
+          ],
+          "next": "luda-finale-table"
+        },
+        {
+          "text": "Я пропустил вечер.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-quarantine-end",
+              "op": "eq",
+              "value": "failed"
+            }
+          ],
+          "next": "luda-finale-missed"
         },
         {
           "text": "Как вы тут?",
@@ -1072,6 +1272,29 @@
       "text": "Марля, сода и терпение. Соду можно найти в любой кухне.",
       "choices": [
         {
+          "text": "Учусь.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-luda-bandages",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-luda-bandages",
+              "stage": "learn"
+            },
+            {
+              "type": "completeQuest",
+              "quest": "q-luda-bandages"
+            }
+          ],
+          "next": "luda-bandages-done"
+        },
+        {
           "text": "Спасибо."
         }
       ]
@@ -1083,6 +1306,186 @@
       "choices": [
         {
           "text": "Держитесь."
+        }
+      ]
+    },
+    {
+      "id": "luda-bandages-done",
+      "npc": "luda",
+      "text": "Вот и умница. Теперь бинты в доме будут свои.",
+      "choices": [
+        {
+          "text": "Спасибо."
+        }
+      ]
+    },
+    {
+      "id": "luda-finale-wait",
+      "npc": "luda",
+      "text": "Вечером, в день четырнадцатый. Как тогда, за одним столом.",
+      "choices": [
+        {
+          "text": "Постараюсь."
+        }
+      ]
+    },
+    {
+      "id": "luda-finale-table",
+      "npc": "luda",
+      "text": "Все за столом. Радио молчало неделю, но сегодня обещали эфир.",
+      "choices": [
+        {
+          "text": "Включить радио.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-quarantine-end",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "completeQuest",
+              "quest": "q-quarantine-end"
+            },
+            {
+              "type": "setFlag",
+              "id": "game-complete-v2",
+              "value": true
+            }
+          ],
+          "next": "luda-finale-epilogue"
+        }
+      ]
+    },
+    {
+      "id": "luda-finale-epilogue",
+      "npc": "luda",
+      "text": "Голос коменданта ровный: карантин продлевается до особого распоряжения, район закрыт, свет включают по графику.",
+      "choices": [
+        {
+          "text": "Дима рядом.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "dima-joined",
+              "op": "eq",
+              "value": true
+            }
+          ],
+          "next": "luda-finale-dima"
+        },
+        {
+          "text": "Люда здесь, за столом.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "luda-joined",
+              "op": "eq",
+              "value": true
+            }
+          ],
+          "next": "luda-finale-luda"
+        },
+        {
+          "text": "Клещ больше не проблема.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "klesh-defeated",
+              "op": "eq",
+              "value": true
+            }
+          ],
+          "next": "luda-finale-klesh"
+        },
+        {
+          "text": "Про Зину дошла проверка.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "zina-case-opened",
+              "op": "eq",
+              "value": true
+            }
+          ],
+          "next": "luda-finale-zina"
+        },
+        {
+          "text": "Борис остался в больнице.",
+          "conditions": [
+            {
+              "type": "flag",
+              "id": "boris-stay",
+              "op": "eq",
+              "value": true
+            }
+          ],
+          "next": "luda-finale-boris"
+        },
+        {
+          "text": "Вот и всё."
+        }
+      ]
+    },
+    {
+      "id": "luda-finale-dima",
+      "npc": "luda",
+      "text": "Дима щёлкает тумблером. «Теперь хоть ясно, чего ждать», — говорит он.",
+      "choices": [
+        {
+          "text": "Вот и всё."
+        }
+      ]
+    },
+    {
+      "id": "luda-finale-luda",
+      "npc": "luda",
+      "text": "Люда молча разливает чай. Руки у неё не дрожат.",
+      "choices": [
+        {
+          "text": "Вот и всё."
+        }
+      ]
+    },
+    {
+      "id": "luda-finale-klesh",
+      "npc": "luda",
+      "text": "За окном тихо. Склады под присмотром, мародёрам здесь не место.",
+      "choices": [
+        {
+          "text": "Вот и всё."
+        }
+      ]
+    },
+    {
+      "id": "luda-finale-zina",
+      "npc": "luda",
+      "text": "Про Зину в эфире ни слова. Но заявление своё дело сделало, спекулянтов прижали.",
+      "choices": [
+        {
+          "text": "Вот и всё."
+        }
+      ]
+    },
+    {
+      "id": "luda-finale-boris",
+      "npc": "luda",
+      "text": "Борис на смене. Кто-то должен принимать больных, даже когда район закрыт.",
+      "choices": [
+        {
+          "text": "Вот и всё."
+        }
+      ]
+    },
+    {
+      "id": "luda-finale-missed",
+      "npc": "luda",
+      "text": "Вечер прошёл без тебя. Соседи спросили, где ты, и передали тебе чаю.",
+      "choices": [
+        {
+          "text": "Простите."
         }
       ]
     },
@@ -1332,6 +1735,43 @@
         {
           "text": "Держись.",
           "next": "dima-p2-talk"
+        },
+        {
+          "text": "Кто в списке?",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-evac-list",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-evac-list",
+              "stage": "list"
+            }
+          ],
+          "next": "dima-evac-task"
+        },
+        {
+          "text": "Список готов.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-evac-list",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "completeQuest",
+              "quest": "q-evac-list"
+            }
+          ],
+          "next": "dima-evac-done"
         }
       ]
     },
@@ -1354,6 +1794,12 @@
               "id": "luda-evac-listed",
               "op": "eq",
               "value": false
+            },
+            {
+              "type": "quest",
+              "id": "q-evac-list",
+              "op": "eq",
+              "value": "active"
             }
           ],
           "effects": [
@@ -1361,6 +1807,11 @@
               "type": "setFlag",
               "id": "luda-evac-listed",
               "value": true
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-evac-list",
+              "stage": "close"
             }
           ]
         },
@@ -1376,6 +1827,26 @@
       "choices": [
         {
           "text": "Держись."
+        }
+      ]
+    },
+    {
+      "id": "dima-evac-task",
+      "npc": "dima",
+      "text": "Мест мало, комиссия утверждает каждый пункт. Скажи, кого вписать, я подам.",
+      "choices": [
+        {
+          "text": "Договорились."
+        }
+      ]
+    },
+    {
+      "id": "dima-evac-done",
+      "npc": "dima",
+      "text": "Список ушёл в комиссию. Спасибо, что не бросаешь соседей.",
+      "choices": [
+        {
+          "text": "Не за что."
         }
       ]
     },
@@ -1933,6 +2404,80 @@
         {
           "text": "Чем помочь?",
           "next": "sergey-p2-help"
+        },
+        {
+          "text": "Как там метро?",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-shelter-metro",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-shelter-metro",
+              "stage": "enter"
+            }
+          ],
+          "next": "sergey-shelter-task"
+        },
+        {
+          "text": "Убежище проверено.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-shelter-metro",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "completeQuest",
+              "quest": "q-shelter-metro"
+            }
+          ],
+          "next": "sergey-shelter-done"
+        },
+        {
+          "text": "Я разберусь с Клещом.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-klesh",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-klesh",
+              "stage": "track"
+            }
+          ],
+          "next": "sergey-klesh-task"
+        },
+        {
+          "text": "Клещ больше не проблема.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-klesh",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "completeQuest",
+              "quest": "q-klesh"
+            }
+          ],
+          "next": "sergey-klesh-done"
         }
       ]
     },
@@ -1953,6 +2498,46 @@
       "choices": [
         {
           "text": "Как скажешь."
+        }
+      ]
+    },
+    {
+      "id": "sergey-shelter-task",
+      "npc": "sergey",
+      "text": "Метро открыли под убежище. Сходи, посмотри запасы и доложи. Только не задерживайся там.",
+      "choices": [
+        {
+          "text": "Понял."
+        }
+      ]
+    },
+    {
+      "id": "sergey-shelter-done",
+      "npc": "sergey",
+      "text": "Порядок. Теперь район знает, где переждать, если прижмёт.",
+      "choices": [
+        {
+          "text": "До встречи."
+        }
+      ]
+    },
+    {
+      "id": "sergey-klesh-task",
+      "npc": "sergey",
+      "text": "Спроси Тараса, он видел его у складов. И одного не ходи — Клещ дерётся всерьёз.",
+      "choices": [
+        {
+          "text": "Понял."
+        }
+      ]
+    },
+    {
+      "id": "sergey-klesh-done",
+      "npc": "sergey",
+      "text": "Вот и славно. Склады под присмотром, район вздохнёт свободнее.",
+      "choices": [
+        {
+          "text": "До встречи."
         }
       ]
     },
@@ -2292,6 +2877,68 @@
           "next": "taras-p2-gift"
         },
         {
+          "text": "Клещ у складов?",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-klesh",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-klesh",
+              "stage": "fight"
+            }
+          ],
+          "next": "taras-klesh-seen"
+        },
+        {
+          "text": "Вписать Тараса в список",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-evac-list",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "taras-evac-listed",
+              "value": true
+            }
+          ],
+          "next": "taras-evac-listed-node"
+        },
+        {
+          "text": "Что со светом?",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-blackout",
+              "op": "eq",
+              "value": "none"
+            },
+            {
+              "type": "day",
+              "op": "gte",
+              "value": 10
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-blackout",
+              "stage": "panel"
+            }
+          ],
+          "next": "taras-blackout-panel"
+        },
+        {
           "text": "Как вы тут?",
           "next": "taras-p2-talk"
         }
@@ -2314,6 +2961,123 @@
       "choices": [
         {
           "text": "Держись."
+        }
+      ]
+    },
+    {
+      "id": "taras-klesh-seen",
+      "npc": "taras",
+      "text": "Видел. Он шатается у складов за мастерской, арматуру с собой таскает. Не ходи один.",
+      "choices": [
+        {
+          "text": "Разберусь."
+        }
+      ]
+    },
+    {
+      "id": "taras-evac-listed-node",
+      "npc": "taras",
+      "text": "Впиши, пусть будет. Но я из подвала никуда не денусь, здесь всё моё.",
+      "choices": [
+        {
+          "text": "Как скажете."
+        }
+      ]
+    },
+    {
+      "id": "taras-blackout-panel",
+      "npc": "taras",
+      "text": "Щиток на площадке, за углом. Патрон выгорел, вот и весь секрет.",
+      "choices": [
+        {
+          "text": "Осмотреть щиток.",
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-blackout",
+              "stage": "fix"
+            }
+          ],
+          "next": "taras-blackout-fix"
+        },
+        {
+          "text": "Не сейчас."
+        }
+      ]
+    },
+    {
+      "id": "taras-blackout-fix",
+      "npc": "taras",
+      "text": "Контакт подгорел, изоляция обсыпалась. Нужен мультиметр и руки набитые.",
+      "choices": [
+        {
+          "text": "Починить щиток.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-blackout",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "item",
+              "id": "multimeter",
+              "op": "gte",
+              "value": 1
+            },
+            {
+              "type": "stat",
+              "id": "repair",
+              "op": "gte",
+              "value": 3
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-blackout",
+              "stage": "restore"
+            }
+          ],
+          "next": "taras-blackout-restore"
+        },
+        {
+          "text": "Вернусь позже."
+        }
+      ]
+    },
+    {
+      "id": "taras-blackout-restore",
+      "npc": "taras",
+      "text": "Щиток гудит ровно, автоматы держат. Спустись, проверь свет в подвале.",
+      "choices": [
+        {
+          "text": "Проверить свет.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-blackout",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "completeQuest",
+              "quest": "q-blackout"
+            }
+          ],
+          "next": "taras-blackout-done"
+        }
+      ]
+    },
+    {
+      "id": "taras-blackout-done",
+      "npc": "taras",
+      "text": "Горит. Весь дом тебе скажет спасибо, и я первый.",
+      "choices": [
+        {
+          "text": "Не за что."
         }
       ]
     }

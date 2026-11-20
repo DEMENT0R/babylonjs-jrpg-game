@@ -66,6 +66,8 @@ export interface Quest {
   id: string;
   title: string;
   giver: string;
+  /** Локация цели: маркер «квест» на карте района в меню паузы. */
+  targetLocation?: string;
   worldPhases: WorldPhase[];
   stages: QuestStage[];
   onCompleteEffects?: Effect[];

@@ -470,7 +470,7 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
     legend.className = "ui-menu__map-legend";
     legend.textContent =
       "Сплошная линия — проход открыт, пунктир — закрыто. Подсвеченный блок — вы здесь. " +
-      "Под названием: кто встретится и что можно обыскать.";
+      "Под названием: кто встретится, что можно обыскать и куда ведут активные задания.";
     return [wrap, legend];
   }
 

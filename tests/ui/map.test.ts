@@ -71,4 +71,13 @@ describe("карта района (ui/map.ts)", () => {
     const phase1 = buildMapModel(stateIn("square", 1), content);
     expect(nodeOf(phase1, "hospital").lootables).toBe(1);
   });
+
+  it("квест-маркеры: активные квесты на локации цели, выполненные не считаются", () => {
+    const state = stateIn("square", 0);
+    state.questStates["q-luda-meds"] = { stage: "take", status: "active", startedDay: 1 };
+    state.questStates["q-intern-shift"] = { stage: "patients", status: "done", startedDay: 1 };
+    const model = buildMapModel(state, content);
+    expect(nodeOf(model, "pharmacy").quests).toEqual(["Лекарства для Люды"]);
+    expect(nodeOf(model, "hospital").quests).toEqual([]);
+  });
 });

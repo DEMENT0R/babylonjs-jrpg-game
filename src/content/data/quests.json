@@ -6,6 +6,7 @@
       "id": "q-intern-shift",
       "title": "Смена в больнице",
       "giver": "boris",
+      "targetLocation": "hospital",
       "worldPhases": [0],
       "stages": [
         {
@@ -58,6 +59,7 @@
       "id": "q-luda-meds",
       "title": "Лекарства для Люды",
       "giver": "luda",
+      "targetLocation": "pharmacy",
       "worldPhases": [0, 1],
       "stages": [
         {
@@ -103,6 +105,7 @@
       "id": "q-pipe-burst",
       "title": "Прорыв в подвале",
       "giver": "taras",
+      "targetLocation": "workshop",
       "worldPhases": [0],
       "stages": [
         {
@@ -157,6 +160,7 @@
       "id": "q-day3-end",
       "title": "Ужин в день третий",
       "giver": "luda",
+      "targetLocation": "apartment",
       "worldPhases": [0],
       "stages": [
         {
@@ -208,6 +212,7 @@
       "id": "q-hospital-panic",
       "title": "Переполненная больница",
       "giver": "boris",
+      "targetLocation": "hospital",
       "worldPhases": [1],
       "stages": [
         {

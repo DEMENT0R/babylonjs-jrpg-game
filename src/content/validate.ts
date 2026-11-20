@@ -45,6 +45,7 @@ const QUEST_FIELDS: Record<string, true> = {
   id: true,
   title: true,
   giver: true,
+  targetLocation: true,
   worldPhases: true,
   stages: true,
   onCompleteEffects: true,
@@ -558,7 +559,10 @@ function validateQuest(raw: unknown, path: string, refs: Refs, errors: string[])
   readRef(raw, "giver", refs.npcs, "NPC", path, errors);
 
   const worldPhases = asArray(raw.worldPhases, `${path}.worldPhases`, errors);
-  if (worldPhases.length === 0) errors.push(`${path}.worldPhases: пустой массив фаз`);
+  const targetLocation = readString(raw, "targetLocation", path, errors);
+  if (targetLocation !== undefined && LOCATIONS[targetLocation] !== true) {
+    errors.push(`${path}.targetLocation: неизвестная локация "${targetLocation}"`);
+  }
   const seenPhases = new Set<number>();
   worldPhases.forEach((phase, index) => {
     const phasePath = `${path}.worldPhases[${index}]`;

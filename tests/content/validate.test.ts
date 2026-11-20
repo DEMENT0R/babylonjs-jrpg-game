@@ -110,6 +110,13 @@ describe("validateContent", () => {
     expect(errors.some((error) => error.includes("stages: пустой массив"))).toBe(true);
   });
 
+  it("квест: битая локация цели", () => {
+    const data = structuredClone(bundledData());
+    first(data.quests).targetLocation = "nowhere";
+    const errors = validateContent(data);
+    expect(errors.some((error) => error.includes("quests[0].targetLocation"))).toBe(true);
+  });
+
   it("стычка: битые локация/враг и нечисловой день", () => {
     const data = structuredClone(bundledData());
     const encounter = first(data.encounters);

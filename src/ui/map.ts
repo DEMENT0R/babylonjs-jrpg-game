@@ -28,6 +28,8 @@ export interface MapNode {
   npcs: string[];
   /** Видимые и ещё не открытые контейнеры локации. */
   lootables: number;
+  /** Названия активных квестов, ведущих в локацию (quest.targetLocation). */
+  quests: string[];
 }
 
 export interface MapEdge {
@@ -40,6 +42,16 @@ export interface MapEdge {
 export interface MapModel {
   nodes: MapNode[];
   edges: MapEdge[];
+}
+/** Названия активных квестов, чья цель — локация (Quest.targetLocation). */
+function questTitlesAt(state: GameState, content: IContentProvider, location: string): string[] {
+  const titles: string[] = [];
+  for (const [id, qs] of Object.entries(state.questStates)) {
+    if (qs.status !== "active") continue;
+    const quest = content.getQuest(id);
+    if (quest.targetLocation === location) titles.push(quest.title);
+  }
+  return titles;
 }
 
 export function buildMapModel(state: GameState, content: IContentProvider): MapModel {
@@ -60,6 +72,7 @@ export function buildMapModel(state: GameState, content: IContentProvider): MapM
             isContainerVisible(container, state) &&
             state.flags[containerOpenedFlag(container.id)] !== true,
         ).length,
+      quests: questTitlesAt(state, content, id),
     };
   });
   // Выходы двусторонние (tests/world/topology.test.ts): каждое ребро встречается
@@ -97,11 +110,12 @@ function svgEl(tag: string, attrs: Record<string, string | number>, parent?: Ele
   return node;
 }
 
-/** Строки-маркеры под названием узла: кто там и что можно обыскать. */
+/** Строки-маркеры под названием узла: кто там, что обыскать, куда ведёт квест. */
 function markerLines(node: MapNode): string[] {
   const lines: string[] = [];
   if (node.npcs.length > 0) lines.push(node.npcs.join(", "));
   if (node.lootables > 0) lines.push(`обыскать ×${node.lootables}`);
+  for (const quest of node.quests) lines.push(`квест: ${quest}`);
   return lines;
 }
 
@@ -144,9 +158,10 @@ export function renderMapSVG(model: MapModel): SVGSVGElement {
       svgEl(
         "text",
         {
-          x: node.x,
+          // слева от края блока: длинные «квест: …» не вылезают за viewBox
+          x: node.x - NODE_W / 2,
           y: node.y + NODE_H / 2 + 12 + index * MARKER_STEP,
-          "text-anchor": "middle",
+          "text-anchor": "start",
           class: "ui-map-marker",
         },
         group,

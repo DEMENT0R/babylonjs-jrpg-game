@@ -49,7 +49,7 @@ Effect = one of:
 ## Quest
 ```json
 { "id": "q-luda-meds", "title": "Лекарства для Люды",
-  "giver": "luda", "worldPhases": [0, 1],
+  "giver": "luda", "targetLocation": "pharmacy", "worldPhases": [0, 1],
   "stages": [
     { "id": "take", "description": "Купить таблетки в аптеке.",
       "timeWindow": { "from": "morning", "to": "evening" } },
@@ -62,6 +62,8 @@ Effect = one of:
 - `timeWindow` опционален; отсчитывается от дня взятия квеста: `{from, to}` — тот же
   день, `{days, from, to}` — со сдвигом. Провал срабатывает на первом `advanceTime`,
   выводящем время за `to` (день взятия + `days`); провал — не game over.
+- `targetLocation` опционален (id из реестра локаций): локация цели для маркера
+  «квест» на карте района в меню паузы. Валидатор проверяет ссылку.
 
 ## Item
 ```

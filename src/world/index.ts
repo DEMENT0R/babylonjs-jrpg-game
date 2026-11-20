@@ -13,7 +13,7 @@ import { workshop, solidsOf as workshopSolids } from "./locations/workshop";
 
 /** Русские названия локаций для меню/карты; id — ключи LOCATION_IDS. */
 export const LOCATION_TITLES: Readonly<Record<string, string>> = {
-  apartment: "Квартира",
+  apartment: "Твоя квартира",
   campus: "Универ и общага",
   square: "Площадь района",
   hospital: "Больница",

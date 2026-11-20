@@ -44,7 +44,7 @@ export const apartment: LocationDef = {
     {
       // Кровать: сон до следующего утра (день 1 → день 2 → день 3).
       at: { x: -7.5, z: -4.1, r: 1.5 },
-      label: "Кровать — поспать до утра",
+      label: "Твоя кровать — поспать до утра",
       onConfirm: (ctx) => {
         ctx.store.update((draft) =>
           advanceTime(draft, ctx.content, slotsToMorning(draft.time.slot)),
@@ -54,7 +54,7 @@ export const apartment: LocationDef = {
     {
       // Стол: переждать до вечера, не тратя ночь.
       at: { x: 5, z: 2.3, r: 1.5 },
-      label: "Стол — переждать до вечера",
+      label: "Твой стол — переждать до вечера",
       onConfirm: (ctx) => {
         ctx.store.update((draft) => {
           const slots = slotsToEvening(draft.time.slot);

@@ -285,6 +285,7 @@
 .ui-menu__panel {
   display: flex;
   flex-direction: column;
+  position: relative;
   width: min(880px, 100%);
   max-height: 92vh;
   background: var(--ui-panel-solid);
@@ -300,7 +301,7 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 4px 18px;
-  padding: 14px 20px;
+  padding: 14px 48px 14px 20px;
   background: var(--ui-accent-dim);
   border-bottom: 1px solid var(--ui-border);
 }
@@ -322,12 +323,39 @@
   font-size: 13px;
 }
 
+/* «×» — закрыть меню: угол окна, дублирует Esc. */
+.ui-menu__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: var(--ui-muted);
+  font-size: 20px;
+  line-height: 1;
+  background: transparent;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.ui-menu__close:hover {
+  color: var(--ui-text);
+  border-color: var(--ui-accent);
+}
+
+.ui-menu__close:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 1px;
+}
+
 /* Каркас: слева вертикальные вкладки, справа прокручиваемый контент. */
 .ui-menu__body {
   display: grid;
   grid-template-columns: 176px 1fr;
   /* Фиксированная высота каркаса: окно не «дышит» при смене вкладок. */
-  height: clamp(320px, 56vh, calc(92vh - 180px));
+  height: clamp(320px, 60vh, calc(92vh - 110px));
 }
 
 .ui-menu__tabs {
@@ -344,6 +372,20 @@
   text-align: left;
   background: transparent;
   border-color: transparent;
+}
+
+/* «В главное меню» — в хвосте списка вкладок, прижато к низу колонки. */
+.ui-menu__tabs .ui-menu__tab--quit {
+  margin-top: auto;
+  padding-top: 10px;
+  color: #e9a29c;
+  border-top: 1px solid var(--ui-border);
+  border-radius: 0 0 6px 6px;
+}
+
+.ui-menu__tabs .ui-menu__tab--quit:hover:not(:disabled) {
+  border-color: transparent;
+  color: #e9a29c;
 }
 
 .ui-menu__tabs .ui-menu__tab:hover:not(:disabled) {
@@ -492,14 +534,6 @@
   color: var(--ui-muted);
   font-size: 11px;
   text-align: right;
-}
-
-.ui-menu__footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 12px 20px;
-  border-top: 1px solid var(--ui-border);
 }
 
 .ui-button {

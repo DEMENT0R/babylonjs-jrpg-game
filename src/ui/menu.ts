@@ -132,6 +132,15 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   const headMeta = document.createElement("span");
   headMeta.className = "ui-menu__head-meta";
   header.append(headName, headHp, headMeta);
+  const closeButton = document.createElement("button");
+  closeButton.type = "button";
+  closeButton.className = "ui-menu__close";
+  closeButton.textContent = "×";
+  closeButton.setAttribute("aria-label", "Закрыть меню");
+  closeButton.addEventListener("click", () => {
+    if (shown) resume();
+  });
+  header.append(closeButton);
 
   function renderHeader(): void {
     const state = store.get();
@@ -160,6 +169,17 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
     tabbar.append(button);
     tabButtons.set(tab.id, button);
   }
+  // «Выйти в главное меню» — в хвосте списка вкладок, прижат к низу.
+  const quitItem = document.createElement("button");
+  quitItem.type = "button";
+  quitItem.className = "ui-button ui-menu__tab ui-menu__tab--quit";
+  quitItem.textContent = "В главное меню";
+  quitItem.addEventListener("click", () => {
+    if (!shown) return;
+    close();
+    opts.onQuit();
+  });
+  tabbar.append(quitItem);
 
   const panes = new Map<TabId, HTMLDivElement>();
   for (const tab of TABS) {
@@ -266,24 +286,7 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   fileRow.append(exportButton, importButton, changelogButton, fileInput);
   systemPane.append(slotsEl, fileRow);
 
-  const footer = document.createElement("div");
-  footer.className = "ui-menu__footer";
-  const resumeButton = document.createElement("button");
-  resumeButton.type = "button";
-  resumeButton.className = "ui-button ui-button--primary";
-  resumeButton.textContent = "Продолжить";
-  resumeButton.addEventListener("click", resume);
-  const quitButton = document.createElement("button");
-  quitButton.type = "button";
-  quitButton.className = "ui-button ui-button--danger";
-  quitButton.textContent = "Выйти";
-  quitButton.addEventListener("click", () => {
-    close();
-    opts.onQuit();
-  });
-  footer.append(resumeButton, quitButton);
-
-  panel.append(header, body, footer, hintEl);
+  panel.append(header, body, hintEl);
   root.append(panel);
   host.append(root);
 
@@ -744,7 +747,7 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
     applyVisibility();
     window.addEventListener("keydown", onKeyDown, true);
     switchTab(activeTab, { focusTab: true });
-    visibleButtons()[0]?.focus();
+    // Фокус остаётся на активной вкладке (switchTab выше), не на «×».
     void refreshSlots();
   }
 

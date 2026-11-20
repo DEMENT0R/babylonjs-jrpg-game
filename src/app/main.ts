@@ -37,7 +37,7 @@ import { createLootToast } from "../ui/lootToast";
 import { createPauseMenu } from "../ui/menu";
 import { attachTouchControls, prefersTouchControls } from "../ui/touchControls";
 import { readTextSpeed, readTouchSetting, writeTouchSetting } from "../ui/settings";
-import { allLocations, isExitOpen } from "../world";
+import { ARRIVAL, allLocations, isExitOpen } from "../world";
 import { demoRoom } from "../world/locations/demo-room";
 
 const TALK_RADIUS = 1.8;
@@ -132,7 +132,15 @@ const menu = createPauseMenu({
   isTouchEnabled: () => touch !== null,
   onTouchChange: setTouchEnabled,
   onTextSpeedChange: (ms) => dialog.setTextSpeed(ms),
-  onChangelog: () => changelog.open(),
+  onFastTravel: (to) => {
+    const arrival = ARRIVAL[to];
+    if (!arrival) return;
+    store.update((draft) => {
+      draft.location = to;
+      draft.pos = [arrival.x, arrival.z];
+      advanceTime(draft, content, 1);
+    });
+  },
   onLoad: (loaded) => {
     assets.setSlot(loaded.time.slot);
     // Сейв мог быть сохранён уже в локации стычки — перепроверить её при загрузке.

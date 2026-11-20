@@ -80,4 +80,14 @@ describe("карта района (ui/map.ts)", () => {
     expect(nodeOf(model, "pharmacy").quests).toEqual(["Лекарства для Люды"]);
     expect(nodeOf(model, "hospital").quests).toEqual([]);
   });
+
+  it("быстрое перемещение: открытые проходы без текущей; метро недоступно в фазе 0", () => {
+    const hospital = buildMapModel(stateIn("hospital", 0), content);
+    expect([...hospital.travel].sort()).toEqual(
+      ["apartment", "campus", "pharmacy", "square", "workshop"].sort(),
+    );
+    const phase2 = buildMapModel(stateIn("hospital", 2), content);
+    expect(phase2.travel).toContain("metro-station");
+    expect(new Set(phase2.travel).size).toBe(6);
+  });
 });

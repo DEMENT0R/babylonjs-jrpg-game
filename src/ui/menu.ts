@@ -65,7 +65,9 @@ export interface PauseMenuOptions {
   onTouchChange(enabled: boolean): void;
   /** Новая скорость текста диалога, мс; настройка уже записана в ui/settings.ts. */
   onTextSpeedChange(ms: number): void;
-  /** Открыть список изменений (CHANGELOG.md в игре); меню закрывается. */
+  /** Быстрое перемещение с карты (id локации): хост списывает слот времени и
+   * перестраивает сцену; меню закрывается после вызова. */
+  onFastTravel?(to: string): void;
   onChangelog?(): void;
   /** Хост оверлея (по умолчанию document.body). */
   host?: HTMLElement;
@@ -463,15 +465,33 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   }
 
   function buildMapPane(): HTMLElement[] {
+    const model = buildMapModel(store.get(), content);
     const wrap = document.createElement("div");
     wrap.className = "ui-menu__map";
-    wrap.append(renderMapSVG(buildMapModel(store.get(), content)));
+    wrap.append(renderMapSVG(model));
     const legend = document.createElement("div");
     legend.className = "ui-menu__map-legend";
     legend.textContent =
       "Сплошная линия — проход открыт, пунктир — закрыто. Подсвеченный блок — вы здесь. " +
       "Под названием: кто встретится, что можно обыскать и куда ведут активные задания.";
-    return [wrap, legend];
+    const els: HTMLElement[] = [wrap, legend];
+    if (opts.onFastTravel && model.travel.length > 0) {
+      els.push(headerRow("Быстрое перемещение (−1 слот времени)"));
+      for (const id of model.travel) {
+        const title = LOCATION_TITLES[id] ?? id;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "ui-button";
+        button.textContent = "Переместиться";
+        button.addEventListener("click", () => {
+          if (!shown) return;
+          opts.onFastTravel?.(id);
+          close();
+        });
+        els.push(row(title, "−1 слот · прибытие у входа", [button]));
+      }
+    }
+    return els;
   }
 
   function buildSettingsPane(): HTMLElement[] {

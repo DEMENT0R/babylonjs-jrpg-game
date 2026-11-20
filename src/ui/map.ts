@@ -42,6 +42,8 @@ export interface MapEdge {
 export interface MapModel {
   nodes: MapNode[];
   edges: MapEdge[];
+  /** Куда доступно быстрое перемещение: открытые проходы, без текущей локации. */
+  travel: string[];
 }
 /** Названия активных квестов, чья цель — локация (Quest.targetLocation). */
 function questTitlesAt(state: GameState, content: IContentProvider, location: string): string[] {
@@ -93,7 +95,30 @@ export function buildMapModel(state: GameState, content: IContentProvider): MapM
       });
     }
   }
-  return { nodes, edges };
+  return { nodes, edges, travel: reachable(edges, state.location) };
+}
+
+/** BFS по открытым проходам от текущей локации: куда можно попасть не пешком. */
+function reachable(edges: readonly MapEdge[], from: string): string[] {
+  const adjacency = new Map<string, string[]>();
+  for (const edge of edges) {
+    if (!edge.open) continue;
+    for (const pair of [[edge.from, edge.to] as const, [edge.to, edge.from] as const]) {
+      const [a, b] = pair;
+      adjacency.set(a, [...(adjacency.get(a) ?? []), b]);
+    }
+  }
+  const visited = new Set([from]);
+  const queue = [from];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const next of adjacency.get(current) ?? []) {
+      if (visited.has(next)) continue;
+      visited.add(next);
+      queue.push(next);
+    }
+  }
+  return [...visited].filter((id) => id !== from);
 }
 
 // ─── Рендер (DOM, тестами не покрыт — как остальной UI) ──────────────────────

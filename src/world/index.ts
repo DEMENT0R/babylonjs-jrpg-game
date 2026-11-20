@@ -2,6 +2,7 @@
 // Менеджер сцен (core/, слайс 1) берёт отсюда LocationDef по id.
 
 import type { SolidBox, WorldPhase } from "../types";
+import { entry } from "./layout";
 import { apartment, solidsOf as apartmentSolids } from "./locations/apartment";
 import { campus, solidsOf as campusSolids } from "./locations/campus";
 import { hospital, solidsOf as hospitalSolids } from "./locations/hospital";
@@ -60,3 +61,18 @@ export const LOCKED_EXITS: Readonly<Record<string, readonly WorldPhase[]>> = {
 export function isExitOpen(from: string, to: string, phase: WorldPhase): boolean {
   return !(LOCKED_EXITS[`${from}->${to}`] ?? []).includes(phase);
 }
+
+/**
+ * Точка прибытия быстрого перемещения (карта в меню паузы): вход у стены,
+ * гарантированно вне мебели и стен (tests/world/arrival.test.ts). Южный вход
+ * занят стойкой регистратуры в больнице и платформой метро — там восточный.
+ */
+export const ARRIVAL: Readonly<Record<string, { x: number; z: number; yaw: number }>> = {
+  apartment: entry("south"),
+  campus: entry("south"),
+  square: entry("south"),
+  hospital: entry("east"),
+  pharmacy: entry("south"),
+  workshop: entry("south"),
+  "metro-station": entry("east"),
+};

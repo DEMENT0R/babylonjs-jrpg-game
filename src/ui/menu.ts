@@ -64,6 +64,8 @@ export interface PauseMenuOptions {
   onTouchChange(enabled: boolean): void;
   /** Новая скорость текста диалога, мс; настройка уже записана в ui/settings.ts. */
   onTextSpeedChange(ms: number): void;
+  /** Открыть список изменений (CHANGELOG.md в игре); меню закрывается. */
+  onChangelog?(): void;
   /** Хост оверлея (по умолчанию document.body). */
   host?: HTMLElement;
 }
@@ -221,6 +223,15 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   importButton.addEventListener("click", () => {
     fileInput.click();
   });
+  const changelogButton = document.createElement("button");
+  changelogButton.type = "button";
+  changelogButton.className = "ui-button";
+  changelogButton.textContent = "Список изменений";
+  changelogButton.addEventListener("click", () => {
+    if (!opts.onChangelog) return;
+    close();
+    opts.onChangelog();
+  });
   const fileInput = document.createElement("input");
   fileInput.type = "file";
   fileInput.accept = "application/json,.json";
@@ -228,7 +239,7 @@ export function createPauseMenu(opts: PauseMenuOptions): PauseMenu {
   fileInput.addEventListener("change", () => {
     void importFromFile();
   });
-  fileRow.append(exportButton, importButton, fileInput);
+  fileRow.append(exportButton, importButton, changelogButton, fileInput);
   systemPane.append(slotsEl, fileRow);
 
   const footer = document.createElement("div");

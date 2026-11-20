@@ -28,6 +28,8 @@ import { awardXp, maxHp } from "../systems/stats";
 import { createBattleScreen } from "../ui/battleScreen";
 import type { BackgroundId, GameState, TimeSlot, WorldPhase } from "../types";
 import { createCharacterSelect } from "../ui/characterSelect";
+import { createChangelogViewer } from "../ui/changelog";
+import { createTitleScreen } from "../ui/titleScreen";
 import { createDialogBox } from "../ui/dialogBox";
 import { createHud } from "../ui/hud";
 import { createInteractHint } from "../ui/interactHint";
@@ -130,6 +132,7 @@ const menu = createPauseMenu({
   isTouchEnabled: () => touch !== null,
   onTouchChange: setTouchEnabled,
   onTextSpeedChange: (ms) => dialog.setTextSpeed(ms),
+  onChangelog: () => changelog.open(),
   onLoad: (loaded) => {
     assets.setSlot(loaded.time.slot);
     // Сейв мог быть сохранён уже в локации стычки — перепроверить её при загрузке.
@@ -225,6 +228,26 @@ const select = createCharacterSelect({
   },
 });
 
+// Титульный экран при запуске вместо немедленного выбора персонажа.
+// Порядок создания важен: keydown-обработчик титула регистрируется раньше
+// ченджлога, чтобы в одном нажатии увидеть открытый ченджлог и не среагировать.
+const title = createTitleScreen({
+  storage,
+  isChangelogOpen: () => changelog.isOpen(),
+  onNewGame: () => select.open(),
+  onChangelog: () => changelog.open(),
+  // Как onLoad меню: применяем сейв и пересобираем сцену под него.
+  onLoad: (loaded) => {
+    store.update((draft) => {
+      Object.assign(draft, loaded);
+    });
+    assets.setSlot(loaded.time.slot);
+    encounterCheckedLocation = "";
+    manager.enter(loaded.location, { x: loaded.pos[0]!, z: loaded.pos[1]! });
+  },
+});
+const changelog = createChangelogViewer();
+
 // Смена слота времени/фазы мира должна отражаться на сцене (T-клавиша и эффекты контента).
 let lastSlot = store.get().time.slot;
 let lastPhase = store.get().worldPhase;
@@ -242,7 +265,9 @@ store.subscribe((state) => {
 });
 
 window.addEventListener("keydown", (e) => {
-  if (e.repeat || dialog.isOpen() || menu.isOpen() || select.isOpen() || battle) return;
+  if (e.repeat || dialog.isOpen() || menu.isOpen() || select.isOpen() || title.isOpen() || battle) {
+    return;
+  }
   if (e.code === "KeyT") {
     store.update((draft) => advanceTime(draft, content, 1));
   } else if (e.code === "KeyB") {
@@ -269,7 +294,14 @@ window.__jrpg = {
 };
 
 function modalOpen(): boolean {
-  return dialog.isOpen() || menu.isOpen() || select.isOpen() || battle !== null;
+  return (
+    dialog.isOpen() ||
+    menu.isOpen() ||
+    select.isOpen() ||
+    title.isOpen() ||
+    changelog.isOpen() ||
+    battle !== null
+  );
 }
 
 let encounterCheckedLocation = "";
@@ -352,4 +384,4 @@ startGameLoop(engine, scene, input, (dt) => {
   if (input.pressed("menu")) menu.toggle();
 });
 
-select.open();
+title.open();

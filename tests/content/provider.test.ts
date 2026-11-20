@@ -16,6 +16,7 @@ const data: ContentData = {
   items: [],
   encounters: [],
   enemies: [],
+  companions: [],
   containers: [],
   npcs: [npc("a", "apartment", true), npc("b", "apartment", false), npc("c", "square", true)],
   skills: [],

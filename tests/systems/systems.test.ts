@@ -95,6 +95,7 @@ const data: ContentData = {
   enemies: [],
   encounters: [],
   containers: [],
+  companions: [],
   npcs: [
     {
       id: "luda",

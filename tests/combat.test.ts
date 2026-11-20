@@ -196,3 +196,87 @@ describe("combat: предметы", () => {
     expect(availableItems(next)).toEqual([]);
   });
 });
+
+describe("combat: союзники", () => {
+  const dima = { id: "dima", name: "Дима", hp: 14, maxHp: 14, atk: 3, heal: 0 };
+  const boris = { id: "boris", name: "Борис", hp: 12, maxHp: 12, atk: 2, heal: 6 };
+
+  it("союзник бьёт после хода героя, до ответа врага", () => {
+    // rng 0.99 при двух целях → floor(0.99*2)=1 → враг бьёт Диму, не героя.
+    const state = startCombat(withHero({ allies: [dima] }), enemy());
+    const next = act(state, "defend", sequence(0.99));
+    expect(next.enemy.hp).toBe(10 - 3); // герой defend (урона нет), Дима atk 3
+    expect(next.hero.hp).toBe(20);
+    expect(next.allies[0]!.hp).toBe(14 - 3);
+    expect(next.log.join("\n")).toMatch(/Дима бьёт/);
+  });
+
+  it("союзник лечит героя, потерявшего больше половины, до ответа врага", () => {
+    // rng 0 → враг бьёт героя; защита +2: 8 + 6 (Борис) − max(1, 3−2) = 13.
+    const state = startCombat(withHero({ hp: 8, allies: [boris] }), enemy());
+    const next = act(state, "defend", sequence(0));
+    expect(next.hero.hp).toBe(8 + 6 - 1);
+    expect(next.log.join("\n")).toMatch(/Борис перевязывает/);
+  });
+
+  it("выбывший союзник перестаёт действовать, враг возвращается к герою", () => {
+    // rng 0.99 → враг (power 3) всегда бьёт Диму по 3: 14 → 11 → 8 → 5 → 2 → 0.
+    const state = startCombat(
+      withHero({ allies: [dima] }),
+      enemy({ stats: { hp: 40, atk: 3, def: 0, spd: 5 } }),
+    );
+    let current = state;
+    for (let turn = 1; turn <= 4; turn++) {
+      current = act(current, "defend", sequence(0.99));
+      expect(current.allies[0]!.hp).toBe(14 - 3 * turn);
+    }
+    const fifth = act(current, "defend", sequence(0.99));
+    expect(fifth.allies[0]!.hp).toBe(0);
+    expect(fifth.log.join("\n")).toMatch(/Дима выбывает/);
+    expect(fifth.hero.hp).toBe(20); // герой ни разу не задет
+    // Шесть ударов Димы (3×5... пять живых ходов) + герой под защитой.
+    const sixth = act(fifth, "defend", sequence(0.99)); // цель снова только герой
+    expect(sixth.enemy.hp).toBe(40 - 3 * 5); // Дима бил пять ходов подряд
+    expect(sixth.hero.hp).toBe(20 - 1); // max(1, 3−2) по защищённому герою
+  });
+
+  it("два союзника действуют в порядке партии", () => {
+    // rng 0.99 при трёх целях → floor(0.99*3)=2 → враг бьёт Бориса.
+    const state = startCombat(withHero({ allies: [dima, boris] }), enemy());
+    const next = act(state, "defend", sequence(0.99));
+    expect(next.enemy.hp).toBe(10 - 3 - 2); // Дима 3, Борис 2 (герой цел — хила нет)
+    expect(next.hero.hp).toBe(20);
+    expect(next.allies[1]!.hp).toBe(12 - 3);
+    expect(next.log.join("\n")).toMatch(/Борис бьёт/);
+  });
+
+  it("союзник может добить врага — победа без ответа", () => {
+    const state = startCombat(
+      withHero({ allies: [dima] }),
+      enemy({ stats: { hp: 3, atk: 3, def: 0, spd: 5 } }),
+    );
+    const next = act(state, "defend", sequence(0.99));
+    expect(next.outcome).toBe("win");
+    expect(next.hero.hp).toBe(20); // враг не ответил
+    expect(next.log.join("\n")).toMatch(/повержен/);
+  });
+
+  it("поражение — только 0 HP героя; живые союзники не спасают", () => {
+    // Дима не лечит: 4 − 1 (защита) = 3, затем без защиты 3 − 3 = 0 → lose.
+    const state = startCombat(
+      withHero({ hp: 4, allies: [dima] }),
+      enemy({ stats: { hp: 40, atk: 3, def: 0, spd: 5 } }),
+    );
+    const first = act(state, "defend", sequence(0));
+    expect(first.outcome).toBe("ongoing");
+    expect(first.hero.hp).toBe(3);
+    const second = act(first, "strike", sequence(0));
+    expect(second.outcome).toBe("lose");
+    expect(second.allies[0]!.hp).toBeGreaterThan(0);
+  });
+
+  it("log старта перечисляет союзников", () => {
+    const state = startCombat(withHero({ allies: [dima] }), enemy());
+    expect(state.log[0]).toMatch(/Герой против Хулиган, с ним Дима/);
+  });
+});

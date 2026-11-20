@@ -4,6 +4,7 @@ import { loadBundledContent } from "../../src/content/bundled";
 import backgroundsFile from "../../src/content/data/backgrounds.json";
 import dialogsFile from "../../src/content/data/dialogs.json";
 import encountersFile from "../../src/content/data/encounters.json";
+import companionsFile from "../../src/content/data/companions.json";
 import containersFile from "../../src/content/data/containers.json";
 import enemiesFile from "../../src/content/data/enemies.json";
 import itemsFile from "../../src/content/data/items.json";
@@ -12,6 +13,7 @@ import questsFile from "../../src/content/data/quests.json";
 import skillsFile from "../../src/content/data/skills.json";
 import type {
   BackgroundDef,
+  Companion,
   Container,
   ContentData,
   ContentFile,
@@ -47,6 +49,10 @@ function bundledData(): ContentData {
     backgrounds: unwrapContent<BackgroundDef>(
       backgroundsFile as unknown as ContentFile<BackgroundDef>,
       "backgrounds",
+    ),
+    companions: unwrapContent<Companion>(
+      companionsFile as unknown as ContentFile<Companion>,
+      "companions",
     ),
   };
 }
@@ -142,5 +148,21 @@ describe("validateContent", () => {
     expect(errors.some((error) => error.includes("contents[0].chance"))).toBe(true);
     expect(errors.some((error) => error.includes("containers[0].locked.dc"))).toBe(true);
     expect(errors.some((error) => error.includes("containers[0].locked.tool"))).toBe(true);
+  });
+
+  it("соратник: не-НПС и joinParty без профиля", () => {
+    const data = structuredClone(bundledData());
+    first(data.companions).id = "nobody";
+    // В бандле есть joinParty-диалог (Люда/Дима) — подсунем НПС без профиля.
+    const dialog = data.dialogs.find((entry) => JSON.stringify(entry).includes('"joinParty"'));
+    if (!dialog) throw new Error("в фикстуре нет joinParty-диалога");
+    for (const choice of dialog.choices ?? []) {
+      for (const effect of choice.effects ?? []) {
+        if (effect.type === "joinParty" && effect.npc !== "boris") effect.npc = "zina";
+      }
+    }
+    const errors = validateContent(data);
+    expect(errors.some((error) => error.includes('соратник "nobody" не числится НПС'))).toBe(true);
+    expect(errors.some((error) => error.includes("не имеет профиля соратника"))).toBe(true);
   });
 });

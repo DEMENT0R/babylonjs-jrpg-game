@@ -18,6 +18,7 @@ const LOCATIONS: Record<string, true> = {
   workshop: true,
   "metro-station": true,
 };
+const COMPANION_STATS_FIELDS: Record<string, true> = { hp: true, atk: true, heal: true };
 const BACKGROUND_IDS = ["intern", "student", "engineer"] as const;
 const ITEM_CATEGORIES = ["consumable", "material", "tool"] as const;
 const RECIPE_STATS = ["repair", "medicine"] as const;
@@ -108,6 +109,7 @@ const CONTAINER_AT_FIELDS: Record<string, true> = { x: true, z: true, r: true };
 const CONTAINER_LOOT_FIELDS: Record<string, true> = { item: true, qty: true, chance: true };
 const CONTAINER_LOCK_FIELDS: Record<string, true> = { skill: true, dc: true, tool: true };
 const NPC_FIELDS: Record<string, true> = { id: true, name: true, home: true, phases: true };
+const COMPANION_FIELDS: Record<string, true> = { id: true, name: true, stats: true };
 const NPC_PHASE_FIELDS: Record<string, true> = { dialog: true, present: true };
 const SKILL_FIELDS: Record<string, true> = { id: true, name: true, effect: true };
 const BACKGROUND_FIELDS: Record<string, true> = {
@@ -157,6 +159,7 @@ interface Refs {
   skills: Set<string>;
   backgrounds: Set<string>;
   questStages: Map<string, Set<string>>;
+  companions: Set<string>;
 }
 
 function isObject(value: unknown): value is Obj {
@@ -489,7 +492,14 @@ function validateEffect(raw: unknown, path: string, refs: Refs, errors: string[]
       }
       return;
     }
-    case "joinParty":
+    case "joinParty": {
+      readRef(raw, "npc", refs.npcs, "NPC", path, errors);
+      // В партию берут только НПС с боевым профилем (main зовёт getCompanion без try).
+      if (raw.npc !== undefined && !refs.companions.has(String(raw.npc))) {
+        errors.push(`${path}.npc: НПС "${raw.npc}" не имеет профиля соратника (companions)`);
+      }
+      return;
+    }
     case "leaveParty": {
       readRef(raw, "npc", refs.npcs, "NPC", path, errors);
       return;
@@ -861,6 +871,33 @@ function validateSkill(raw: unknown, path: string, refs: Refs, errors: string[])
   else validateEffect(raw.effect, `${path}.effect`, refs, errors);
 }
 
+function validateCompanion(raw: unknown, path: string, refs: Refs, errors: string[]): void {
+  if (!isObject(raw)) {
+    errors.push(`${path}: ожидался объект соратника`);
+    return;
+  }
+  checkFields(raw, COMPANION_FIELDS, path, errors);
+  const id = readString(raw, "id", path, errors);
+  if (id !== undefined && !ID_PATTERN.test(id)) {
+    errors.push(`${path}.id: ожидался kebab-case`);
+  }
+  if (id !== undefined && !refs.npcs.has(id)) {
+    errors.push(`${path}.id: соратник "${id}" не числится НПС (npcs)`);
+  }
+  readString(raw, "name", path, errors);
+  if (!isObject(raw.stats)) {
+    errors.push(`${path}.stats: ожидался объект статов`);
+  } else {
+    checkFields(raw.stats, COMPANION_STATS_FIELDS, `${path}.stats`, errors);
+    for (const key of ["hp", "atk", "heal"] as const) {
+      const value = readInteger(raw.stats, key, `${path}.stats`, errors);
+      if (value !== undefined && value < 0) {
+        errors.push(`${path}.stats.${key}: ожидалось целое число >= 0`);
+      }
+    }
+  }
+}
+
 function validateBackground(raw: unknown, path: string, refs: Refs, errors: string[]): void {
   if (!isObject(raw)) {
     errors.push(`${path}: ожидался объект бэкграунда`);
@@ -906,6 +943,7 @@ export function validateContent(data: ContentData): string[] {
   const enemies = asArray(rawData.enemies, "enemies", errors);
   const items = asArray(rawData.items, "items", errors);
   const encounters = asArray(rawData.encounters, "encounters", errors);
+  const companions = asArray(rawData.companions, "companions", errors);
   const containers = asArray(rawData.containers, "containers", errors);
   const npcs = asArray(rawData.npcs, "npcs", errors);
   const skills = asArray(rawData.skills, "skills", errors);
@@ -917,6 +955,7 @@ export function validateContent(data: ContentData): string[] {
     items: collectIds(items, "items", errors),
     enemies: collectIds(enemies, "enemies", errors),
     encounters: collectIds(encounters, "encounters", errors),
+    companions: collectIds(companions, "companions", errors),
     containers: collectIds(containers, "containers", errors),
     npcs: collectIds(npcs, "npcs", errors),
     skills: collectIds(skills, "skills", errors),
@@ -938,6 +977,9 @@ export function validateContent(data: ContentData): string[] {
   skills.forEach((entry, index) => validateSkill(entry, `skills[${index}]`, refs, errors));
   backgrounds.forEach((entry, index) =>
     validateBackground(entry, `backgrounds[${index}]`, refs, errors),
+  );
+  companions.forEach((entry, index) =>
+    validateCompanion(entry, `companions[${index}]`, refs, errors),
   );
 
   return errors;

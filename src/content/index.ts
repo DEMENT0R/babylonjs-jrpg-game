@@ -1,6 +1,7 @@
 // IContentProvider — единственная точка доступа систем к контенту
 // (docs/ARCHITECTURE.md §2): сейчас бандл-JSON, потом сервер без правки систем.
 import type { BackgroundId } from "../types";
+import type { Companion } from "./types";
 import type {
   BackgroundDef,
   ContentData,
@@ -23,6 +24,7 @@ export interface IContentProvider {
   getEnemy(id: string): Enemy;
   getEncounter(id: string): Encounter;
   getContainer(id: string): Container;
+  getCompanion(id: string): Companion;
   /** Стычки, привязанные к локации (условия проверяет systems/encounters). */
   encountersAt(location: string): Encounter[];
   /** Контейнеры, привязанные к локации (условия/замок проверяет systems/containers). */
@@ -55,6 +57,7 @@ function require_<T>(kind: string, map: Map<string, T>, id: string): T {
 
 /** Провайдер поверх уже распакованных data-массивов (тесты и бандл). */
 export function createContentProvider(data: ContentData): IContentProvider {
+  const companions = indexById("companion", data.companions);
   const dialogs = indexById("dialog", data.dialogs);
   const quests = indexById("quest", data.quests);
   const items = indexById("item", data.items);
@@ -72,6 +75,7 @@ export function createContentProvider(data: ContentData): IContentProvider {
     getEncounter: (id) => require_("encounter", encounters, id),
     getEnemy: (id) => require_("enemy", enemies, id),
     getContainer: (id) => require_("container", containers, id),
+    getCompanion: (id) => require_("companion", companions, id),
     encountersAt: (location) => data.encounters.filter((e) => e.location === location),
     containersAt: (location) => data.containers.filter((c) => c.location === location),
     getNpc: (id) => require_("npc", npcs, id),

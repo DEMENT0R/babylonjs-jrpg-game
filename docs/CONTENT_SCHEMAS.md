@@ -25,7 +25,7 @@ Effect = one of:
   { type: "advanceTime",    slots: 1 }       // единственный способ сдвинуть время
   { type: "startQuest" | "advanceQuest" | "completeQuest" | "failQuest", quest, stage? }
   { type: "setWorldPhase",  phase: 0|1|2|3 }  // единственный способ сменить фазу мира
-  { type: "joinParty" | "leaveParty", npc }
+  { type: "joinParty" | "leaveParty", npc }  // npc обязан иметь профиль Companion
 ```
 - `day` сравнивает `time.day` целым числом (`{ "type": "day", "op": "gte", "value": 3 }`
   — «не раньше третьего дня»); `id` не используется.
@@ -109,6 +109,19 @@ Effect = one of:
   тратой времени — только прокачкой/инструментом.
 - `onOpenEffects` — общий словарь; типовое применение — флаг «кражи»
   (`stole:…`) для будущих реплик НПС.
+
+## Companion (соратник в бою)
+```
+{ id, name, stats: { hp, atk, heal } }
+```
+- `id` обязан совпадать с npc-id: провайдер отдаёт профиль по `getCompanion(npcId)`,
+  `app` собирает `HeroInput.allies` из `state.party`. Валидатор проверяет, что id
+  числится в `npcs`, а `joinParty` ссылается только на НПС с профилем соратника
+  (иначе `main.ts` упал бы на `getCompanion` без try).
+- Бой v2: союзники действуют автоматически после хода героя — лечат героя,
+  потерявшего больше половины maxHp, иначе бьют; враг выбирает цель равновероятно
+  среди героя и живых союзников (`rng` движка). HP союзников эфемерно: живёт бой,
+  в сейв не пишется.
 
 ## NPC
 ```

@@ -1,0 +1,33 @@
+{
+  "contentVersion": 1,
+  "locale": "ru",
+  "data": [
+    {
+      "id": "boris",
+      "name": "Борис",
+      "stats": {
+        "hp": 12,
+        "atk": 2,
+        "heal": 6
+      }
+    },
+    {
+      "id": "dima",
+      "name": "Дима",
+      "stats": {
+        "hp": 14,
+        "atk": 3,
+        "heal": 0
+      }
+    },
+    {
+      "id": "luda",
+      "name": "Люда",
+      "stats": {
+        "hp": 8,
+        "atk": 1,
+        "heal": 3
+      }
+    }
+  ]
+}

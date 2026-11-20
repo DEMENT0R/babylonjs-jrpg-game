@@ -159,6 +159,13 @@ export interface Npc {
   home: string;
   phases: Record<number, NpcPhase>;
 }
+/** Соратник в бою (id совпадает с npc-id): действует автоматически после хода
+ *  героя — лечит его при HP ниже половины, иначе бьёт (docs/CONTRACTS.md, «Бой v2»). */
+export interface Companion {
+  id: string;
+  name: string;
+  stats: { hp: number; atk: number; heal: number };
+}
 
 export interface SkillDef {
   id: string;
@@ -184,8 +191,9 @@ export interface ContentData {
   items: Item[];
   enemies: Enemy[];
   encounters: Encounter[];
+  containers: Container[];
   npcs: Npc[];
   skills: SkillDef[];
   backgrounds: BackgroundDef[];
-  containers: Container[];
+  companions: Companion[];
 }

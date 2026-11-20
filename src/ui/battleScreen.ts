@@ -1,6 +1,6 @@
 // HTML-оверлей боя: только рисует CombatState и зовёт onAction/onClose.
 // Вся логика — в systems/combat.ts; Babylon и store здесь не используются.
-import type { CombatAction, CombatActionId, CombatState } from "../systems/combat";
+import type { AllyFighter, CombatAction, CombatActionId, CombatState } from "../systems/combat";
 import { availableActions, availableItems } from "../systems/combat";
 import { onUiAction } from "../core/uiActions";
 
@@ -93,6 +93,10 @@ export function createBattleScreen(host: HTMLElement, opts: BattleScreenOptions)
   enemyRow.append(enemyName, enemyBar);
 
   const heroRow = document.createElement("div");
+  const alliesRow = document.createElement("div");
+  alliesRow.style.marginBottom = "10px";
+  alliesRow.style.display = "none";
+
   heroRow.style.marginBottom = "12px";
   const heroName = document.createElement("div");
   heroName.style.fontSize = "14px";
@@ -158,7 +162,7 @@ export function createBattleScreen(host: HTMLElement, opts: BattleScreenOptions)
   closeButton.addEventListener("click", () => opts.onClose());
   result.append(resultText, closeButton);
 
-  panel.append(title, enemyRow, heroRow, log, actions, hint, result);
+  panel.append(title, enemyRow, alliesRow, heroRow, log, actions, hint, result);
   root.appendChild(panel);
   host.appendChild(root);
 
@@ -238,10 +242,34 @@ export function createBattleScreen(host: HTMLElement, opts: BattleScreenOptions)
     fill.style.width = `${Math.round(ratio * 100)}%`;
   }
 
+  function renderAlly(ally: AllyFighter): HTMLDivElement {
+    const row = document.createElement("div");
+    row.style.fontSize = "13px";
+    const bar = createBar();
+    const fill = createFill();
+    fill.style.background = "#6a9f7f";
+    bar.appendChild(fill);
+    updateAlly(row, ally, fill);
+    row.append(bar);
+    return row;
+  }
+
+  function updateAlly(row: HTMLDivElement, ally: AllyFighter, fill: HTMLElement): void {
+    row.textContent = `${ally.name}: ${ally.hp}/${ally.maxHp} HP`;
+    const ratio = ally.maxHp > 0 ? Math.max(0, ally.hp) / ally.maxHp : 0;
+    fill.style.width = `${Math.round(ratio * 100)}%`;
+  }
+
+  function renderAllies(allies: AllyFighter[]): void {
+    alliesRow.replaceChildren(...allies.map(renderAlly));
+    alliesRow.style.display = allies.length > 0 ? "block" : "none";
+  }
+
   function render(state: CombatState): void {
     title.textContent = `Бой: ${state.hero.name} против ${state.enemy.name}`;
     updateFighter(enemyName, enemyFill, state.enemy);
     updateFighter(heroName, heroFill, state.hero);
+    renderAllies(state.allies);
 
     log.textContent = state.log.join("\n");
     log.scrollTop = log.scrollHeight;

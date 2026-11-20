@@ -185,6 +185,19 @@ function startBattle(enemyId: string): void {
     }
   }
   battleXp = enemy.xp;
+  // Партия на момент начала боя: боевые профили соратников из контента
+  // (каждый joinable НПС имеет профиль — инвариант валидатора контента).
+  const allies = state.party.map((npcId) => {
+    const companion = content.getCompanion(npcId);
+    return {
+      id: companion.id,
+      name: companion.name,
+      hp: companion.stats.hp,
+      maxHp: companion.stats.hp,
+      atk: companion.stats.atk,
+      heal: companion.stats.heal,
+    };
+  });
   battle = startCombat(
     {
       id: "hero",
@@ -193,7 +206,7 @@ function startBattle(enemyId: string): void {
       maxHp: maxHp(state),
       stats: { ...state.hero.stats },
       items,
-      usableItems,
+      allies,
     },
     enemy,
   );

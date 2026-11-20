@@ -326,8 +326,8 @@
 .ui-menu__body {
   display: grid;
   grid-template-columns: 176px 1fr;
-  min-height: 320px;
-  max-height: calc(92vh - 180px);
+  /* Фиксированная высота каркаса: окно не «дышит» при смене вкладок. */
+  height: clamp(320px, 56vh, calc(92vh - 180px));
 }
 
 .ui-menu__tabs {
@@ -567,7 +567,6 @@ body.ui-dialog-open canvas {
 @media (max-width: 640px) {
   .ui-menu__body {
     grid-template-columns: 1fr;
-    min-height: 0;
   }
 
   .ui-menu__tabs {

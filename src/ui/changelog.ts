@@ -33,8 +33,11 @@ export function createChangelogViewer(): ChangelogViewer {
   const hint = document.createElement("p");
   hint.className = "ch-hint";
   hint.textContent = "Esc / B — закрыть";
+  const authors = document.createElement("p");
+  authors.className = "ch-authors";
+  authors.textContent = "Игра — Максим Безрукавников · с помощью GLM-5.3 и DeepSeek 4.1 Flash";
   close.addEventListener("click", () => closeViewer());
-  panel.append(title, text, close, hint);
+  panel.append(title, text, close, hint, authors);
   root.append(panel);
   document.body.append(root);
 

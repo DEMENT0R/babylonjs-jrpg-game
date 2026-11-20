@@ -43,6 +43,45 @@
           "stage": "deliver"
         }
       ]
+    },
+    {
+      "id": "campus-rowdy",
+      "location": "campus",
+      "enemy": "bully",
+      "conditions": [
+        {
+          "type": "worldPhase",
+          "op": "eq",
+          "value": 1
+        },
+        {
+          "type": "day",
+          "op": "gte",
+          "value": 5
+        }
+      ]
+    },
+    {
+      "id": "square-mugger",
+      "location": "square",
+      "enemy": "bully",
+      "conditions": [
+        {
+          "type": "worldPhase",
+          "op": "eq",
+          "value": 1
+        },
+        {
+          "type": "day",
+          "op": "gte",
+          "value": 6
+        },
+        {
+          "type": "timeSlot",
+          "op": "eq",
+          "value": "evening"
+        }
+      ]
     }
   ]
 }

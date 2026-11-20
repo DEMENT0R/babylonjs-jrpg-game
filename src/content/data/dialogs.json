@@ -860,6 +860,66 @@
           "next": "luda-p1-talk"
         },
         {
+          "text": "Вам нужна вода?",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-water-reserve",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-water-reserve",
+              "stage": "buy"
+            }
+          ],
+          "next": "luda-water-wait"
+        },
+        {
+          "text": "Вот ваша вода.",
+          "conditions": [
+            {
+              "type": "item",
+              "id": "water-bottle",
+              "op": "gte",
+              "value": 2
+            },
+            {
+              "type": "quest",
+              "id": "q-water-reserve",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "takeItem",
+              "item": "water-bottle",
+              "qty": 2
+            },
+            {
+              "type": "completeQuest",
+              "quest": "q-water-reserve"
+            }
+          ],
+          "next": "luda-water-thanks"
+        },
+        {
+          "text": "Не вышло с водой.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-water-reserve",
+              "op": "eq",
+              "value": "failed"
+            }
+          ],
+          "next": "luda-water-failed"
+        },
+        {
           "text": "Пойду."
         }
       ]
@@ -884,6 +944,36 @@
       "choices": [
         {
           "text": "Не за что."
+        }
+      ]
+    },
+    {
+      "id": "luda-water-wait",
+      "npc": "luda",
+      "text": "Вода у меня кончилась, внучок. Купи у Зины две бутылки, я отдам деньги.",
+      "choices": [
+        {
+          "text": "Договорились."
+        }
+      ]
+    },
+    {
+      "id": "luda-water-thanks",
+      "npc": "luda",
+      "text": "Спасибо, внучок. Возьми бинт, у меня их пока много.",
+      "choices": [
+        {
+          "text": "Не за что."
+        }
+      ]
+    },
+    {
+      "id": "luda-water-failed",
+      "npc": "luda",
+      "text": "Не вышло? Ладно, обойдёмся. Не ты первый, не ты последний.",
+      "choices": [
+        {
+          "text": "Пойду."
         }
       ]
     },
@@ -1122,6 +1212,15 @@
               "type": "setFlag",
               "id": "dima-joined",
               "value": true
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-dima-panic",
+              "stage": "resolve"
+            },
+            {
+              "type": "completeQuest",
+              "quest": "q-dima-panic"
             }
           ],
           "next": "dima-p1-join"
@@ -1136,7 +1235,37 @@
               "value": false
             }
           ],
-          "next": "dima-p1-panic"
+          "effects": [
+            {
+              "type": "setFlag",
+              "id": "dima-hid",
+              "value": true
+            },
+            {
+              "type": "completeQuest",
+              "quest": "q-dima-panic"
+            }
+          ],
+          "next": "dima-panic-hid"
+        },
+        {
+          "text": "Что с тобой происходит?",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-dima-panic",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-dima-panic",
+              "stage": "talk"
+            }
+          ],
+          "next": "dima-panic-talk"
         },
         {
           "text": "Потом поговорим."
@@ -1154,9 +1283,29 @@
       ]
     },
     {
-      "id": "dima-p1-panic",
+      "id": "dima-panic-talk",
       "npc": "dima",
-      "text": "Я не могу. Прости.",
+      "text": "Я ночью не сплю. Всё думаю: заболею — и никто не поможет.",
+      "choices": [
+        {
+          "text": "Пойдём в аптеку вместе.",
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-dima-panic",
+              "stage": "walk"
+            }
+          ]
+        },
+        {
+          "text": "Позже."
+        }
+      ]
+    },
+    {
+      "id": "dima-panic-hid",
+      "npc": "dima",
+      "text": "Я не могу. Скажи, что меня не видел.",
       "choices": [
         {
           "text": "Ладно."
@@ -1361,6 +1510,93 @@
           "next": "zina-p1-reported"
         },
         {
+          "text": "Это проверка, Зина.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-zina-case",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "flag",
+              "id": "zina-case-opened",
+              "op": "eq",
+              "value": true
+            }
+          ],
+          "effects": [
+            {
+              "type": "completeQuest",
+              "quest": "q-zina-case"
+            }
+          ],
+          "next": "zina-p1-checked"
+        },
+        {
+          "text": "Мы с Димой — за водой.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-dima-panic",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-dima-panic",
+              "stage": "resolve"
+            },
+            {
+              "type": "giveItem",
+              "item": "water-bottle",
+              "qty": 1
+            }
+          ],
+          "next": "zina-p1-dima"
+        },
+        {
+          "text": "Две бутылки воды, всё что есть.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-water-reserve",
+              "op": "eq",
+              "value": "active"
+            },
+            {
+              "type": "flag",
+              "id": "zina-water-bought",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "effects": [
+            {
+              "type": "resource",
+              "delta": -1
+            },
+            {
+              "type": "giveItem",
+              "item": "water-bottle",
+              "qty": 2
+            },
+            {
+              "type": "setFlag",
+              "id": "zina-water-bought",
+              "value": true
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-water-reserve",
+              "stage": "deliver"
+            }
+          ],
+          "next": "zina-p1-water"
+        },
+        {
           "text": "Пойду."
         }
       ]
@@ -1392,6 +1628,36 @@
       "choices": [
         {
           "text": "Напишу."
+        }
+      ]
+    },
+    {
+      "id": "zina-p1-checked",
+      "npc": "zina",
+      "text": "Проверка? Пусть приходят. У меня всё по накладным.",
+      "choices": [
+        {
+          "text": "Как скажете."
+        }
+      ]
+    },
+    {
+      "id": "zina-p1-dima",
+      "npc": "zina",
+      "text": "Дима пусть заходит, очередь его не кусается. Вот бутылка, передай ему.",
+      "choices": [
+        {
+          "text": "Спасибо."
+        }
+      ]
+    },
+    {
+      "id": "zina-p1-water",
+      "npc": "zina",
+      "text": "Держи две. И не думай, что это по дружбе.",
+      "choices": [
+        {
+          "text": "Спасибо."
         }
       ]
     },
@@ -1469,6 +1735,16 @@
               "type": "setFlag",
               "id": "sergey-knows-zina",
               "value": true
+            },
+            {
+              "type": "startQuest",
+              "quest": "q-zina-case",
+              "stage": "report"
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-zina-case",
+              "stage": "statement"
             }
           ],
           "next": "sergey-p1-zina"
@@ -1503,6 +1779,48 @@
           "next": "sergey-p1-warehouse"
         },
         {
+          "text": "Пойти с вами в обход.",
+          "conditions": [
+            {
+              "type": "day",
+              "op": "gte",
+              "value": 5
+            },
+            {
+              "type": "quest",
+              "id": "q-patrol-route",
+              "op": "eq",
+              "value": "none"
+            }
+          ],
+          "effects": [
+            {
+              "type": "startQuest",
+              "quest": "q-patrol-route",
+              "stage": "meet"
+            }
+          ],
+          "next": "sergey-patrol-meet"
+        },
+        {
+          "text": "Обход прошёл.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-patrol-route",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "completeQuest",
+              "quest": "q-patrol-route"
+            }
+          ],
+          "next": "sergey-patrol-done"
+        },
+        {
           "text": "Понял."
         }
       ]
@@ -1532,6 +1850,11 @@
               "type": "stat",
               "stat": "persuasion",
               "delta": 1
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-zina-case",
+              "stage": "close"
             }
           ],
           "next": "sergey-p1-case"
@@ -1558,6 +1881,43 @@
       "choices": [
         {
           "text": "Спасибо."
+        }
+      ]
+    },
+    {
+      "id": "sergey-patrol-meet",
+      "npc": "sergey",
+      "text": "Вечером обходим дворы. Заглянем к Тарасу, посмотрим его подвал.",
+      "choices": [
+        {
+          "text": "Я готов.",
+          "conditions": [
+            {
+              "type": "timeSlot",
+              "op": "eq",
+              "value": "evening"
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-patrol-route",
+              "stage": "check-basement"
+            }
+          ]
+        },
+        {
+          "text": "Не сейчас."
+        }
+      ]
+    },
+    {
+      "id": "sergey-patrol-done",
+      "npc": "sergey",
+      "text": "Спасибо. С такими, как ты, район переживёт и не такое.",
+      "choices": [
+        {
+          "text": "До встречи."
         }
       ]
     },
@@ -1768,26 +2128,117 @@
           ],
           "effects": [
             {
-              "type": "stat",
-              "stat": "repair",
-              "delta": 1
-            },
-            {
-              "type": "giveItem",
-              "item": "multimeter",
-              "qty": 1
-            },
-            {
-              "type": "setFlag",
-              "id": "taras-generator-fixed",
-              "value": true
+              "type": "startQuest",
+              "quest": "q-taras-generator",
+              "stage": "inspect"
             }
           ],
-          "next": "taras-p1-fixed"
+          "next": "taras-generator-inspect"
         },
         {
           "text": "Кто ещё в подвале?",
           "next": "taras-p1-talk"
+        },
+        {
+          "text": "Сергей просил посмотреть подвал.",
+          "conditions": [
+            {
+              "type": "quest",
+              "id": "q-patrol-route",
+              "op": "eq",
+              "value": "active"
+            }
+          ],
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-patrol-route",
+              "stage": "report"
+            }
+          ],
+          "next": "taras-patrol-checked"
+        }
+      ]
+    },
+    {
+      "id": "taras-generator-inspect",
+      "npc": "taras",
+      "text": "Генератор воет и дёргается. Смотри сам: хомут на выхлопе еле держится.",
+      "choices": [
+        {
+          "text": "Начать.",
+          "effects": [
+            {
+              "type": "advanceQuest",
+              "quest": "q-taras-generator",
+              "stage": "fix"
+            }
+          ],
+          "next": "taras-generator-fix"
+        },
+        {
+          "text": "Вернусь позже."
+        }
+      ]
+    },
+    {
+      "id": "taras-generator-fix",
+      "npc": "taras",
+      "text": "Хомут слетел. Патрубок держится на ржавчине, надо замотать изолентой.",
+      "choices": [
+        {
+          "text": "Закрепить хомут.",
+          "conditions": [
+            {
+              "type": "item",
+              "id": "duct-tape",
+              "op": "gte",
+              "value": 1
+            }
+          ],
+          "effects": [
+            {
+              "type": "takeItem",
+              "item": "duct-tape",
+              "qty": 1
+            },
+            {
+              "type": "advanceQuest",
+              "quest": "q-taras-generator",
+              "stage": "report"
+            }
+          ],
+          "next": "taras-generator-report"
+        },
+        {
+          "text": "Вернусь позже."
+        }
+      ]
+    },
+    {
+      "id": "taras-generator-report",
+      "npc": "taras",
+      "text": "Тише работает, и дёргаться перестал. Спасибо, Витька.",
+      "choices": [
+        {
+          "text": "Готово.",
+          "effects": [
+            {
+              "type": "completeQuest",
+              "quest": "q-taras-generator"
+            }
+          ],
+          "next": "taras-p1-fixed"
+        }
+      ]
+    },
+    {
+      "id": "taras-patrol-checked",
+      "npc": "taras",
+      "text": "Подвал сухой, труба после твоего хомута держит. Скажи Сергею, что у меня всё в порядке.",
+      "choices": [
+        {
+          "text": "Скажу."
         }
       ]
     },

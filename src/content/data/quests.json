@@ -263,6 +263,196 @@
           "delta": -1
         }
       ]
+    },
+    {
+      "id": "q-zina-case",
+      "title": "Спекулянтка",
+      "giver": "sergey",
+      "targetLocation": "pharmacy",
+      "worldPhases": [1],
+      "stages": [
+        {
+          "id": "report",
+          "description": "Сообщить Сергею о спекуляции Зины."
+        },
+        {
+          "id": "statement",
+          "description": "Написать заявление."
+        },
+        {
+          "id": "close",
+          "description": "Прийти в аптеку на следующий день.",
+          "timeWindow": {
+            "days": 1,
+            "from": "morning",
+            "to": "evening"
+          }
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "stat",
+          "stat": "persuasion",
+          "delta": 1
+        }
+      ],
+      "onFailEffects": [
+        {
+          "type": "setFlag",
+          "id": "zina-case-lost",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "q-taras-generator",
+      "title": "Генератор",
+      "giver": "taras",
+      "targetLocation": "workshop",
+      "worldPhases": [1],
+      "stages": [
+        {
+          "id": "inspect",
+          "description": "Осмотреть генератор в мастерской.",
+          "timeWindow": {
+            "days": 2,
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "fix",
+          "description": "Закрепить хомут генератора (нужна изолента)."
+        },
+        {
+          "id": "report",
+          "description": "Доложить Тарасу о ремонте."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "stat",
+          "stat": "repair",
+          "delta": 1
+        },
+        {
+          "type": "giveItem",
+          "item": "multimeter",
+          "qty": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "taras-generator-fixed",
+          "value": true
+        }
+      ],
+      "onFailEffects": []
+    },
+    {
+      "id": "q-dima-panic",
+      "title": "Трусость",
+      "giver": "dima",
+      "targetLocation": "pharmacy",
+      "worldPhases": [1],
+      "stages": [
+        {
+          "id": "talk",
+          "description": "Поговорить с Димой в общаге.",
+          "timeWindow": {
+            "days": 2,
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "walk",
+          "description": "Сходить с Димой в аптеку."
+        },
+        {
+          "id": "resolve",
+          "description": "Вернуться к Диме за решением."
+        }
+      ],
+      "onCompleteEffects": [],
+      "onFailEffects": []
+    },
+    {
+      "id": "q-water-reserve",
+      "title": "Запас воды",
+      "giver": "luda",
+      "targetLocation": "pharmacy",
+      "worldPhases": [1],
+      "stages": [
+        {
+          "id": "buy",
+          "description": "Купить у Зины две бутылки воды.",
+          "timeWindow": {
+            "days": 1,
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "deliver",
+          "description": "Занести воду Люде."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "resource",
+          "delta": 1
+        },
+        {
+          "type": "giveItem",
+          "item": "bandage",
+          "qty": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "luda-water-done",
+          "value": true
+        }
+      ],
+      "onFailEffects": []
+    },
+    {
+      "id": "q-patrol-route",
+      "title": "Вечерний обход",
+      "giver": "sergey",
+      "targetLocation": "square",
+      "worldPhases": [1],
+      "stages": [
+        {
+          "id": "meet",
+          "description": "Встретиться с Сергеем вечером на площади.",
+          "timeWindow": {
+            "days": 2,
+            "from": "morning",
+            "to": "evening"
+          }
+        },
+        {
+          "id": "check-basement",
+          "description": "Проверить подвал мастерской."
+        },
+        {
+          "id": "report",
+          "description": "Доложить Сергею об обходе."
+        }
+      ],
+      "onCompleteEffects": [
+        {
+          "type": "stat",
+          "stat": "persuasion",
+          "delta": 1
+        },
+        {
+          "type": "setFlag",
+          "id": "patrol-done",
+          "value": true
+        }
+      ],
+      "onFailEffects": []
     }
   ]
 }

@@ -67,6 +67,18 @@
       ]
     },
     {
+      "id": "water-bottle",
+      "name": "Бутылка воды",
+      "category": "consumable",
+      "stack": 3,
+      "effects": [
+        {
+          "type": "hp",
+          "delta": 2
+        }
+      ]
+    },
+    {
       "id": "duct-tape",
       "name": "Изолента",
       "category": "material",

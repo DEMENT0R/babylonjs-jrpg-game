@@ -1,14 +1,12 @@
 // Маркеры контейнеров в сцене: небольшой куб на точке интеракции, пока контейнер
 // виден и не открыт (плейсхолдер, как капсулы НПС; мебель локации уже отрисована
 // в build()). Пересобирается только при смене набора видимых контейнеров.
-import {
-  Color3,
-  MeshBuilder,
-  StandardMaterial,
-  Vector3,
-  type Mesh,
-  type Scene,
-} from "@babylonjs/core";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
+import type { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import type { Scene } from "@babylonjs/core/scene";
 import type { IContentProvider } from "../content";
 import { containerOpenedFlag, isContainerVisible } from "../systems/containers";
 import type { GameState } from "../types";
@@ -47,7 +45,7 @@ export function createContainerPresenter(
       current = key;
       disposeAll();
       for (const container of open) {
-        const mesh = MeshBuilder.CreateBox(
+        const mesh = CreateBox(
           `container:${container.id}`,
           { width: 0.45, height: 0.45, depth: 0.45 },
           scene,

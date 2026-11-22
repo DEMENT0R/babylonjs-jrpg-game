@@ -3,8 +3,11 @@
 // Один источник правды для коллизий: perimeterSolids() используют и build(),
 // и solidsOf() каждой локации. SolidBox — центр (x,z) + полные размеры.
 
-import type { Material, Mesh } from "@babylonjs/core";
-import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import type { Material } from "@babylonjs/core/Materials/material";
+import type { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
+import { CreateCylinder } from "@babylonjs/core/Meshes/Builders/cylinderBuilder";
+import { CreateGround } from "@babylonjs/core/Meshes/Builders/groundBuilder";
 import type { BuildCtx, SolidBox } from "../types";
 
 export const HALF = 10; // внутренние границы комнаты: -HALF..HALF
@@ -62,7 +65,7 @@ function mat(ctx: BuildCtx, key: string): Material {
 }
 
 export function floorMesh(ctx: BuildCtx, name: string): Mesh {
-  const m = MeshBuilder.CreateGround(name, { width: 2 * HALF, height: 2 * HALF }, ctx.scene);
+  const m = CreateGround(name, { width: 2 * HALF, height: 2 * HALF }, ctx.scene);
   m.material = mat(ctx, "floor");
   return m;
 }
@@ -71,11 +74,7 @@ export function floorMesh(ctx: BuildCtx, name: string): Mesh {
 export function wallMeshes(ctx: BuildCtx, prefix: string): void {
   const material = mat(ctx, "wall");
   for (const s of perimeterSolids()) {
-    const m = MeshBuilder.CreateBox(
-      `${prefix}:wall`,
-      { width: s.w, depth: s.d, height: WALL_H },
-      ctx.scene,
-    );
+    const m = CreateBox(`${prefix}:wall`, { width: s.w, depth: s.d, height: WALL_H }, ctx.scene);
     m.position.set(s.x, WALL_H / 2, s.z);
     m.material = material;
   }
@@ -92,7 +91,7 @@ export function boxMesh(
   h: number,
   d: number,
 ): Mesh {
-  const m = MeshBuilder.CreateBox(name, { width: w, height: h, depth: d }, ctx.scene);
+  const m = CreateBox(name, { width: w, height: h, depth: d }, ctx.scene);
   m.position.set(x, y, z);
   m.material = mat(ctx, key);
   return m;
@@ -108,7 +107,7 @@ export function cylinderMesh(
   diameter: number,
   height: number,
 ): Mesh {
-  const m = MeshBuilder.CreateCylinder(name, { diameter, height }, ctx.scene);
+  const m = CreateCylinder(name, { diameter, height }, ctx.scene);
   m.position.set(x, y, z);
   m.material = mat(ctx, key);
   return m;
@@ -118,7 +117,7 @@ export function cylinderMesh(
 export function doorMesh(ctx: BuildCtx, name: string, side: DoorSide): Mesh {
   const at = DOOR[side];
   const horiz = side === "north" || side === "south";
-  const m = MeshBuilder.CreateBox(
+  const m = CreateBox(
     name,
     { width: horiz ? 2 : WALL_T, height: 2.2, depth: horiz ? WALL_T : 2 },
     ctx.scene,

@@ -1,4 +1,8 @@
-import { ArcRotateCamera, Color3, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
+import { ArcRotateCamera } from "@babylonjs/core/Cameras/arcRotateCamera";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { CreateCapsule } from "@babylonjs/core/Meshes/Builders/capsuleBuilder";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { createNpcPresenter } from "./npcs";
 import { createContainerPresenter } from "./containers";
 import { loadBundledContent } from "../content/bundled";
@@ -93,7 +97,7 @@ assets.setSlot(store.get().time.slot);
 const camera = new ArcRotateCamera("camera", -Math.PI / 2, 0.9, 17, new Vector3(0, 0, 0), scene);
 scene.activeCamera = camera;
 
-const playerMesh = MeshBuilder.CreateCapsule("player", { radius: 0.35, height: 1.4 }, scene);
+const playerMesh = CreateCapsule("player", { radius: 0.35, height: 1.4 }, scene);
 playerMesh.position.y = 0.7;
 const playerMat = new StandardMaterial("playerMat", scene);
 playerMat.diffuseColor = Color3.FromHexString("#4a7fb5");

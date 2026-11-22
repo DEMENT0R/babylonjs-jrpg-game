@@ -1,15 +1,12 @@
-import {
-  Color3,
-  Color4,
-  DirectionalLight,
-  HemisphericLight,
-  MeshBuilder,
-  StandardMaterial,
-  Vector3,
-  type Material,
-  type Mesh,
-  type Scene,
-} from "@babylonjs/core";
+import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
+import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
+import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
+import type { Material } from "@babylonjs/core/Materials/material";
+import type { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import type { Scene } from "@babylonjs/core/scene";
 import type { PhasedAssets, SolidRegistry, TimeSlot, WorldPhase } from "../types";
 
 /** Палитры по фазам мира: 0 — норма, 1 — тревога, 2 — упадок, 3 — катастрофа.
@@ -121,7 +118,7 @@ export interface BoxGeometry {
 
 /** Низкополигональный бокс (flat shading): фундамент полов/стен/мебели локаций. */
 export function buildBox(scene: Scene, name: string, g: BoxGeometry, material?: Material): Mesh {
-  const mesh = MeshBuilder.CreateBox(name, { width: g.w, height: g.h, depth: g.d }, scene);
+  const mesh = CreateBox(name, { width: g.w, height: g.h, depth: g.d }, scene);
   mesh.position.set(g.x, g.y, g.z);
   mesh.convertToFlatShadedMesh();
   if (material) mesh.material = material;
